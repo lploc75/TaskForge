@@ -54,9 +54,10 @@ namespace TaskForge
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Thiết lập route mặc định cho ứng dụng
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Staff}/{action=Index}/{id?}");
 
             app.Run();
         }
