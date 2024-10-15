@@ -17,6 +17,7 @@
 </head>
 <body>
     <!-- Profile Container -->
+    <!-- Profile Container -->
     <div class="profile-container">
         <div class="profile-left">
             <div class="profile-image">
@@ -30,17 +31,32 @@
             </div>
         </div>
         <div class="profile-right">
+            <!-- Phone number from Account if available, else use "N/A" -->
             <div class="contact-info">
-                <i class="fas fa-phone"></i><span>+84 123 456 789</span> <!-- Replace with actual phone data if available -->
+                <i class="fas fa-phone"></i>
+                <span>@(Model?.Account?.PhoneNumber ?? "N/A")</span>
+            </div>
+            <!-- Email from Account model -->
+            <div class="contact-info">
+                <i class="fas fa-envelope"></i>
+                <span>@(Model?.Account?.Email ?? "N/A")</span>
+            </div>
+            <!-- Address information from Employee or replace with specific model properties if available -->
+            <div class="contact-info">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <!-- Additional Information (if any) -->
+            <div class="contact-info">
+                <i class="fas fa-id-badge"></i>
+                <span>Ngày bắt đầu: @(Model?.StartDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
             </div>
             <div class="contact-info">
-                <i class="fas fa-envelope"></i><span>@(Model?.Account?.Email ?? "N/A")</span>
-            </div>
-            <div class="contact-info">
-                <i class="fas fa-map-marker-alt"></i><span>123 Đường ABC, Quận XYZ, TP. HCM</span> <!-- Replace with actual address data if available -->
+                <i class="fas fa-id-badge"></i>
+                <span>Ngày kết thúc: @(Model?.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
             </div>
         </div>
     </div>
+
     <!-- Bottom Section -->
     <div class="bottom-section">
         <!-- Task Status Section -->

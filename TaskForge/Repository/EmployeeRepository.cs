@@ -1,5 +1,6 @@
 ﻿using TaskForge.Models;
 using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace TaskForge.Repository
@@ -15,7 +16,10 @@ namespace TaskForge.Repository
 
         public Employee GetEmployeeByAccountId(string accountId)
         {
-            return _context.Employees.FirstOrDefault(e => e.AccountId == accountId);
+            // Use Include to load related Account data
+            return _context.Employees
+                .Include(e => e.Account)
+                .FirstOrDefault(e => e.AccountId == accountId);
         }
     }
 }

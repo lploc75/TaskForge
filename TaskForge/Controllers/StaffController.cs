@@ -21,7 +21,6 @@ namespace TaskForge.Controllers
 
             if (string.IsNullOrEmpty(accountId))
             {
-                // Xử lý khi không tìm thấy AccountID
                 return RedirectToAction("Error", "Home");
             }
 
@@ -29,12 +28,11 @@ namespace TaskForge.Controllers
 
             if (employee == null)
             {
-                // Xử lý khi không tìm thấy dữ liệu Employee
                 return RedirectToAction("Error", "Home");
             }
 
+            // Pass the employee, including the Account information, to the view
             return View(employee);
         }
-
     }
 }
