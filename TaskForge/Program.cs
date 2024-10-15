@@ -19,7 +19,8 @@ namespace TaskForge
             // Register AccountService and any required dependencies
             builder.Services.AddScoped<AccountService>();       // Register AccountService
             builder.Services.AddScoped<AccountRepository>();    // Register AccountRepository if needed by AccountService
-
+            builder.Services.AddScoped<EmployeeService>();
+            builder.Services.AddScoped<EmployeeRepository>();
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 

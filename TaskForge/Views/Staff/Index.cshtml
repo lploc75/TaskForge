@@ -1,4 +1,6 @@
-﻿@{
+﻿@model TaskForge.Models.Employee
+
+@{
     ViewData["Title"] = "Trang chủ";
     Layout = "_StaffLayout";
 }
@@ -11,7 +13,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href ="~/css/staff.css" />
+    <link rel="stylesheet" href="~/css/staff.css" />
 </head>
 <body>
     <!-- Profile Container -->
@@ -21,25 +23,24 @@
                 <img src="https://via.placeholder.com/150" alt="Avatar">
             </div>
             <div class="basic-info">
-                <h2>Lê Việt Thắng</h2>
-                <p>Giám đốc kinh doanh - Mã 00708/HN.291</p>
-                <p>Ban Giám đốc</p>
-                <span class="status">Đang làm việc</span>
+                <h2>@(Model?.Fullname ?? "N/A")</h2>
+                <p>@(Model?.Role ?? "N/A") - Mã @(Model?.AccountId ?? "N/A")</p>
+                <p>@(Model?.Dept?.DeptName ?? "N/A")</p>
+                <span class="status">@(Model?.Status ?? "N/A")</span>
             </div>
         </div>
         <div class="profile-right">
             <div class="contact-info">
-                <i class="fas fa-phone"></i><span>+84 123 456 789</span>
+                <i class="fas fa-phone"></i><span>+84 123 456 789</span> <!-- Replace with actual phone data if available -->
             </div>
             <div class="contact-info">
-                <i class="fas fa-envelope"></i><span>thang.le@example.com</span>
+                <i class="fas fa-envelope"></i><span>@(Model?.Account?.Email ?? "N/A")</span>
             </div>
             <div class="contact-info">
-                <i class="fas fa-map-marker-alt"></i><span>123 Đường ABC, Quận XYZ, TP. HCM</span>
+                <i class="fas fa-map-marker-alt"></i><span>123 Đường ABC, Quận XYZ, TP. HCM</span> <!-- Replace with actual address data if available -->
             </div>
         </div>
     </div>
-
     <!-- Bottom Section -->
     <div class="bottom-section">
         <!-- Task Status Section -->
