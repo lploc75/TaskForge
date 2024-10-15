@@ -35,38 +35,40 @@
             z-index: 1000;
             border-right: 1px solid #ddd;
         }
+
         .navbar-title {
             font-weight: bold;
             font-size: 18px; /* Tùy chỉnh kích thước chữ */
             color: #333; /* Màu sắc */
             margin-right: auto; /* Đẩy các biểu tượng sang bên phải */
         }
-            .sidebar ul {
-                list-style-type: none;
-                padding: 0;
-                margin: 0;
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .sidebar ul li {
+                margin: 20px 0;
             }
 
-                .sidebar ul li {
-                    margin: 20px 0;
+                .sidebar ul li a {
+                    color: #333;
+                    text-decoration: none;
+                    font-size: 16px;
+                    padding: 10px;
+                    display: block;
                 }
 
-                    .sidebar ul li a {
-                        color: #333;
-                        text-decoration: none;
-                        font-size: 16px;
-                        padding: 10px;
-                        display: block;
+                    .sidebar ul li a:hover {
+                        background-color: #e0efff; /* Xanh rất nhạt */
+                        border-radius: 5px;
                     }
 
-                        .sidebar ul li a:hover {
-                            background-color: #e0efff; /* Xanh rất nhạt */
-                            border-radius: 5px;
-                        }
-
-                        .sidebar ul li a i {
-                            margin-right: 10px;
-                        }
+                    .sidebar ul li a i {
+                        margin-right: 10px;
+                    }
 
         /* Navbar */
         .navbar {
@@ -437,8 +439,8 @@
         }
 
         .progress-bar {
-            width: 60%; /* Chiều dài cố định */
-            height: 10px; /* Đảm bảo chiều cao đồng nhất */
+            width: 60%;
+            height: 10px;
             background-color: #ddd;
             border-radius: 5px;
             margin: 0 10px;
@@ -452,13 +454,104 @@
         }
 
         .progress-item span:first-child {
-            width: 150px; /* Chiều rộng cố định cho nhãn */
+            width: 150px;
         }
 
         .progress-item span:last-child {
             width: 50px;
             text-align: right;
         }
+
+        /* Notification Dropdown Styling */
+        .notification-dropdown {
+            display: none;
+            position: fixed;
+            top: 35px;
+            right: 10px;
+            width: 300px;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1500;
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+            .notification-dropdown h3 {
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .tab {
+            cursor: pointer;
+            padding: 5px;
+        }
+
+            .tab.active {
+                color: #007bff;
+                font-weight: bold;
+                border-bottom: 2px solid #007bff;
+            }
+
+        .view-all {
+            font-size: 12px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .notification-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+            .notification-item:hover {
+                background-color: #f0f4ff;
+            }
+
+            .notification-item.unread::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                background-color: #007bff;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+            .notification-item p {
+                margin: 0;
+                flex: 1;
+            }
+
+            .notification-item img.user-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+            .notification-item span {
+                font-size: 12px;
+                color: #666;
+            }
     </style>
 </head>
 <body>
@@ -477,7 +570,7 @@
 
     <!-- Navbar -->
     <div class="navbar">
-        <div class="navbar-title">Dashboard</div> 
+        <div class="navbar-title">Dashboard</div>
 
         <div class="icon-container">
             <i class="fas fa-bell"></i>
@@ -486,6 +579,32 @@
             <img src="https://via.placeholder.com/30" alt="Avatar">
         </div>
     </div>
+    <!-- Notification Dropdown -->
+    <div id="notificationDropdown" class="notification-dropdown">
+        <h3>Thông báo</h3>
+        <div class="tabs">
+            <span class="tab active" id="all-tab">Tất cả</span>
+            <span class="tab" id="unread-tab">Chưa đọc</span>
+        </div>
+        <ul class="notification-list">
+            <li class="notification-item unread" onclick="markAsRead(this)">
+                <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
+                <p><strong>Chí Cường</strong> đã chấp nhận lời mời kết bạn của bạn.</p>
+                <span>23 giờ</span>
+            </li>
+            <li class="notification-item unread" onclick="markAsRead(this)">
+                <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
+                <p><strong>Tuấn Linh</strong> đã nhắc đến bạn trong một bình luận.</p>
+                <span>1 ngày</span>
+            </li>
+            <li class="notification-item" onclick="markAsRead(this)">
+                <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
+                <p><strong>League of Meme</strong> đã đổi tên thành League of Flop.</p>
+                <span>1 ngày</span>
+            </li>
+        </ul>
+    </div>
+
 
     <!-- Profile Container -->
     <div class="profile-container">
@@ -616,6 +735,49 @@
                     legend: { display: false }
                 }
             }
+        });
+        const notificationDropdown = document.getElementById("notificationDropdown");
+        const bellIcon = document.querySelector(".icon-container .fa-bell");
+        const allTab = document.getElementById("all-tab");
+        const unreadTab = document.getElementById("unread-tab");
+        const notificationItems = document.querySelectorAll(".notification-item");
+
+        // Toggle the dropdown visibility on bell icon click
+        bellIcon.addEventListener("click", function (event) {
+            event.stopPropagation();
+            notificationDropdown.style.display = notificationDropdown.style.display === "none" ? "block" : "none";
+        });
+
+        // Hide dropdown if clicked outside
+        window.addEventListener("click", function (event) {
+            if (!notificationDropdown.contains(event.target) && event.target !== bellIcon) {
+                notificationDropdown.style.display = "none";
+            }
+        });
+
+        // Mark notification as read
+        function markAsRead(item) {
+            item.classList.remove("unread");
+        }
+
+        // Switch to "All" tab
+        allTab.addEventListener("click", function () {
+            allTab.classList.add("active");
+            unreadTab.classList.remove("active");
+            notificationItems.forEach(item => item.style.display = "flex");
+        });
+
+        // Switch to "Unread" tab
+        unreadTab.addEventListener("click", function () {
+            unreadTab.classList.add("active");
+            allTab.classList.remove("active");
+            notificationItems.forEach(item => {
+                if (item.classList.contains("unread")) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
         });
     </script>
 </body>
