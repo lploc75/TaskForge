@@ -26,7 +26,7 @@ namespace TaskForge.Controllers
         {
             try
             {
-                var validatedAccount = await _accountService.LoginAsync(account.username, account.password);
+                var validatedAccount = await _accountService.LoginAsync(account.Username, account.Password);
                 if (validatedAccount == null)
                 {
                     ModelState.AddModelError(string.Empty, "Sai tên đăng nhập hoặc mật khẩu.");
@@ -36,8 +36,8 @@ namespace TaskForge.Controllers
                 // Xử lý đăng nhập thành công
                 var claims = new List<Claim>
                 {
-                    new Claim("AccountId", validatedAccount.account_id.ToString()),
-                    new Claim(ClaimTypes.Role, validatedAccount.role ?? "User")
+                    new Claim("AccountId", validatedAccount.AccountId.ToString()),
+                    new Claim(ClaimTypes.Role, validatedAccount.Role ?? "User")
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

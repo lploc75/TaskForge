@@ -1,18 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
-namespace TaskForge.Models
+namespace TaskForge.Models;
+
+public partial class Account
 {
-    public class Account
-    {
-        [Key]  // Đặt thuộc tính này làm khóa chính
+    public string AccountId { get; set; } = null!;
 
-        public string account_id { get; set; }  // Thuộc tính này sẽ là khóa chính (primary key)
+    public string Username { get; set; } = null!;
 
-        public string username { get; set; }
+    public string Password { get; set; } = null!;
 
-        public string password { get; set; }
-        public string email { get; set; }
-        public string role { get; set; }
-        public string phone_number { get; set; }
-    }
+    public string? Email { get; set; }
+
+    public string? Role { get; set; }
+
+    public string? PhoneNumber { get; set; }
+
+    public virtual Employee? Employee { get; set; }
+
+    public virtual ICollection<EmployeeTask> EmployeeTaskAssignedToNavigations { get; set; } = new List<EmployeeTask>();
+
+    public virtual ICollection<EmployeeTask> EmployeeTaskCreatedByNavigations { get; set; } = new List<EmployeeTask>();
+
+    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+
+    public virtual Staff? Staff { get; set; }
+
+    public virtual ICollection<Task> TaskAssignedToNavigations { get; set; } = new List<Task>();
+
+    public virtual ICollection<Task> TaskCreatedByNavigations { get; set; } = new List<Task>();
 }

@@ -15,7 +15,7 @@ namespace TaskForge.Repository
         public async Task<Account> ValidateAsync(string username, string password)
         {
             return await _context.Accounts
-                .FirstOrDefaultAsync(a => a.username == username && a.password == password);
+                .FirstOrDefaultAsync(a => a.Username == username && a.Password == password);
         }
     }
 }
