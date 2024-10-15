@@ -1,0 +1,188 @@
+﻿@{
+    ViewData["Title"] = "Task";
+    Layout = "_StaffLayout";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Cards</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="~/css/staffTask.css" rel="stylesheet">
+
+</head>
+<body>
+    <div class="sidebar-placeholder"></div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Tasks Section -->
+        <div class="task-container">
+            <div class="task-header">
+                <h2>Tasks Assigned</h2>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openModal('Task 1', 'John Doe', '2024-10-01', '2024-10-15', '500 Credits', 'High', 'Hard', 'In Progress', '')">
+                    <span class="task-title">Task 1</span>
+                    <span class="task-status">In Progress</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-container">
+            <div class="task-header">
+                <h2>Pending Tasks</h2>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openModal('Task 1', 'Sarah Nguyen', '2024-10-03', '2024-10-20', '300 Credits', 'High', 'Hard', 'Pending', '')">
+                    <span class="task-title">Pending Task 1</span>
+                    <span class="task-status">Pending Approval</span>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="task-container">
+            <div class="task-header">
+                <h2>Remaining Tasks</h2>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openModal('Task 1', 'Toe Knee Nguyen', '2024-10-03', '2024-10-20', '300 Credits', 'High', 'Hard', 'Waiting', '')">
+                    <span class="task-title">Remaining Task 1</span>
+                    <span class="task-status">Awaiting Confirmation</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-container">
+            <div class="task-header">
+                <h2>Personal Tasks</h2>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openPersonalTaskModal('Personal Task 1', 'Thái An' ,'2024-10-01', '2024-10-2', '300 Credits', 'High', 'Hard', 'In Progress', 'Go and touch some grass')">
+                    <span class="task-title">Personal Task 1</span>
+                    <span class="task-status">To Do</span>
+                </div>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openPersonalTaskModal('Personal Task 1', 'Thái An' ,'2024-10-01', '2024-10-2', '300 Credits', 'High', 'Hard', 'In Progress', 'Go and touch some grass')">
+                    <span class="task-title">Personal Task 1</span>
+                    <span class="task-status">To Do</span>
+                </div>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openPersonalTaskModal('Personal Task 1', 'Thái An' ,'2024-10-01', '2024-10-2', '300 Credits', 'High', 'Hard', 'In Progress', 'Go and touch some grass')">
+                    <span class="task-title">Personal Task 1</span>
+                    <span class="task-status">To Do</span>
+                </div>
+            </div>
+            <div class="task-list">
+                <div class="task-item" onclick="openPersonalTaskModal('Personal Task 1', 'Thái An' ,'2024-10-01', '2024-10-2', '300 Credits', 'High', 'Hard', 'In Progress', 'Go and touch some grass')">
+                    <span class="task-title">Personal Task 1</span>
+                    <span class="task-status">To Do</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <footer class="footer">
+            <div class="button-container">
+                <button class="button" onclick="createPersonalTask()">Create Personal Task</button>
+                <button class="button" onclick="viewTaskHistory()">View Task History</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal for Task Details -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <button class="close-button" onclick="closeModal()">&times;</button>
+            <h3 id="modalTitle">Task Details</h3>
+            <p id="modalAssigner">Assigner: </p>
+            <p id="modalAssignedDate">Assigned Date: </p>
+            <p id="modalDueDate">Deadline: </p>
+            <p id="modalReward">Reward: </p>
+            <p id="modalContent">Task description and details go here.</p>
+
+            <!-- Action Buttons -->
+            <div class="button-container">
+                <button id="uploadButton" class="button" onclick="uploadDocument()">Upload Document</button>
+                <button id="submitButton" class="button" onclick="submitDocument()">Submit Task</button>
+                <button id="unsubmitButton" class="button" onclick="unsubmitTask()">UnSubmit</button>
+                <button id="acceptButton" class="button" onclick="acceptTask()">Accept Task</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                function openModal(title, assigner, assignedDate, dueDate, reward, priority, difficulty, status, description) {
+                    document.getElementById('modalTitle').innerText = title;
+                    document.getElementById('modalAssigner').innerText = `Assigner: ${assigner}`;
+                    document.getElementById('modalAssignedDate').innerText = `Assigned Date: ${assignedDate}`;
+                    document.getElementById('modalDueDate').innerText = `Deadline: ${dueDate}`;
+                    document.getElementById('modalReward').innerText = `Rewards: ${reward}`;
+                    document.getElementById('modalContent').innerHTML = `
+                        <p>Priority: ${priority}</p>
+                        <p>Difficulty: ${difficulty}</p>
+                        <p>Status: ${status}</p>
+                        <p>Description: ${description}</p>
+                    `;
+
+                    document.getElementById('uploadButton').style.display = status === 'In Progress' ? 'inline-block' : 'none';
+                    document.getElementById('submitButton').style.display = status === 'In Progress' ? 'inline-block' : 'none';
+                    document.getElementById('unsubmitButton').style.display = status === 'Pending' ? 'inline-block' : 'none';
+                    document.getElementById('acceptButton').style.display = status === 'Waiting' ? 'inline-block' : 'none';
+                    document.getElementById('taskModal').style.display = 'flex';
+                }
+
+                function openPersonalTaskModal(title, assigner, assignedDate, dueDate, reward, priority, difficulty, status, description) {
+                    document.getElementById('modalTitle').innerText = title;
+                    document.getElementById('modalAssigner').style.display = 'none';
+                    document.getElementById('modalAssignedDate').innerText = `Assigned Date: ${assignedDate}`;
+                    document.getElementById('modalDueDate').innerText = `Deadline: ${dueDate}`;
+                    document.getElementById('modalReward').style.display = 'none';
+                    document.getElementById('modalContent').innerHTML = `
+                    <p>Status: ${status}</p>
+                    <p>Description: ${description}</p>
+        `;
+
+                    document.getElementById('uploadButton').style.display = 'none';
+                    document.getElementById('unsubmitButton').style.display = 'none';
+                    document.getElementById('acceptButton').style.display = 'none';
+                    document.getElementById('submitButton').style.display = 'inline-block';
+                    document.getElementById('taskModal').style.display = 'flex';
+                }
+                function closeModal() {
+                    document.getElementById('taskModal').style.display = 'none';
+                }
+
+                function showTasksToAccept() {
+                    alert("Displaying tasks available for acceptance.");
+                }
+
+                function createPersonalTask() {
+                    alert("Opening personal task creation form.");
+                }
+
+                function viewTaskHistory() {
+                    alert("Displaying task history.");
+                }
+                // Get all sidebar links
+                const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+
+                // Loop through each link
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', function () {
+                        // Remove 'active' class from all links
+                        sidebarLinks.forEach(l => l.classList.remove('active'));
+                        // Add 'active' class to the clicked link
+                        this.classList.add('active');
+                    });
+                });
+
+    </script>
+</body>
+</html>

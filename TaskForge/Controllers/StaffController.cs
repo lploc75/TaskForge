@@ -10,5 +10,9 @@ namespace TaskForge.Controllers
         {
             return View();
         }
+        public IActionResult Task()
+        {
+            return View();
+        }
     }
 }
