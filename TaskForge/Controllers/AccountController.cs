@@ -23,6 +23,12 @@ namespace TaskForge.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(Account account)
         {

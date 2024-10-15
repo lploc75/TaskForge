@@ -9,29 +9,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~/css/login.css"> <!-- Đường dẫn tới CSS của bạn -->
     <title>Moon Phases Login Page</title>
-    <link rel="stylesheet" href="~/css/login.css" />
+   
 </head>
 <body>
     <div class="container">
         <div class="left-panel">
             <div class="sun" id="sun"></div>
             <div class="moon" id="moon"></div>
-            <h1 id="greeting">GREETING HERE</h1>
+            <h1 id="greeting">Good Morning</h1>
             <p>Login your Account to get a better User Experience</p>
         </div>
         <div class="right-panel">
-            <img src="~/images/OwlReveal.png" alt="Owl Image" class="owl-image" id="owl">
-            <img src="~/images/OwlHiding.png" alt="Hiding Owl Image" class="owl-image" id="hidingOwl" style="display: none;">
+            <img src="~/imgs/owlhiding.png"alt="Owl Image" class="owl-image" id="owl">
+            <img src="~/imgs/owlReveal.png"alt="Hiding Owl Image" class="owl-image" id="hidingOwl" style="display: none;">
             <h2>Login your account</h2>
-            <!-- Hiển thị lỗi nếu có -->
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="error-message">
-                    <p>@ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage</p>
-                </div>
-            }
-            <form asp-controller="Account" asp-action="Login" method="post">
+            <form action="#" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required>
@@ -40,7 +34,7 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <a href="#" class="forgot-password">Forget password?</a>
+                <a href="~/Account/ForgotPassword" class="forgot-password">Forget password?</a>
                 <button type="submit" class="login-btn" onclick="showOwl()">Login</button>
             </form>
         </div>
