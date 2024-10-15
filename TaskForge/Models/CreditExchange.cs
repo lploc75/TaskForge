@@ -17,5 +17,5 @@ public partial class CreditExchange
 
     public string? Status { get; set; }
 
-    public virtual Staff? Account { get; set; }
+    public virtual StaffAndLeader? Account { get; set; }
 }

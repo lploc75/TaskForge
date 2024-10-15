@@ -21,5 +21,5 @@ public partial class Account
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
-    public virtual Staff? Staff { get; set; }
+    public virtual StaffAndLeader? StaffAndLeader { get; set; }
 }

@@ -28,21 +28,21 @@ public partial class TaskForgeContext : DbContext
 
     public virtual DbSet<Employee> Employees { get; set; }
 
-    public virtual DbSet<EmployeeSubTask> EmployeeSubTasks { get; set; }
-
-    public virtual DbSet<EmployeeTask> EmployeeTasks { get; set; }
-
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
     public virtual DbSet<Project> Projects { get; set; }
 
-    public virtual DbSet<Staff> Staff { get; set; }
+    public virtual DbSet<StaffAndLeader> StaffAndLeaders { get; set; }
 
     public virtual DbSet<Subtask> Subtasks { get; set; }
+
+    public virtual DbSet<SubtaskAssignment> SubtaskAssignments { get; set; }
 
     public virtual DbSet<SubtaskEvaluation> SubtaskEvaluations { get; set; }
 
     public virtual DbSet<Models.Task> Tasks { get; set; }
+
+    public virtual DbSet<TaskAssignment> TaskAssignments { get; set; }
 
     public virtual DbSet<TaskEvaluation> TaskEvaluations { get; set; }
 
@@ -50,13 +50,13 @@ public partial class TaskForgeContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=HUYZ;Initial Catalog=TaskForge123;User ID=sa;Password=admin@123; Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-LL;Initial Catalog=TaskForge;User ID=sa;Password=admin@123; Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CD0285EA15");
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CD479D8456");
 
             entity.ToTable("Account");
 
@@ -88,7 +88,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Comment>(entity =>
         {
-            entity.HasKey(e => e.CommentId).HasName("PK__Comment__E795768735DFAD1F");
+            entity.HasKey(e => e.CommentId).HasName("PK__Comment__E7957687D41958D5");
 
             entity.ToTable("Comment");
 
@@ -107,12 +107,12 @@ public partial class TaskForgeContext : DbContext
 
             entity.HasOne(d => d.Subtask).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.SubtaskId)
-                .HasConstraintName("FK__Comment__subtask__71D1E811");
+                .HasConstraintName("FK__Comment__subtask__70DDC3D8");
         });
 
         modelBuilder.Entity<Credit>(entity =>
         {
-            entity.HasKey(e => e.Difficulty).HasName("PK__Credit__79CF999FE1A88A91");
+            entity.HasKey(e => e.Difficulty).HasName("PK__Credit__79CF999F5ABF5A9B");
 
             entity.ToTable("Credit");
 
@@ -124,7 +124,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<CreditExchange>(entity =>
         {
-            entity.HasKey(e => e.ExchangeId).HasName("PK__CreditEx__FAAC5D3ED4E6EFCE");
+            entity.HasKey(e => e.ExchangeId).HasName("PK__CreditEx__FAAC5D3EC7B143F0");
 
             entity.ToTable("CreditExchange");
 
@@ -146,12 +146,12 @@ public partial class TaskForgeContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.CreditExchanges)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__CreditExc__accou__534D60F1");
+                .HasConstraintName("FK__CreditExc__accou__52593CB8");
         });
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.DeptId).HasName("PK__Departme__DCA65974417E6C20");
+            entity.HasKey(e => e.DeptId).HasName("PK__Departme__DCA659745E311E38");
 
             entity.ToTable("Department");
 
@@ -171,7 +171,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Employee__46A222CD0B3829D2");
+            entity.HasKey(e => e.AccountId).HasName("PK__Employee__46A222CD6C64FBAF");
 
             entity.ToTable("Employee");
 
@@ -226,7 +226,7 @@ public partial class TaskForgeContext : DbContext
                         .HasConstraintName("FK__EmployeeP__accou__46E78A0C"),
                     j =>
                     {
-                        j.HasKey("AccountId", "ProjectId").HasName("PK__Employee__AD65BB2CD1A268EC");
+                        j.HasKey("AccountId", "ProjectId").HasName("PK__Employee__AD65BB2C3E721B32");
                         j.ToTable("EmployeeProject");
                         j.IndexerProperty<string>("AccountId")
                             .HasMaxLength(10)
@@ -248,7 +248,7 @@ public partial class TaskForgeContext : DbContext
                         .HasConstraintName("FK__EmployeeT__accou__4AB81AF0"),
                     j =>
                     {
-                        j.HasKey("AccountId", "TeamId").HasName("PK__Employee__9920FC16136261BC");
+                        j.HasKey("AccountId", "TeamId").HasName("PK__Employee__9920FC165834FAF7");
                         j.ToTable("EmployeeTeam");
                         j.IndexerProperty<string>("AccountId")
                             .HasMaxLength(10)
@@ -261,79 +261,9 @@ public partial class TaskForgeContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<EmployeeSubTask>(entity =>
-        {
-            entity.HasKey(e => new { e.SubtaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__Employee__D9CB10DFC77B0BBD");
-
-            entity.ToTable("EmployeeSubTask");
-
-            entity.Property(e => e.SubtaskId)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("subtask_id");
-            entity.Property(e => e.CreatedBy)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("created_by");
-            entity.Property(e => e.AssignedTo)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("assigned_to");
-
-            entity.HasOne(d => d.AssignedToNavigation).WithMany(p => p.EmployeeSubTaskAssignedToNavigations)
-                .HasForeignKey(d => d.AssignedTo)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeS__assig__66603565");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeSubTaskCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeS__creat__656C112C");
-
-            entity.HasOne(d => d.Subtask).WithMany(p => p.EmployeeSubTasks)
-                .HasForeignKey(d => d.SubtaskId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeS__subta__6477ECF3");
-        });
-
-        modelBuilder.Entity<EmployeeTask>(entity =>
-        {
-            entity.HasKey(e => new { e.TaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__Employee__1FF55B57C721714F");
-
-            entity.ToTable("EmployeeTask");
-
-            entity.Property(e => e.TaskId)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("task_id");
-            entity.Property(e => e.CreatedBy)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("created_by");
-            entity.Property(e => e.AssignedTo)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("assigned_to");
-
-            entity.HasOne(d => d.AssignedToNavigation).WithMany(p => p.EmployeeTaskAssignedToNavigations)
-                .HasForeignKey(d => d.AssignedTo)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeT__assig__5AEE82B9");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeTaskCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeT__creat__59FA5E80");
-
-            entity.HasOne(d => d.Task).WithMany(p => p.EmployeeTasks)
-                .HasForeignKey(d => d.TaskId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeT__task___59063A47");
-        });
-
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C4A74DC5F");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8CE327E725");
 
             entity.ToTable("Feedback");
 
@@ -356,7 +286,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Project>(entity =>
         {
-            entity.HasKey(e => e.ProjectId).HasName("PK__Project__BC799E1F30096492");
+            entity.HasKey(e => e.ProjectId).HasName("PK__Project__BC799E1FB270B1D6");
 
             entity.ToTable("Project");
 
@@ -377,40 +307,18 @@ public partial class TaskForgeContext : DbContext
                 .HasColumnName("status");
         });
 
-        modelBuilder.Entity<Staff>(entity =>
+        modelBuilder.Entity<StaffAndLeader>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Staff__46A222CDA7916D4B");
+            entity.HasKey(e => e.AccountId).HasName("PK__StaffAnd__46A222CDDC82D7B6");
+
+            entity.ToTable("StaffAndLeader");
 
             entity.Property(e => e.AccountId)
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("account_id");
             entity.Property(e => e.CreditPoints).HasColumnName("credit_points");
-            entity.Property(e => e.DeptId)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("dept_id");
-            entity.Property(e => e.Dob).HasColumnName("dob");
-            entity.Property(e => e.EndDate).HasColumnName("end_date");
-            entity.Property(e => e.Fullname)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("fullname");
-            entity.Property(e => e.Gender)
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("gender");
             entity.Property(e => e.NumberOfTeam).HasColumnName("number_of_team");
-            entity.Property(e => e.Role)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("role");
-            entity.Property(e => e.StartDate).HasColumnName("start_date");
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("status");
             entity.Property(e => e.TotalKpi)
                 .HasColumnType("decimal(5, 2)")
                 .HasColumnName("total_kpi");
@@ -421,19 +329,15 @@ public partial class TaskForgeContext : DbContext
                 .HasColumnType("decimal(5, 2)")
                 .HasColumnName("total_timeliness");
 
-            entity.HasOne(d => d.Account).WithOne(p => p.Staff)
-                .HasForeignKey<Staff>(d => d.AccountId)
+            entity.HasOne(d => d.Account).WithOne(p => p.StaffAndLeader)
+                .HasForeignKey<StaffAndLeader>(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Staff__account_i__4E88ABD4");
-
-            entity.HasOne(d => d.Dept).WithMany(p => p.Staff)
-                .HasForeignKey(d => d.DeptId)
-                .HasConstraintName("FK__Staff__dept_id__4F7CD00D");
+                .HasConstraintName("FK__StaffAndL__accou__4E88ABD4");
         });
 
         modelBuilder.Entity<Subtask>(entity =>
         {
-            entity.HasKey(e => e.SubtaskId).HasName("PK__Subtask__C2AC5F056ABE8ADD");
+            entity.HasKey(e => e.SubtaskId).HasName("PK__Subtask__C2AC5F0546F05B31");
 
             entity.ToTable("Subtask");
 
@@ -467,11 +371,11 @@ public partial class TaskForgeContext : DbContext
 
             entity.HasOne(d => d.Task).WithMany(p => p.Subtasks)
                 .HasForeignKey(d => d.TaskId)
-                .HasConstraintName("FK__Subtask__task_id__60A75C0F");
+                .HasConstraintName("FK__Subtask__task_id__5FB337D6");
 
             entity.HasOne(d => d.Team).WithMany(p => p.Subtasks)
                 .HasForeignKey(d => d.TeamId)
-                .HasConstraintName("FK__Subtask__team_id__619B8048");
+                .HasConstraintName("FK__Subtask__team_id__60A75C0F");
 
             entity.HasMany(d => d.Difficulties).WithMany(p => p.Subtasks)
                 .UsingEntity<Dictionary<string, object>>(
@@ -479,14 +383,14 @@ public partial class TaskForgeContext : DbContext
                     r => r.HasOne<Credit>().WithMany()
                         .HasForeignKey("Difficulty")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__SubtaskCr__diffi__6EF57B66"),
+                        .HasConstraintName("FK__SubtaskCr__diffi__6E01572D"),
                     l => l.HasOne<Subtask>().WithMany()
                         .HasForeignKey("SubtaskId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__SubtaskCr__subta__6E01572D"),
+                        .HasConstraintName("FK__SubtaskCr__subta__6D0D32F4"),
                     j =>
                     {
-                        j.HasKey("SubtaskId", "Difficulty").HasName("PK__SubtaskC__2530A69CD1C111CB");
+                        j.HasKey("SubtaskId", "Difficulty").HasName("PK__SubtaskC__2530A69C48D43D7C");
                         j.ToTable("SubtaskCredit");
                         j.IndexerProperty<string>("SubtaskId")
                             .HasMaxLength(10)
@@ -496,9 +400,44 @@ public partial class TaskForgeContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<SubtaskAssignment>(entity =>
+        {
+            entity.HasKey(e => new { e.SubtaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__SubtaskA__D9CB10DFAF5A1908");
+
+            entity.ToTable("SubtaskAssignment");
+
+            entity.Property(e => e.SubtaskId)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("subtask_id");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("created_by");
+            entity.Property(e => e.AssignedTo)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("assigned_to");
+
+            entity.HasOne(d => d.AssignedToNavigation).WithMany(p => p.SubtaskAssignmentAssignedToNavigations)
+                .HasForeignKey(d => d.AssignedTo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__SubtaskAs__assig__656C112C");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SubtaskAssignmentCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__SubtaskAs__creat__6477ECF3");
+
+            entity.HasOne(d => d.Subtask).WithMany(p => p.SubtaskAssignments)
+                .HasForeignKey(d => d.SubtaskId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__SubtaskAs__subta__6383C8BA");
+        });
+
         modelBuilder.Entity<SubtaskEvaluation>(entity =>
         {
-            entity.HasKey(e => e.EvaluationId).HasName("PK__SubtaskE__827C592DDE5AF078");
+            entity.HasKey(e => e.EvaluationId).HasName("PK__SubtaskE__827C592D10A9CD99");
 
             entity.ToTable("SubtaskEvaluation");
 
@@ -520,12 +459,12 @@ public partial class TaskForgeContext : DbContext
 
             entity.HasOne(d => d.Subtask).WithMany(p => p.SubtaskEvaluations)
                 .HasForeignKey(d => d.SubtaskId)
-                .HasConstraintName("FK__SubtaskEv__subta__693CA210");
+                .HasConstraintName("FK__SubtaskEv__subta__68487DD7");
         });
 
         modelBuilder.Entity<Models.Task>(entity =>
         {
-            entity.HasKey(e => e.TaskId).HasName("PK__Task__0492148D674500F6");
+            entity.HasKey(e => e.TaskId).HasName("PK__Task__0492148D63C0423D");
 
             entity.ToTable("Task");
 
@@ -551,12 +490,47 @@ public partial class TaskForgeContext : DbContext
 
             entity.HasOne(d => d.Project).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.ProjectId)
-                .HasConstraintName("FK__Task__project_id__5629CD9C");
+                .HasConstraintName("FK__Task__project_id__5535A963");
+        });
+
+        modelBuilder.Entity<TaskAssignment>(entity =>
+        {
+            entity.HasKey(e => new { e.TaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__TaskAssi__1FF55B57251B79A4");
+
+            entity.ToTable("TaskAssignment");
+
+            entity.Property(e => e.TaskId)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("task_id");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("created_by");
+            entity.Property(e => e.AssignedTo)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("assigned_to");
+
+            entity.HasOne(d => d.AssignedToNavigation).WithMany(p => p.TaskAssignmentAssignedToNavigations)
+                .HasForeignKey(d => d.AssignedTo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TaskAssig__assig__59FA5E80");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TaskAssignmentCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TaskAssig__creat__59063A47");
+
+            entity.HasOne(d => d.Task).WithMany(p => p.TaskAssignments)
+                .HasForeignKey(d => d.TaskId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TaskAssig__task___5812160E");
         });
 
         modelBuilder.Entity<TaskEvaluation>(entity =>
         {
-            entity.HasKey(e => e.EvaluationId).HasName("PK__TaskEval__827C592DAFA526CE");
+            entity.HasKey(e => e.EvaluationId).HasName("PK__TaskEval__827C592D272957BA");
 
             entity.ToTable("TaskEvaluation");
 
@@ -575,12 +549,12 @@ public partial class TaskForgeContext : DbContext
 
             entity.HasOne(d => d.Task).WithMany(p => p.TaskEvaluations)
                 .HasForeignKey(d => d.TaskId)
-                .HasConstraintName("FK__TaskEvalu__task___5DCAEF64");
+                .HasConstraintName("FK__TaskEvalu__task___5CD6CB2B");
         });
 
         modelBuilder.Entity<Team>(entity =>
         {
-            entity.HasKey(e => e.TeamId).HasName("PK__Team__F82DEDBC1109083C");
+            entity.HasKey(e => e.TeamId).HasName("PK__Team__F82DEDBC6522D9A6");
 
             entity.ToTable("Team");
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TaskForge.Models;
 
-public partial class EmployeeTask
+public partial class TaskAssignment
 {
     public string TaskId { get; set; } = null!;
 

@@ -21,11 +21,11 @@ public partial class Task
 
     public int? ProjectId { get; set; }
 
-    public virtual ICollection<EmployeeTask> EmployeeTasks { get; set; } = new List<EmployeeTask>();
-
     public virtual Project? Project { get; set; }
 
     public virtual ICollection<Subtask> Subtasks { get; set; } = new List<Subtask>();
+
+    public virtual ICollection<TaskAssignment> TaskAssignments { get; set; } = new List<TaskAssignment>();
 
     public virtual ICollection<TaskEvaluation> TaskEvaluations { get; set; } = new List<TaskEvaluation>();
 }
