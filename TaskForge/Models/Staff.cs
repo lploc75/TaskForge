@@ -38,8 +38,4 @@ public partial class Staff
     public virtual ICollection<CreditExchange> CreditExchanges { get; set; } = new List<CreditExchange>();
 
     public virtual Department? Dept { get; set; }
-
-    public virtual ICollection<Subtask> SubtaskAssignedToNavigations { get; set; } = new List<Subtask>();
-
-    public virtual ICollection<Subtask> SubtaskCreatedByNavigations { get; set; } = new List<Subtask>();
 }

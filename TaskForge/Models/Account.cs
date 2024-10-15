@@ -19,15 +19,7 @@ public partial class Account
 
     public virtual Employee? Employee { get; set; }
 
-    public virtual ICollection<EmployeeTask> EmployeeTaskAssignedToNavigations { get; set; } = new List<EmployeeTask>();
-
-    public virtual ICollection<EmployeeTask> EmployeeTaskCreatedByNavigations { get; set; } = new List<EmployeeTask>();
-
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
     public virtual Staff? Staff { get; set; }
-
-    public virtual ICollection<Task> TaskAssignedToNavigations { get; set; } = new List<Task>();
-
-    public virtual ICollection<Task> TaskCreatedByNavigations { get; set; } = new List<Task>();
 }

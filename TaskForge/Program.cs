@@ -13,8 +13,8 @@ namespace TaskForge
             var builder = WebApplication.CreateBuilder(args);
 
             // Cấu hình DbContext với SQL Server
-            builder.Services.AddDbContext<TaskForgeDBContext>(options =>
-                options.UseSqlServer("Data Source=LAPTOP-LL;Initial Catalog=TaskForge;User ID=sa;Password=admin@123;TrustServerCertificate=True;"));
+            builder.Services.AddDbContext<TaskForgeContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register AccountService and any required dependencies
             builder.Services.AddScoped<AccountService>();       // Register AccountService

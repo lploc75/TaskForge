@@ -27,6 +27,14 @@ public partial class Employee
 
     public virtual Department? Dept { get; set; }
 
+    public virtual ICollection<EmployeeSubTask> EmployeeSubTaskAssignedToNavigations { get; set; } = new List<EmployeeSubTask>();
+
+    public virtual ICollection<EmployeeSubTask> EmployeeSubTaskCreatedByNavigations { get; set; } = new List<EmployeeSubTask>();
+
+    public virtual ICollection<EmployeeTask> EmployeeTaskAssignedToNavigations { get; set; } = new List<EmployeeTask>();
+
+    public virtual ICollection<EmployeeTask> EmployeeTaskCreatedByNavigations { get; set; } = new List<EmployeeTask>();
+
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();

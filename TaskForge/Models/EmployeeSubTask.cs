@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace TaskForge.Models;
 
-public partial class EmployeeTask
+public partial class EmployeeSubTask
 {
-    public string TaskId { get; set; } = null!;
+    public string SubtaskId { get; set; } = null!;
 
     public string CreatedBy { get; set; } = null!;
 
@@ -15,5 +15,5 @@ public partial class EmployeeTask
 
     public virtual Employee CreatedByNavigation { get; set; } = null!;
 
-    public virtual Task Task { get; set; } = null!;
+    public virtual Subtask Subtask { get; set; } = null!;
 }

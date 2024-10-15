@@ -21,19 +21,13 @@ public partial class Subtask
 
     public DateOnly? SubmissionDate { get; set; }
 
-    public string? CreatedBy { get; set; }
-
-    public string? AssignedTo { get; set; }
-
     public string? TaskId { get; set; }
 
     public string? TeamId { get; set; }
 
-    public virtual Staff? AssignedToNavigation { get; set; }
-
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-    public virtual Staff? CreatedByNavigation { get; set; }
+    public virtual ICollection<EmployeeSubTask> EmployeeSubTasks { get; set; } = new List<EmployeeSubTask>();
 
     public virtual ICollection<SubtaskEvaluation> SubtaskEvaluations { get; set; } = new List<SubtaskEvaluation>();
 

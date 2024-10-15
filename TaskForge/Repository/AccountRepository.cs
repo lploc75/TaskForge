@@ -6,8 +6,8 @@ namespace TaskForge.Repository
 {
     public class AccountRepository
     {
-        private readonly TaskForgeDBContext _context;
-        public AccountRepository(TaskForgeDBContext context)
+        private readonly TaskForgeContext _context;
+        public AccountRepository(TaskForgeContext context)
         {
             _context = context;
         }
