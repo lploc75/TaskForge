@@ -10,11 +10,13 @@ namespace TaskForge.Controllers
     public class AccountController : Controller
     {
         private readonly AccountService _accountService;
+
         // Constructor for dependency injection
         public AccountController(AccountService accountService)
         {
             _accountService = accountService;
         }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -48,7 +50,17 @@ namespace TaskForge.Controllers
                 };
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
-                return RedirectToAction("Index", "Staff");
+
+                // Chuyển hướng dựa trên Role
+                return validatedAccount.Role switch
+                {
+                    "staff" => RedirectToAction("Index", "Staff"),
+                    "admin" => RedirectToAction("Index", "Admin"),
+                    "manager" => RedirectToAction("Index", "Manager"),
+                    "leader" => RedirectToAction("Index", "Leader"),
+                    "department head" => RedirectToAction("Index", "DepartmentHead"),
+                    _ => RedirectToAction("Index", "Home") // Mặc định về trang chủ nếu không khớp role
+                };
             }
             catch (ArgumentException ex)
             {
