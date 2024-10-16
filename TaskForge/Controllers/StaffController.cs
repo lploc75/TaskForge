@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskForge.Service;
 using TaskForge.Models;
+using System.Collections.Generic;
 
 namespace TaskForge.Controllers
 {
@@ -21,7 +22,6 @@ namespace TaskForge.Controllers
 
             if (string.IsNullOrEmpty(accountId))
             {
-                // Xử lý khi không tìm thấy AccountID
                 return RedirectToAction("Error", "Home");
             }
 
@@ -29,7 +29,6 @@ namespace TaskForge.Controllers
 
             if (employee == null)
             {
-                // Xử lý khi không tìm thấy dữ liệu Employee
                 return RedirectToAction("Error", "Home");
             }
 
@@ -38,8 +37,15 @@ namespace TaskForge.Controllers
 
         public IActionResult Task()
         {
-            return View();
-        }
+            string accountId = User.FindFirst("AccountId")?.Value;
 
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
+            return View(assignedSubtasks);  // Truyền Model trực tiếp
+        }
     }
 }

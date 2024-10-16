@@ -16,5 +16,10 @@ namespace TaskForge.Service
         {
             return _employeeRepository.GetEmployeeByAccountId(accountId);
         }
+        public List<Subtask> GetAssignedSubtasks(string accountId)
+        {
+            return _employeeRepository.GetAssignedSubtasks(accountId);
+        }
+
     }
 }

@@ -1,7 +1,8 @@
 ﻿using TaskForge.Models;
 using TaskForge.DBContext;
+using System.Collections.Generic;
 using System.Linq;
-
+using Microsoft.EntityFrameworkCore;
 namespace TaskForge.Repository
 {
     public class EmployeeRepository
@@ -16,6 +17,17 @@ namespace TaskForge.Repository
         public Employee GetEmployeeByAccountId(string accountId)
         {
             return _context.Employees.FirstOrDefault(e => e.AccountId == accountId);
+        }
+        public List<Subtask> GetAssignedSubtasks(string accountId)
+        {
+            return _context.SubtaskAssignments
+                .Where(sa => sa.AssignedTo == accountId)
+                .Include(sa => sa.Subtask.Comments)                // Truy xuất Comments của Subtask
+                .Include(sa => sa.Subtask.SubtaskEvaluations)      // Truy xuất SubtaskEvaluations của Subtask
+                .Include(sa => sa.Subtask.Team)                    // Truy xuất Team của Subtask
+                .Include(sa => sa.Subtask.Task)                    // Truy xuất Task của Subtask
+                .Select(sa => sa.Subtask)                          // Chọn Subtask từ SubtaskAssignment
+                .ToList() ?? new List<Subtask>();
         }
     }
 }
