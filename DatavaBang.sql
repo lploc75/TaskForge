@@ -9,7 +9,7 @@
 CREATE TABLE Feedback (
     feedback_id INT PRIMARY KEY,
     context TEXT,
-    date_submitted DATE,
+    date_submitted DATETIME,
     account_id VARCHAR(10),
     FOREIGN KEY (account_id) REFERENCES Account(account_id)
 );
@@ -45,7 +45,7 @@ CREATE TABLE Project (
     project_name VARCHAR(100),
     description TEXT,
     status VARCHAR(50),
-    deadline DATE,
+    deadline DATETIME,
 );
 CREATE TABLE EmployeeProject(
     account_id VARCHAR(10),
@@ -73,7 +73,7 @@ CREATE TABLE StaffAndLeader (
 CREATE TABLE CreditExchange(
     exchange_id INT PRIMARY KEY IDENTITY(1,1),
     account_id VARCHAR(10), -- Foreign key referencing Staff
-    exchange_date DATE NOT NULL,
+    exchange_date DATETIME NOT NULL,
     credit_points_used INT NOT NULL,
     cash_amount DECIMAL(10,2) NOT NULL,
     status VARCHAR(50) DEFAULT 'Pending',
@@ -85,10 +85,21 @@ CREATE TABLE Task (
     description TEXT,
     status VARCHAR(50),
     priority INT,
-    deadline DATE,
-    submission_date DATE,
+	assignment_date DATETIME,
+    deadline DATETIME,
+    submission_date DATETIME,
     project_id INT,
     FOREIGN KEY (project_id) REFERENCES Project(project_id)
+);
+CREATE TABLE PersonalTask (
+    ptask_id VARCHAR(10) PRIMARY KEY,
+	account_id VARCHAR(10),
+	status VARCHAR(50),
+    priority INT,
+	assignment_date DATETIME,
+    deadline DATE,
+	description TEXT,
+    FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id)
 );
 CREATE TABLE TaskAssignment(
     task_id VARCHAR(10),
@@ -101,7 +112,7 @@ CREATE TABLE TaskAssignment(
 );
 CREATE TABLE TaskEvaluation (
     evaluation_id VARCHAR(10) PRIMARY KEY,
-    evaluation_date DATE,
+    evaluation_date DATETIME,
     comment TEXT,
     task_id VARCHAR(10),
     FOREIGN KEY (task_id) REFERENCES Task(task_id)
@@ -113,8 +124,9 @@ CREATE TABLE Subtask (
     status VARCHAR(50),
     priority INT,
     difficulty INT,
-    deadline DATE,
-    submission_date DATE,
+	assignment_date DATETIME,
+    deadline DATETIME,
+    submission_date DATETIME,
     task_id VARCHAR(10),
     team_id VARCHAR(10),
     FOREIGN KEY (task_id) REFERENCES Task(task_id),
@@ -131,7 +143,7 @@ CREATE TABLE SubtaskAssignment(
 );
 CREATE TABLE SubtaskEvaluation (
     evaluation_id VARCHAR(10) PRIMARY KEY,
-    evaluation_date DATE,
+    evaluation_date DATETIME,
     comment TEXT,
     subtask_id VARCHAR(10),
     teamwork_rating INT,
@@ -153,7 +165,7 @@ CREATE TABLE SubtaskCredit(
 CREATE TABLE Comment (
     comment_id VARCHAR(10) PRIMARY KEY,
     content TEXT,
-    date_submitted DATE,
+    date_submitted DATETIME,
     subtask_id VARCHAR(10),
     FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id)
 );
@@ -243,6 +255,15 @@ INSERT INTO TaskAssignment (task_id, created_by, assigned_to) VALUES
 ('TASK001', 'ACC006', 'ACC004'),
 ('TASK002', 'ACC006', 'ACC004');
 
+-- Dữ liệu cho bảng PersonalTask
+INSERT INTO PersonalTask (ptask_id, account_id, status, priority, assignment_date, deadline, description) VALUES
+('PT001', 'ACC003', 'Not Started', 1, '2024-10-10 08:30:00', '2024-10-15', 'Review team performance reports.'),
+('PT002', 'ACC004', 'In Progress', 2, '2024-10-11 09:00:00', '2024-10-20', 'Prepare for the quarterly team meeting.'),
+('PT003', 'ACC003', 'Completed', 3, '2024-09-15 14:00:00', '2024-09-20', 'Complete the yearly project review documentation.'),
+('PT004', 'ACC005', 'In Progress', 1, '2024-10-05 13:00:00', '2024-10-25', 'Research new tools for project management.'),
+('PT005', 'ACC004', 'Not Started', 2, '2024-10-12 10:00:00', '2024-11-01', 'Draft proposals for upcoming team projects.'),
+('PT006', 'ACC005', 'In Progress', 3, '2024-10-14 15:00:00', '2024-10-30', 'Organize files and update documentation for all ongoing projects.');
+
 -- Chèn dữ liệu vào SubtaskAssignment
 INSERT INTO SubtaskAssignment (subtask_id, created_by, assigned_to) VALUES
 ('SUBTASK001', 'ACC004', 'ACC003'),
@@ -270,4 +291,3 @@ INSERT INTO SubtaskCredit (subtask_id, difficulty) VALUES
 INSERT INTO Comment (comment_id, content, date_submitted, subtask_id) VALUES
 ('CMT001', 'Looks great, keep it up!', '2024-10-03', 'SUBTASK001'),
 ('CMT002', 'Need to add more details.', '2024-10-04', 'SUBTASK002');
-
