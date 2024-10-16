@@ -80,9 +80,56 @@ namespace TaskForge.Controllers
             List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
             return View(assignedSubtasks);  // Truyền Model trực tiếp
         }
+        [HttpPost]
+        public IActionResult UpdateProfile(string accountId, Employee updatedEmployee)
+        {
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            if (ModelState.IsValid)
+            {
+                // Cập nhật thông tin người dùng dựa trên AccountId
+                bool result = _employeeService.UpdateEmployeeProfile(accountId, updatedEmployee);
+
+                ViewBag.Message = result ? "Profile updated successfully." : "Failed to update profile.";
+            }
+            else
+            {
+                // Ghi log chi tiết lỗi trong ModelState
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"Error in field {state.Key}: {error.ErrorMessage}");
+                    }
+                }
+                ViewBag.Message = "Invalid input. Please check the form and try again.";
+            }
+
+            // Lấy lại dữ liệu mới nhất từ database để truyền vào view Setting
+            var employee = _employeeService.GetEmployeeByAccountId(accountId);
+            return View("Setting", employee);
+        }
         public IActionResult Setting()
         {
-            return View();
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            Employee employee = _employeeService.GetEmployeeByAccountId(accountId);
+
+            if (employee == null || employee.Account == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            return View(employee);
         }
+
     }
 }

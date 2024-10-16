@@ -49,5 +49,52 @@ namespace TaskForge.Repository
         {
             return _context.StaffAndLeaders.FirstOrDefault(s => s.AccountId == accountId);
         }
+
+        public bool UpdateEmployee(string accountId, Employee updatedEmployee)
+        {
+            // Tìm nhân viên theo AccountId, bao gồm cả đối tượng Account liên quan
+            var employee = _context.Employees
+                                   .Include(e => e.Account)
+                                   .FirstOrDefault(e => e.AccountId == accountId);
+
+            if (employee != null)
+            {
+                // Cập nhật các trường trong Employee nếu không null
+                if (!string.IsNullOrEmpty(updatedEmployee.Fullname))
+                {
+                    employee.Fullname = updatedEmployee.Fullname;
+                }
+
+                if (!string.IsNullOrEmpty(updatedEmployee.Gender))
+                {
+                    employee.Gender = updatedEmployee.Gender;
+                }
+
+                if (updatedEmployee.Dob.HasValue)
+                {
+                    employee.Dob = updatedEmployee.Dob;
+                }
+
+                // Cập nhật các trường trong Account, nếu Account không null
+                if (updatedEmployee.Account != null)
+                {
+                    if (!string.IsNullOrEmpty(updatedEmployee.Account.Email))
+                    {
+                        employee.Account.Email = updatedEmployee.Account.Email;
+                    }
+
+                    if (!string.IsNullOrEmpty(updatedEmployee.Account.PhoneNumber))
+                    {
+                        employee.Account.PhoneNumber = updatedEmployee.Account.PhoneNumber;
+                    }
+                }
+
+                // Lưu thay đổi vào cơ sở dữ liệu
+                _context.SaveChanges();
+                return true;
+            }
+
+            return false;
+        }
     }
 }

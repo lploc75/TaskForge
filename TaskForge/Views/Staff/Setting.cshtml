@@ -110,17 +110,95 @@
             <div class="tab" data-target="password-section">Change Password</div>
         </div>
 
+        <!-- Display success or error message -->
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="alert alert-info">@ViewBag.Message</div>
+        }
         <!-- Profile Section -->
         <div class="section active" id="profile-section">
-            <h3>Profile</h3>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter your username">
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter your email">
-            </div>
+            <h3>Update Profile</h3>
+
+            @if (Model != null && Model.Account != null)
+            {
+                <form method="post" action="/Staff/UpdateProfile">
+                    <input type="hidden" name="AccountId" value="@Model.AccountId" />
+
+                    <!-- Hidden fields to preserve required Account fields -->
+                    <input type="hidden" name="Account.AccountId" value="@Model.Account.AccountId" />
+                    <input type="hidden" name="Account.Username" value="@Model.Account.Username" />
+                    <input type="hidden" name="Account.Password" value="@Model.Account.Password" />
+
+                    <div class="form-group">
+                        <label for="accountId">Account ID</label>
+                        <input type="text" id="accountId" value="@Model.AccountId" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" value="@Model.Account.Username" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="fullname" name="Fullname" value="@Model.Fullname" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="Gender" required>
+                            @* Kiểm tra Model.Gender và thêm thuộc tính selected thông qua mã Razor *@
+                            @if (Model.Gender == "M")
+                            {
+                                <option value="M" selected>Male</option>
+                                <option value="F">Female</option>
+                            }
+                            else
+                            {
+                                <option value="M">Male</option>
+                                <option value="F" selected>Female</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="Dob" value="@Model.Dob?.ToString("yyyy-MM-dd")" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" id="role" value="@Model.Role" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <input type="text" id="status" value="@Model.Status" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dept">Department ID</label>
+                        <input type="text" id="dept" value="@Model.DeptId" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="Account.Email" value="@Model.Account.Email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" name="Account.PhoneNumber" value="@Model.Account.PhoneNumber">
+                    </div>
+
+                    <button type="submit">Save Changes</button>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-danger">Error: Unable to load employee data. Please try again later.</div>
+            }
         </div>
 
         <!-- Change Password Section -->

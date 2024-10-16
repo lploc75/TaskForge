@@ -52,5 +52,9 @@ namespace TaskForge.Service
         {
             return _employeeRepository.GetKPIData(accountId);
         }
+        public bool UpdateEmployeeProfile(string accountId, Employee updatedEmployee)
+        {
+            return _employeeRepository.UpdateEmployee(accountId, updatedEmployee);
+        }
     }
 }
