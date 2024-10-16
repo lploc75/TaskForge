@@ -25,7 +25,7 @@
         <ul class="settings-menu">
             <li><a href="#"><i class="material-icons">person_outline</i> Profile</a></li>
             <li><a href="#"><i class="material-icons">language</i> Language</a></li>
-            <li><a href="#"><i class="material-icons">lock_outline</i> Change Password</a></li>
+            <li><a href="#" id="changePasswordLink"><i class="material-icons">lock_outline</i> Change password</a></li>
         </ul>
     </div>
     <!-- Navbar -->
@@ -66,26 +66,30 @@
         <div class="avatar">
             <img src="https://via.placeholder.com/30" alt="Avatar">
         </div>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Đổi mật khẩu</h2>
+                <form>
+                    <label for="currentPassword">Mật khẩu hiện tại</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+
+                    <label for="newPassword">Mật khẩu mới</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+
+                    <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Mở popup khi nhấn vào nút Settings
-        document.getElementById('settingsButton').addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const popup = document.getElementById('settingsPopup');
-            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-        });
+    <script src="~/js/staffLayout.js"></script>
 
-        // Đóng popup khi nhấp ra ngoài
-        document.addEventListener('click', function (event) {
-            const popup = document.getElementById('settingsPopup');
-            const settingsButton = document.getElementById('settingsButton');
-            if (popup.style.display === 'block' && !popup.contains(event.target) && event.target !== settingsButton) {
-                popup.style.display = 'none';
-            }
-        });
-        </script>
     <!-- Main Content -->
     <div class="container" style="margin-left: 220px; padding-top: 60px;">
         @RenderBody()
