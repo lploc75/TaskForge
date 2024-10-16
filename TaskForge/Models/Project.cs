@@ -13,7 +13,7 @@ public partial class Project
 
     public string? Status { get; set; }
 
-    public DateOnly? Deadline { get; set; }
+    public DateTime? Deadline { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 

@@ -7,7 +7,7 @@ public partial class SubtaskEvaluation
 {
     public string EvaluationId { get; set; } = null!;
 
-    public DateOnly? EvaluationDate { get; set; }
+    public DateTime? EvaluationDate { get; set; }
 
     public string? Comment { get; set; }
 

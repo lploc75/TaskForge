@@ -17,9 +17,11 @@ public partial class Subtask
 
     public int? Difficulty { get; set; }
 
-    public DateOnly? Deadline { get; set; }
+    public DateTime? AssignmentDate { get; set; }
 
-    public DateOnly? SubmissionDate { get; set; }
+    public DateTime? Deadline { get; set; }
+
+    public DateTime? SubmissionDate { get; set; }
 
     public string? TaskId { get; set; }
 
@@ -27,7 +29,7 @@ public partial class Subtask
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-    public virtual ICollection<EmployeeSubTask> EmployeeSubTasks { get; set; } = new List<EmployeeSubTask>();
+    public virtual ICollection<SubtaskAssignment> SubtaskAssignments { get; set; } = new List<SubtaskAssignment>();
 
     public virtual ICollection<SubtaskEvaluation> SubtaskEvaluations { get; set; } = new List<SubtaskEvaluation>();
 

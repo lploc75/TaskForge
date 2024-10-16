@@ -15,17 +15,19 @@ public partial class Task
 
     public int? Priority { get; set; }
 
-    public DateOnly? Deadline { get; set; }
+    public DateTime? AssignmentDate { get; set; }
 
-    public DateOnly? SubmissionDate { get; set; }
+    public DateTime? Deadline { get; set; }
+
+    public DateTime? SubmissionDate { get; set; }
 
     public int? ProjectId { get; set; }
-
-    public virtual ICollection<EmployeeTask> EmployeeTasks { get; set; } = new List<EmployeeTask>();
 
     public virtual Project? Project { get; set; }
 
     public virtual ICollection<Subtask> Subtasks { get; set; } = new List<Subtask>();
+
+    public virtual ICollection<TaskAssignment> TaskAssignments { get; set; } = new List<TaskAssignment>();
 
     public virtual ICollection<TaskEvaluation> TaskEvaluations { get; set; } = new List<TaskEvaluation>();
 }
