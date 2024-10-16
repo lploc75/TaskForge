@@ -41,12 +41,20 @@ namespace TaskForge.Controllers
                     return View(account);
                 }
 
+                // Lấy role từ bảng employee
+                var role = await _accountService.GetRoleByAccountIdAsync(validatedAccount.AccountId);
+                if (role == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Không tìm thấy vai trò cho tài khoản này.");
+                    return View(account);
+                }
+
                 // Xử lý đăng nhập thành công
                 var claims = new List<Claim>
-                {
-                    new Claim("AccountId", validatedAccount.AccountId.ToString()),
-                    new Claim(ClaimTypes.Role, validatedAccount.Role ?? "User")
-                };
+        {
+            new Claim("AccountId", validatedAccount.AccountId.ToString()),
+            new Claim(ClaimTypes.Role, role)
+        };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -58,13 +66,13 @@ namespace TaskForge.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
                 // Chuyển hướng dựa trên Role
-                return validatedAccount.Role switch
+                return role switch
                 {
-                    "staff" => RedirectToAction("Index", "Staff"),
-                    "admin" => RedirectToAction("Index", "Admin"),
-                    "manager" => RedirectToAction("Index", "Manager"),
-                    "leader" => RedirectToAction("Index", "Leader"),
-                    "department head" => RedirectToAction("Index", "DepartmentHead"),
+                    "Staff" => RedirectToAction("Index", "Staff"),
+                    "Admin" => RedirectToAction("Index", "Admin"),
+                    "Manager" => RedirectToAction("Index", "Manager"),
+                    "Leader" => RedirectToAction("Index", "Leader"),
+                    "Department Head" => RedirectToAction("Index", "DepartmentHead"),
                     _ => RedirectToAction("Index", "Home") // Mặc định về trang chủ nếu không khớp role
                 };
             }

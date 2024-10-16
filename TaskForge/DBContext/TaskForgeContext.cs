@@ -51,14 +51,14 @@ public partial class TaskForgeContext : DbContext
     public virtual DbSet<Team> Teams { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=LAPTOP-LL;Initial Catalog=TaskForge;User ID=sa;Password=admin@123; Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CDF26F1F89");
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CD5E81F02D");
 
             entity.ToTable("Account");
 
@@ -78,10 +78,6 @@ public partial class TaskForgeContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("phone_number");
-            entity.Property(e => e.Role)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("role");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -90,7 +86,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Comment>(entity =>
         {
-            entity.HasKey(e => e.CommentId).HasName("PK__Comment__E79576874E5322EF");
+            entity.HasKey(e => e.CommentId).HasName("PK__Comment__E7957687F7763023");
 
             entity.ToTable("Comment");
 
@@ -116,7 +112,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Credit>(entity =>
         {
-            entity.HasKey(e => e.Difficulty).HasName("PK__Credit__79CF999F44522AED");
+            entity.HasKey(e => e.Difficulty).HasName("PK__Credit__79CF999F6468F386");
 
             entity.ToTable("Credit");
 
@@ -128,7 +124,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<CreditExchange>(entity =>
         {
-            entity.HasKey(e => e.ExchangeId).HasName("PK__CreditEx__FAAC5D3E33C43BCC");
+            entity.HasKey(e => e.ExchangeId).HasName("PK__CreditEx__FAAC5D3E98F270FE");
 
             entity.ToTable("CreditExchange");
 
@@ -157,7 +153,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.DeptId).HasName("PK__Departme__DCA65974030861AE");
+            entity.HasKey(e => e.DeptId).HasName("PK__Departme__DCA659748411532C");
 
             entity.ToTable("Department");
 
@@ -177,7 +173,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Employee__46A222CDBDEB667C");
+            entity.HasKey(e => e.AccountId).HasName("PK__Employee__46A222CDF430E884");
 
             entity.ToTable("Employee");
 
@@ -232,7 +228,7 @@ public partial class TaskForgeContext : DbContext
                         .HasConstraintName("FK__EmployeeP__accou__46E78A0C"),
                     j =>
                     {
-                        j.HasKey("AccountId", "ProjectId").HasName("PK__Employee__AD65BB2C7121FEAF");
+                        j.HasKey("AccountId", "ProjectId").HasName("PK__Employee__AD65BB2C3703FF73");
                         j.ToTable("EmployeeProject");
                         j.IndexerProperty<string>("AccountId")
                             .HasMaxLength(10)
@@ -254,7 +250,7 @@ public partial class TaskForgeContext : DbContext
                         .HasConstraintName("FK__EmployeeT__accou__4AB81AF0"),
                     j =>
                     {
-                        j.HasKey("AccountId", "TeamId").HasName("PK__Employee__9920FC160D8EC415");
+                        j.HasKey("AccountId", "TeamId").HasName("PK__Employee__9920FC162D60B707");
                         j.ToTable("EmployeeTeam");
                         j.IndexerProperty<string>("AccountId")
                             .HasMaxLength(10)
@@ -269,7 +265,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C1EC4913B");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C8D0A6055");
 
             entity.ToTable("Feedback");
 
@@ -294,7 +290,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<PersonalTask>(entity =>
         {
-            entity.HasKey(e => e.PtaskId).HasName("PK__Personal__C93161695EB369DF");
+            entity.HasKey(e => e.PtaskId).HasName("PK__Personal__C9316169792D7981");
 
             entity.ToTable("PersonalTask");
 
@@ -326,7 +322,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Project>(entity =>
         {
-            entity.HasKey(e => e.ProjectId).HasName("PK__Project__BC799E1F97A16531");
+            entity.HasKey(e => e.ProjectId).HasName("PK__Project__BC799E1F72781AF7");
 
             entity.ToTable("Project");
 
@@ -351,7 +347,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<StaffAndLeader>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__StaffAnd__46A222CD2F517FE4");
+            entity.HasKey(e => e.AccountId).HasName("PK__StaffAnd__46A222CDD6DF6A66");
 
             entity.ToTable("StaffAndLeader");
 
@@ -379,7 +375,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Subtask>(entity =>
         {
-            entity.HasKey(e => e.SubtaskId).HasName("PK__Subtask__C2AC5F054D07014F");
+            entity.HasKey(e => e.SubtaskId).HasName("PK__Subtask__C2AC5F054C370144");
 
             entity.ToTable("Subtask");
 
@@ -439,7 +435,7 @@ public partial class TaskForgeContext : DbContext
                         .HasConstraintName("FK__SubtaskCr__subta__6FE99F9F"),
                     j =>
                     {
-                        j.HasKey("SubtaskId", "Difficulty").HasName("PK__SubtaskC__2530A69C1B947EA9");
+                        j.HasKey("SubtaskId", "Difficulty").HasName("PK__SubtaskC__2530A69CCB5BBFF6");
                         j.ToTable("SubtaskCredit");
                         j.IndexerProperty<string>("SubtaskId")
                             .HasMaxLength(10)
@@ -451,7 +447,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<SubtaskAssignment>(entity =>
         {
-            entity.HasKey(e => new { e.SubtaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__SubtaskA__D9CB10DFDF0CA320");
+            entity.HasKey(e => new { e.SubtaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__SubtaskA__D9CB10DF6BF95B54");
 
             entity.ToTable("SubtaskAssignment");
 
@@ -486,7 +482,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<SubtaskEvaluation>(entity =>
         {
-            entity.HasKey(e => e.EvaluationId).HasName("PK__SubtaskE__827C592DE1685E4A");
+            entity.HasKey(e => e.EvaluationId).HasName("PK__SubtaskE__827C592D518D3AEE");
 
             entity.ToTable("SubtaskEvaluation");
 
@@ -515,7 +511,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Models.Task>(entity =>
         {
-            entity.HasKey(e => e.TaskId).HasName("PK__Task__0492148D5438B598");
+            entity.HasKey(e => e.TaskId).HasName("PK__Task__0492148D191279AB");
 
             entity.ToTable("Task");
 
@@ -553,7 +549,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<TaskAssignment>(entity =>
         {
-            entity.HasKey(e => new { e.TaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__TaskAssi__1FF55B577AB6C703");
+            entity.HasKey(e => new { e.TaskId, e.CreatedBy, e.AssignedTo }).HasName("PK__TaskAssi__1FF55B57BF5EE89F");
 
             entity.ToTable("TaskAssignment");
 
@@ -588,7 +584,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<TaskEvaluation>(entity =>
         {
-            entity.HasKey(e => e.EvaluationId).HasName("PK__TaskEval__827C592D72A5E992");
+            entity.HasKey(e => e.EvaluationId).HasName("PK__TaskEval__827C592D97FF5178");
 
             entity.ToTable("TaskEvaluation");
 
@@ -614,7 +610,7 @@ public partial class TaskForgeContext : DbContext
 
         modelBuilder.Entity<Team>(entity =>
         {
-            entity.HasKey(e => e.TeamId).HasName("PK__Team__F82DEDBCD1246512");
+            entity.HasKey(e => e.TeamId).HasName("PK__Team__F82DEDBCF9C35F98");
 
             entity.ToTable("Team");
 

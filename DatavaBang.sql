@@ -3,7 +3,6 @@
     username VARCHAR(50) NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
-    role VARCHAR(50),
     phone_number VARCHAR(15)
 );
 CREATE TABLE Feedback (
@@ -171,13 +170,13 @@ CREATE TABLE Comment (
 );
 
 -- Dữ liệu cho bảng Account
-INSERT INTO Account (account_id, username, password, email, role, phone_number) VALUES
-('ACC001', 'admin', 'password123', 'admin@example.com', 'admin', '0123456789'),
-('ACC002', 'manager', 'password123', 'manager@example.com', 'manager', '0123456788'),
-('ACC003', 'staff01', 'password123', 'staff01@example.com', 'staff', '0123456787'),
-('ACC004', 'leader01', 'password123', 'leader01@example.com', 'leader', '0123456786'),
-('ACC005', 'staff02', 'password123', 'staff02@example.com', 'staff', '0123456785'),
-('ACC006', 'depthead01', 'password123', 'depthead01@example.com', 'department head', '0123456784');
+INSERT INTO Account (account_id, username, password, email, phone_number) VALUES
+('ACC001', 'admin', 'password123', 'admin@example.com', '0123456789'),
+('ACC002', 'manager', 'password123', 'manager@example.com','0123456788'),
+('ACC003', 'staff01', 'password123', 'staff01@example.com', '0123456787'),
+('ACC004', 'leader01', 'password123', 'leader01@example.com','0123456786'),
+('ACC005', 'staff02', 'password123', 'staff02@example.com','0123456785'),
+('ACC006', 'depthead01', 'password123', 'depthead01@example.com','0123456784');
 
 -- Dữ liệu cho bảng Feedback
 INSERT INTO Feedback (feedback_id, context, date_submitted, account_id) VALUES

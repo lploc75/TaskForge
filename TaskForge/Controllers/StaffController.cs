@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace TaskForge.Controllers
 {
-    [Authorize(Roles = "staff")]
+    [Authorize(Roles = "Staff")]
     public class StaffController : Controller
     {
         private readonly EmployeeService _employeeService;

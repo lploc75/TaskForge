@@ -15,5 +15,10 @@ namespace TaskForge.Service
         {
             return await _accountRepository.ValidateAsync(username, password);
         }
+        // Phương thức lấy role từ bảng employee
+        public async Task<string> GetRoleByAccountIdAsync(string accountId)
+        {
+            return await _accountRepository.GetRoleByAccountIdAsync(accountId);
+        }
     }
 }
