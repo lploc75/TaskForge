@@ -57,11 +57,7 @@
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
-                    <!-- Form for Submit Task 
-                    <form asp-action="SubmitTask" asp-controller="Staff" method="post">
-                        <input type="hidden" name="taskId" value="@subtask.SubtaskId" />
-                        <button type="submit" class="button">Submit Task</button>
-                    </form>-->
+            
                 }
             </div>
         </div>
@@ -156,10 +152,15 @@
             <p id="modalSubmissionDate">Submission Date: </p> <!-- Thêm phần này để hiển thị Submission Date -->
             <p id="modalReward">Reward: </p>
             <p id="modalContent">Task description and details go here.</p>
+            <div class="button-container">
+                <button id="uploadButton" class="button" onclick="uploadDocument()">Upload Document</button>
+                <button id="submitButton" class="button" onclick="submitDocument()">Submit Task</button>
+                <button id="unsubmitButton" class="button" onclick="unsubmitTask()">UnSubmit</button>
+                <button id="acceptButton" class="button" onclick="acceptTask()">Accept Task</button>
             </div>
         </div>
     </div>
-
+  
 
     <script>
         function openModal(title, assigner, assignedDate, deadline ,submissionDate, priority, difficulty, status, description) {
