@@ -32,6 +32,27 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Error", "Home");
             }
 
+            int assignedTaskCount = _employeeService.GetAssignedSubtasks(accountId).Count;
+            ViewData["AssignedTaskCount"] = assignedTaskCount;
+
+            var (beforeDeadline, onDeadline, afterDeadline) = _employeeService.GetCompletedTaskStats(accountId);
+
+            int totalCompleted = beforeDeadline + onDeadline + afterDeadline;
+
+            double beforeDeadlinePercent = totalCompleted > 0 ? (beforeDeadline * 100.0 / totalCompleted) : 0;
+            double onDeadlinePercent = totalCompleted > 0 ? (onDeadline * 100.0 / totalCompleted) : 0;
+            double afterDeadlinePercent = totalCompleted > 0 ? (afterDeadline * 100.0 / totalCompleted) : 0;
+
+            ViewData["TotalCompleted"] = totalCompleted;
+            ViewData["BeforeDeadlinePercent"] = beforeDeadlinePercent;
+            ViewData["OnDeadlinePercent"] = onDeadlinePercent;
+            ViewData["AfterDeadlinePercent"] = afterDeadlinePercent;
+
+            var (completed, canceled, incomplete) = _employeeService.GetTaskStatusCounts(accountId);
+            ViewData["CompletedCount"] = completed;
+            ViewData["CanceledCount"] = canceled;
+            ViewData["IncompleteCount"] = incomplete;
+
             return View(employee);
         }
 
@@ -45,7 +66,9 @@ namespace TaskForge.Controllers
             }
 
             List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
-            return View(assignedSubtasks);  // Truyền Model trực tiếp
+
+            
+            return View(assignedSubtasks);  // Truyền Model trực tiếp   
         }
     }
 }

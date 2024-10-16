@@ -23,6 +23,8 @@ public partial class Employee
 
     public string? DeptId { get; set; }
 
+    
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual Department? Dept { get; set; }

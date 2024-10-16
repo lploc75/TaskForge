@@ -21,5 +21,30 @@ namespace TaskForge.Service
             return _employeeRepository.GetAssignedSubtasks(accountId);
         }
 
+        public (int BeforeDeadline, int OnDeadline, int AfterDeadline) GetCompletedTaskStats(string accountId)
+        {
+            var completedTasks = _employeeRepository.GetAssignedSubtasks(accountId)
+                    .Where(s => s.Status == "Completed" && s.SubmissionDate.HasValue && s.Deadline.HasValue)
+                    .ToList();
+
+
+            int beforeDeadline = completedTasks.Count(s => s.SubmissionDate < s.Deadline);
+            int onDeadline = completedTasks.Count(s => s.SubmissionDate == s.Deadline);
+            int afterDeadline = completedTasks.Count(s => s.SubmissionDate > s.Deadline);
+
+            return (beforeDeadline, onDeadline, afterDeadline);
+        }
+
+        public (int Completed, int Canceled, int Incomplete) GetTaskStatusCounts(string accountId)
+        {
+            var tasks = _employeeRepository.GetAssignedSubtasks(accountId);
+
+            int completedCount = tasks.Count(s => s.Status == "Completed");
+            int canceledCount = tasks.Count(s => s.Status == "Canceled");
+            int incompleteCount = tasks.Count(s => s.Status != "Completed" && s.Status != "Canceled");
+
+            return (completedCount, canceledCount, incompleteCount);
+        }
+
     }
 }

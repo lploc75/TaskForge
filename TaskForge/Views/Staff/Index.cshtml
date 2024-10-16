@@ -1,136 +1,179 @@
-﻿@model TaskForge.Models.Employee
+﻿    @model TaskForge.Models.Employee
 
-@{
-    ViewData["Title"] = "Trang chủ";
-    Layout = "_StaffLayout";
-}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Cards</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="~/css/staff.css" />
-</head>
-<body>
-    <!-- Profile Container -->
-    <!-- Profile Container -->
-    <div class="profile-container">
-        <div class="profile-left">
-            <div class="profile-image">
-                <img src="https://via.placeholder.com/150" alt="Avatar">
-            </div>
-            <div class="basic-info">
-                <h2>@(Model?.Fullname ?? "N/A")</h2>
-                <p>@(Model?.Role ?? "N/A") - Mã @(Model?.AccountId ?? "N/A")</p>
-                <p>@(Model?.Dept?.DeptName ?? "N/A")</p>
-                <span class="status">@(Model?.Status ?? "N/A")</span>
-            </div>
-        </div>
-        <div class="profile-right">
-            <!-- Phone number from Account if available, else use "N/A" -->
-            <div class="contact-info">
-                <i class="fas fa-phone"></i>
-                <span>@(Model?.Account?.PhoneNumber ?? "N/A")</span>
-            </div>
-            <!-- Email from Account model -->
-            <div class="contact-info">
-                <i class="fas fa-envelope"></i>
-                <span>@(Model?.Account?.Email ?? "N/A")</span>
-            </div>
-            <!-- Address information from Employee or replace with specific model properties if available -->
-            <div class="contact-info">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <!-- Additional Information (if any) -->
-            <div class="contact-info">
-                <i class="fas fa-id-badge"></i>
-                <span>Ngày bắt đầu: @(Model?.StartDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
-            </div>
-            <div class="contact-info">
-                <i class="fas fa-id-badge"></i>
-                <span>Ngày kết thúc: @(Model?.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom Section -->
-    <div class="bottom-section">
-        <!-- Task Status Section -->
-        <div class="chart-container">
-            <h3>Task Status</h3>
-            <div class="donut-chart-container">
-                <div class="donut-chart-inner"></div>
-            </div>
-            <div class="legend">
-                <div class="legend-item"><span class="legend-color legend-complete"></span>Completed</div>
-                <div class="legend-item"><span class="legend-color legend-incomplete"></span>Incomplete</div>
-                <div class="legend-item"><span class="legend-color legend-canceled"></span>Canceled</div>
-            </div>
-
-            <!-- Task Summary Section -->
-            <div class="task-summary">
-                <h4>Hiệu quả công việc</h4>
-                <p>Tổng số công việc của bạn: <strong>1,357</strong> việc</p>
-                <div class="progress-item">
-                    <span>HT trước hạn</span>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 6%; background-color: #4CAF50;"></div>
-                    </div>
-                    <span>6%</span>
+    @{
+        ViewData["Title"] = "Trang chủ";
+        Layout = "_StaffLayout";
+    }
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard Cards</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="~/css/staff.css" />
+    </head>
+    <body>
+        <!-- Profile Container -->
+        <!-- Profile Container -->
+        <div class="profile-container">
+            <div class="profile-left">
+                <div class="profile-image">
+                    <img src="https://via.placeholder.com/150" alt="Avatar">
                 </div>
-                <div class="progress-item">
-                    <span>H. thành đúng hạn</span>  
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 50%; background-color: #2196F3;"></div>
-                    </div>
-                    <span>50%</span>
+                <div class="basic-info">
+                    <h2>@(Model?.Fullname ?? "N/A")</h2>
+                    <p>@(Model?.Role ?? "N/A") - Mã @(Model?.AccountId ?? "N/A")</p>
+                    <p>@(Model?.Dept?.DeptName ?? "N/A")</p>
+                    <span class="status">@(Model?.Status ?? "N/A")</span>
                 </div>
-                <div class="progress-item">
-                    <span>H. thành trễ hạn</span>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 15%; background-color: #FF5722;"></div>
-                    </div>
-                    <span>15%</span>
+            </div>
+            <div class="profile-right">
+                <!-- Phone number from Account if available, else use "N/A" -->
+                <div class="contact-info">
+                    <i class="fas fa-phone"></i>
+                    <span>@(Model?.Account?.PhoneNumber ?? "N/A")</span>
+                </div>
+                <!-- Email from Account model -->
+                <div class="contact-info">
+                    <i class="fas fa-envelope"></i>
+                    <span>@(Model?.Account?.Email ?? "N/A")</span>
+                </div>
+                <!-- Address information from Employee or replace with specific model properties if available -->
+                <div class="contact-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <!-- Additional Information (if any) -->
+                <div class="contact-info">
+                    <i class="fas fa-id-badge"></i>
+                    <span>Ngày bắt đầu: @(Model?.StartDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+                </div>
+                <div class="contact-info">
+                    <i class="fas fa-id-badge"></i>
+                    <span>Ngày kết thúc: @(Model?.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
                 </div>
             </div>
         </div>
 
-        <!-- Evaluation Box -->
-        <div class="evaluation-box">
-            <h3>Team Leader's Evaluation</h3>
-            <canvas id="radarChart" width="200" height="200"></canvas>
-        </div>
-    </div>
+        <!-- Bottom Section -->
+        <div class="bottom-section">
+            <!-- Task Status Section -->
+            <div class="chart-container">
+                <h3>Task Status</h3>
+                <div class="donut-chart-container">
+                    <div class="donut-chart-inner"></div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color legend-complete"></span>Completed</div>
+                    <div class="legend-item"><span class="legend-color legend-incomplete"></span>Incomplete</div>
+                    <div class="legend-item"><span class="legend-color legend-canceled"></span>Canceled</div>
+                </div>
 
-    <!-- Cards Container -->
-    <div class="cards-container">
-        <div class="card blue">
-            <h2>14 <span>(12.4%)</span></h2>
-            <p>Simple Tasks</p>
-            <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
-        </div>
-        <div class="card lightblue">
-            <h2>45 <span>(65.9%)</span></h2>
-            <p>Moderate Tasks</p>
-            <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
-        </div>
-        <div class="card yellow">
-            <h2>12 <span>(10.3%)</span></h2>
-            <p>Complex Tasks</p>
-            <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
-        </div>
-        <div class="card red">
-            <h2>2 <span>(5%)</span></h2>
-            <p>Extremely Complex Tasks</p>
-            <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
-        </div>
-    </div>
+                <!-- Task Summary Section -->
+                <div class="task-summary">
+                    <h4>Hiệu quả công việc</h4>
+                    <p>Tổng số công việc của bạn: @ViewData["AssignedTaskCount"] việc</p>
+                    <div class="progress-item">
+                        <span>HT trước hạn</span>
+                        <div class="progress-bar">
+                            <div class="progress progress-before"></div>
+                        </div>
+                        <span>@ViewData["BeforeDeadlinePercent"]%</span>
+                    </div>
+                    <div class="progress-item">
+                        <span>H. thành đúng hạn</span>
+                        <div class="progress-bar">
+                            <div class="progress progress-on"></div>
+                        </div>
+                        <span>@ViewData["OnDeadlinePercent"]%</span>
+                    </div>
+                    <div class="progress-item">
+                        <span>H. thành trễ hạn</span>
+                        <div class="progress-bar">
+                            <div class="progress progress-after"></div>
+                        </div>
+                        <span>@ViewData["AfterDeadlinePercent"]%</span>
+                    </div>
+                </div>
 
-    <!-- Kết nối tệp JavaScript -->
-    <script src="/js/staff.js"></script>
-</body>
-</html>
+            </div>
+
+            <!-- Evaluation Box -->
+            <div class="evaluation-box">
+                <h3>Team Leader's Evaluation</h3>
+                <canvas id="radarChart" width="200" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Cards Container -->
+        <div class="cards-container">
+            <div class="card blue">
+                <h2>14 <span>(12.4%)</span></h2>
+                <p>Simple Tasks</p>
+                <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="card lightblue">
+                <h2>45 <span>(65.9%)</span></h2>
+                <p>Moderate Tasks</p>
+                <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="card yellow">
+                <h2>12 <span>(10.3%)</span></h2>
+                <p>Complex Tasks</p>
+                <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="card red">
+                <h2>2 <span>(5%)</span></h2>
+                <p>Extremely Complex Tasks</p>
+                <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
+            </div>
+        </div>
+
+        <!-- Kết nối tệp JavaScript -->
+        <script src="/js/staff.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Lấy giá trị phần trăm từ ViewData và chuyển thành số
+                const beforeDeadlinePercent = parseFloat('@(ViewData["BeforeDeadlinePercent"] ?? 0)').toFixed(1);
+                const onDeadlinePercent = parseFloat('@(ViewData["OnDeadlinePercent"] ?? 0)').toFixed(1);
+                const afterDeadlinePercent = parseFloat('@(ViewData["AfterDeadlinePercent"] ?? 0)').toFixed(1);
+
+                // Lấy danh sách tất cả các .progress-item
+                const progressItems = document.querySelectorAll(".task-summary .progress");
+
+                // Đặt chiều rộng cho từng thanh tiến độ nếu tồn tại
+                if (progressItems[0]) progressItems[0].style.width = beforeDeadlinePercent + "%";
+                if (progressItems[1]) progressItems[1].style.width = onDeadlinePercent + "%";
+                if (progressItems[2]) progressItems[2].style.width = afterDeadlinePercent + "%";
+
+                // Cập nhật văn bản phần trăm với giá trị đã làm tròn
+                const progressTexts = document.querySelectorAll(".task-summary .progress-item span:last-child");
+                if (progressTexts[0]) progressTexts[0].textContent = beforeDeadlinePercent + "%";
+                if (progressTexts[1]) progressTexts[1].textContent = onDeadlinePercent + "%";
+                if (progressTexts[2]) progressTexts[2].textContent = afterDeadlinePercent + "%";
+            });
+        </script>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy giá trị phần trăm từ ViewData và chuyển thành số
+            const beforeDeadlinePercent = parseFloat('@(ViewData["BeforeDeadlinePercent"] ?? 0)').toFixed(1);
+            const onDeadlinePercent = parseFloat('@(ViewData["OnDeadlinePercent"] ?? 0)').toFixed(1);
+            const afterDeadlinePercent = parseFloat('@(ViewData["AfterDeadlinePercent"] ?? 0)').toFixed(1);
+
+            // Cập nhật chiều rộng cho các thanh tiến độ
+            const beforeBar = document.querySelector(".progress-before");
+            const onBar = document.querySelector(".progress-on");
+            const afterBar = document.querySelector(".progress-after");
+
+            if (beforeBar) beforeBar.style.width = beforeDeadlinePercent + "%";
+            if (onBar) onBar.style.width = onDeadlinePercent + "%";
+            if (afterBar) afterBar.style.width = afterDeadlinePercent + "%";
+        });
+
+        </script>
+    </body>
+    </html>
