@@ -15,19 +15,12 @@
             <li><a asp-controller="Staff" asp-action="Index"><i class="material-icons">home</i> Dashboard</a></li>
             <li><a asp-controller="Staff" asp-action="Task"><i class="material-icons">task</i>Task</a></li>
             <li><a href="#"><i class="material-icons">dashboard</i> Project</a></li>
-            <li><a asp-controller="Staff" asp-action="Setting"><i class="material-icons">settings</i>Settings</a></li>
+            <li><a asp-controller="Staff" asp-action="Setting"><i class="material-icons">setting</i>Task</a></li>
             <li><a href="#"><i class="material-icons">shopping_cart</i> Exchange</a></li>
             <li><a asp-controller="Account" asp-action="Login"><i class="material-icons">logout</i> Logout</a></li>
         </ul>
     </div>
-    <!-- Settings Popup -->
-    <div id="settingsPopup" class="popup-overlay">
-        <ul class="settings-menu">
-            <li><a href="#"><i class="material-icons">person_outline</i> Profile</a></li>
-            <li><a href="#"><i class="material-icons">language</i> Language</a></li>
-            <li><a href="#" id="changePasswordLink"><i class="material-icons">lock_outline</i> Change password</a></li>
-        </ul>
-    </div>
+
     <!-- Navbar -->
     <div class="navbar">
         <div class="navbar-title">Staff Dashboard</div>
@@ -47,17 +40,14 @@
             <ul class="notification-list">
                 <li class="notification-item unread" onclick="markAsRead(this)">
                     <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
-                    <p><strong>Chí Cường</strong> đã chấp nhận lời mời kết bạn của bạn.</p>
                     <span>23 giờ</span>
                 </li>
                 <li class="notification-item unread" onclick="markAsRead(this)">
                     <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
-                    <p><strong>Tuấn Linh</strong> đã nhắc đến bạn trong một bình luận.</p>
                     <span>1 ngày</span>
                 </li>
                 <li class="notification-item" onclick="markAsRead(this)">
                     <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
-                    <p><strong>League of Meme</strong> đã đổi tên thành League of Flop.</p>
                     <span>1 ngày</span>
                 </li>
             </ul>
@@ -66,29 +56,7 @@
         <div class="avatar">
             <img src="https://via.placeholder.com/30" alt="Avatar">
         </div>
-
-        <!-- Change Password Modal -->
-        <div id="changePasswordModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Đổi mật khẩu</h2>
-                <form>
-                    <label for="currentPassword">Mật khẩu hiện tại</label>
-                    <input type="password" id="currentPassword" name="currentPassword" required>
-
-                    <label for="newPassword">Mật khẩu mới</label>
-                    <input type="password" id="newPassword" name="newPassword" required>
-
-                    <label for="confirmPassword">Xác nhận mật khẩu mới</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
-
-                    <button type="submit" class="btn btn-primary">Xác nhận</button>
-                </form>
-            </div>
-        </div>
     </div>
-
-    <script src="~/js/staffLayout.js"></script>
 
     <!-- Main Content -->
     <div class="container" style="margin-left: 220px; padding-top: 60px;">
