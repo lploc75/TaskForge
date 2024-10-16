@@ -35,5 +35,19 @@ namespace TaskForge.Repository
                 .Select(sa => sa.Subtask)                          // Chọn Subtask từ SubtaskAssignment
                 .ToList() ?? new List<Subtask>();
         }
+
+        public Dictionary<int, int> GetTaskDifficultyStats(string accountId)
+        {
+            return _context.SubtaskAssignments
+                .Where(sa => sa.AssignedTo == accountId && sa.Subtask.Difficulty.HasValue)
+                .GroupBy(sa => sa.Subtask.Difficulty.Value)
+                .Select(g => new { Difficulty = g.Key, Count = g.Count() })
+                .ToDictionary(g => g.Difficulty, g => g.Count);
+        }
+
+        public StaffAndLeader GetKPIData(string accountId)
+        {
+            return _context.StaffAndLeaders.FirstOrDefault(s => s.AccountId == accountId);
+        }
     }
 }

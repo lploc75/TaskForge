@@ -1,38 +1,43 @@
 ﻿// Đoạn mã JavaScript đã sao chép
 
-const ctx = document.getElementById('radarChart').getContext('2d');
-const radarChart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-        labels: ['Quality', 'Timeliness', 'Communication'],
-        datasets: [{
-            data: [85, 90, 80],
-            fill: true,
-            backgroundColor: 'rgba(29, 198, 247, 0.2)',
-            borderColor: 'rgba(29, 198, 247, 1)',
-            pointBackgroundColor: 'rgba(29, 198, 247, 1)',
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            r: {
-                angleLines: { color: '#ddd' },
-                suggestedMin: 0,
-                suggestedMax: 100,
-                ticks: { display: true, stepSize: 20 },
-                grid: { color: '#eee' },
-                pointLabels: {
-                    color: '#333',
-                    font: { size: 14 }
-                }
-            }
+document.addEventListener("DOMContentLoaded", function () {
+    // Sử dụng các biến đã được truyền từ ViewData
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    const radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Quality', 'Timeliness', 'Communication'],
+            datasets: [{
+                label: 'KPI Metrics',
+                data: [totalKPI, totalTimeliness, totalTeamwork], // Cập nhật dữ liệu động ở đây
+                fill: true,
+                backgroundColor: 'rgba(29, 198, 247, 0.2)',
+                borderColor: 'rgba(29, 198, 247, 1)',
+                pointBackgroundColor: 'rgba(29, 198, 247, 1)'
+            }]
         },
-        plugins: {
-            legend: { display: false }
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    angleLines: { color: '#ddd' },
+                    suggestedMin: 0,
+                    suggestedMax: 100, // Chỉnh theo mức tối đa của KPI nếu cần
+                    ticks: { display: true, stepSize: 10 },
+                    grid: { color: '#eee' },
+                    pointLabels: {
+                        color: '#333',
+                        font: { size: 14 }
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: true }
+            }
         }
-    }
+    });
 });
+
 
 const notificationDropdown = document.getElementById("notificationDropdown");
 const bellIcon = document.querySelector(".icon-container .fa-bell");

@@ -1,4 +1,4 @@
-﻿@model TaskForge.Models.Employee
+﻿    @model TaskForge.Models.Employee
 
 @{
     ViewData["Title"] = "Trang chủ";
@@ -62,41 +62,37 @@
         <!-- Task Status Section -->
         <div class="chart-container">
             <h3>Task Status</h3>
-            <div class="donut-chart-container">
-                <div class="donut-chart-inner"></div>
-            </div>
-            <div class="legend">
-                <div class="legend-item"><span class="legend-color legend-complete"></span>Completed</div>
-                <div class="legend-item"><span class="legend-color legend-incomplete"></span>Incomplete</div>
-                <div class="legend-item"><span class="legend-color legend-canceled"></span>Canceled</div>
+            <div>
+                <canvas id="donutChart" width="200" height="200"></canvas>
             </div>
 
             <!-- Task Summary Section -->
             <div class="task-summary">
                 <h4>Hiệu quả công việc</h4>
-                <p>Tổng số công việc của bạn: <strong>1,357</strong> việc</p>
+                <p>Tổng số công việc của bạn: @ViewData["AssignedTaskCount"] việc</p>
                 <div class="progress-item">
                     <span>HT trước hạn</span>
                     <div class="progress-bar">
-                        <div class="progress" style="width: 6%; background-color: #4CAF50;"></div>
+                        <div class="progress progress-before"></div>
                     </div>
-                    <span>6%</span>
+                    <span>@ViewData["BeforeDeadlinePercent"]%</span>
                 </div>
                 <div class="progress-item">
                     <span>H. thành đúng hạn</span>
                     <div class="progress-bar">
-                        <div class="progress" style="width: 50%; background-color: #2196F3;"></div>
+                        <div class="progress progress-on"></div>
                     </div>
-                    <span>50%</span>
+                    <span>@ViewData["OnDeadlinePercent"]%</span>
                 </div>
                 <div class="progress-item">
                     <span>H. thành trễ hạn</span>
                     <div class="progress-bar">
-                        <div class="progress" style="width: 15%; background-color: #FF5722;"></div>
+                        <div class="progress progress-after"></div>
                     </div>
-                    <span>15%</span>
+                    <span>@ViewData["AfterDeadlinePercent"]%</span>
                 </div>
             </div>
+
         </div>
 
         <!-- Evaluation Box -->
@@ -109,28 +105,121 @@
     <!-- Cards Container -->
     <div class="cards-container">
         <div class="card blue">
-            <h2>14 <span>(12.4%)</span></h2>
+            <h2>@ViewData["SimpleTasks"] <span>(@((Convert.ToDouble(ViewData["SimpleTasks"]) * 100.0 / Convert.ToDouble(ViewData["AssignedTaskCount"])).ToString("F1"))%)</span></h2>
             <p>Simple Tasks</p>
             <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
         </div>
         <div class="card lightblue">
-            <h2>45 <span>(65.9%)</span></h2>
+            <h2>@ViewData["ModerateTasks"] <span>(@((Convert.ToDouble(ViewData["ModerateTasks"]) * 100.0 / Convert.ToDouble(ViewData["AssignedTaskCount"])).ToString("F1"))%)</span></h2>
             <p>Moderate Tasks</p>
             <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
         </div>
         <div class="card yellow">
-            <h2>12 <span>(10.3%)</span></h2>
+            <h2>@ViewData["ComplexTasks"] <span>(@((Convert.ToDouble(ViewData["ComplexTasks"]) * 100.0 / Convert.ToDouble(ViewData["AssignedTaskCount"])).ToString("F1"))%)</span></h2>
             <p>Complex Tasks</p>
             <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
         </div>
         <div class="card red">
-            <h2>2 <span>(5%)</span></h2>
+            <h2>@ViewData["ExtremelyComplexTasks"] <span>(@((Convert.ToDouble(ViewData["ExtremelyComplexTasks"]) * 100.0 / Convert.ToDouble(ViewData["AssignedTaskCount"])).ToString("F1"))%)</span></h2>
             <p>Extremely Complex Tasks</p>
             <div class="chart-placeholder"><i class="fas fa-chart-line"></i></div>
         </div>
     </div>
 
+
     <!-- Kết nối tệp JavaScript -->
+    <script>
+        const totalKPI = parseFloat('@ViewData["TotalKPI"]' || 0);
+        const totalTimeliness = parseFloat('@ViewData["TotalTimeliness"]' || 0);
+        const totalTeamwork = parseFloat('@ViewData["TotalTeamwork"]' || 0);
+    </script>
     <script src="/js/staff.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy giá trị phần trăm từ ViewData và chuyển thành số
+            const beforeDeadlinePercent = parseFloat('@(ViewData["BeforeDeadlinePercent"] ?? 0)').toFixed(1);
+            const onDeadlinePercent = parseFloat('@(ViewData["OnDeadlinePercent"] ?? 0)').toFixed(1);
+            const afterDeadlinePercent = parseFloat('@(ViewData["AfterDeadlinePercent"] ?? 0)').toFixed(1);
+
+            // Lấy danh sách tất cả các .progress-item
+            const progressItems = document.querySelectorAll(".task-summary .progress");
+
+            // Đặt chiều rộng cho từng thanh tiến độ nếu tồn tại
+            if (progressItems[0]) progressItems[0].style.width = beforeDeadlinePercent + "%";
+            if (progressItems[1]) progressItems[1].style.width = onDeadlinePercent + "%";
+            if (progressItems[2]) progressItems[2].style.width = afterDeadlinePercent + "%";
+
+            // Cập nhật văn bản phần trăm với giá trị đã làm tròn
+            const progressTexts = document.querySelectorAll(".task-summary .progress-item span:last-child");
+            if (progressTexts[0]) progressTexts[0].textContent = beforeDeadlinePercent + "%";
+            if (progressTexts[1]) progressTexts[1].textContent = onDeadlinePercent + "%";
+            if (progressTexts[2]) progressTexts[2].textContent = afterDeadlinePercent + "%";
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy giá trị phần trăm từ ViewData và chuyển thành số
+            const beforeDeadlinePercent = parseFloat('@(ViewData["BeforeDeadlinePercent"] ?? 0)').toFixed(1);
+            const onDeadlinePercent = parseFloat('@(ViewData["OnDeadlinePercent"] ?? 0)').toFixed(1);
+            const afterDeadlinePercent = parseFloat('@(ViewData["AfterDeadlinePercent"] ?? 0)').toFixed(1);
+
+            // Cập nhật chiều rộng cho các thanh tiến độ
+            const beforeBar = document.querySelector(".progress-before");
+            const onBar = document.querySelector(".progress-on");
+            const afterBar = document.querySelector(".progress-after");
+
+            if (beforeBar) beforeBar.style.width = beforeDeadlinePercent + "%";
+            if (onBar) onBar.style.width = onDeadlinePercent + "%";
+            if (afterBar) afterBar.style.width = afterDeadlinePercent + "%";
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const completedCount = parseInt('@ViewData["CompletedCount"]') || 0;
+            const canceledCount = parseInt('@ViewData["CanceledCount"]') || 0;
+            const incompleteCount = parseInt('@ViewData["IncompleteCount"]') || 0;
+
+            const ctx = document.getElementById('donutChart').getContext('2d');
+            const donutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Incomplete', 'Canceled'],
+                    datasets: [{
+                        data: [completedCount, incompleteCount, canceledCount],
+                        backgroundColor: ['#007bff', '#ffe0b2', '#b3e5fc'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        datalabels: {
+                            color: '#000000',
+                            formatter: (value, context) => {
+                                const total = context.chart.data.datasets[0].data.reduce((acc, curr) => acc + curr, 0);
+                                const percentage = ((value / total) * 100).toFixed(1) + '%';
+                                return percentage;
+                            },
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%'
+                },
+                plugins: [ChartDataLabels] // Thêm plugin hiển thị dữ liệu
+            });
+        });
+
+    </script>
+
+
 </body>
 </html>
