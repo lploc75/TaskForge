@@ -15,9 +15,17 @@
             <li><a href="#"><i class="material-icons">home</i> Dashboard</a></li>
             <li><a href="#"><i class="material-icons">person</i> Task</a></li>
             <li><a href="#"><i class="material-icons">dashboard</i> Project</a></li>
-            <li><a href="#"><i class="material-icons">settings</i> Settings</a></li>
+            <li><a href="#" id="settingsButton"><i class="material-icons">settings</i> Settings</a></li>
             <li><a href="#"><i class="material-icons">shopping_cart</i> Exchange</a></li>
             <li><a asp-controller="Account" asp-action="Login"><i class="material-icons">logout</i> Logout</a></li>
+        </ul>
+    </div>
+    <!-- Settings Popup -->
+    <div id="settingsPopup" class="popup-overlay">
+        <ul class="settings-menu">
+            <li><a href="#"><i class="material-icons">person_outline</i> Profile</a></li>
+            <li><a href="#"><i class="material-icons">language</i> Language</a></li>
+            <li><a href="#"><i class="material-icons">lock_outline</i> Change Password</a></li>
         </ul>
     </div>
 
@@ -65,6 +73,24 @@
     <div class="container" style="margin-left: 220px; padding-top: 60px;">
         @RenderBody()
     </div>
+    <script>
+        // Mở popup khi nhấn vào nút Settings
+        document.getElementById('settingsButton').addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const popup = document.getElementById('settingsPopup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        });
 
+        // Đóng popup khi nhấp ra ngoài
+        document.addEventListener('click', function (event) {
+            const popup = document.getElementById('settingsPopup');
+            const settingsButton = document.getElementById('settingsButton');
+
+            if (popup.style.display === 'block' && !popup.contains(event.target) && event.target !== settingsButton) {
+                popup.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
