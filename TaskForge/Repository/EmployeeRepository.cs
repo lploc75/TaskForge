@@ -1,8 +1,10 @@
-﻿using TaskForge.Models;
+﻿// EmployeeRepository.cs
+using TaskForge.Models;
 using TaskForge.DBContext;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+
 namespace TaskForge.Repository
 {
     public class EmployeeRepository
@@ -16,8 +18,12 @@ namespace TaskForge.Repository
 
         public Employee GetEmployeeByAccountId(string accountId)
         {
-            return _context.Employees.FirstOrDefault(e => e.AccountId == accountId);
+            return _context.Employees
+                .Include(e => e.Account)          // Include Account details
+                .Include(e => e.Dept)             // Include Department details
+                .FirstOrDefault(e => e.AccountId == accountId);
         }
+
         public List<Subtask> GetAssignedSubtasks(string accountId)
         {
             return _context.SubtaskAssignments
