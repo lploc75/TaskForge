@@ -9,7 +9,7 @@ public partial class CreditExchange
 
     public string? AccountId { get; set; }
 
-    public DateOnly ExchangeDate { get; set; }
+    public DateTime ExchangeDate { get; set; }
 
     public int CreditPointsUsed { get; set; }
 

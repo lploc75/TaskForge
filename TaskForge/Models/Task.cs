@@ -15,9 +15,11 @@ public partial class Task
 
     public int? Priority { get; set; }
 
-    public DateOnly? Deadline { get; set; }
+    public DateTime? AssignmentDate { get; set; }
 
-    public DateOnly? SubmissionDate { get; set; }
+    public DateTime? Deadline { get; set; }
+
+    public DateTime? SubmissionDate { get; set; }
 
     public int? ProjectId { get; set; }
 

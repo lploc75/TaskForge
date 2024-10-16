@@ -14,7 +14,7 @@ namespace TaskForge
 
             // Cấu hình DbContext với SQL Server
             builder.Services.AddDbContext<TaskForgeContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("LocConnection")));
 
             // Register AccountService and any required dependencies
             builder.Services.AddScoped<AccountService>();       // Register AccountService

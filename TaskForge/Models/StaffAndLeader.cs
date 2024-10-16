@@ -21,6 +21,8 @@ public partial class StaffAndLeader
 
     public virtual ICollection<CreditExchange> CreditExchanges { get; set; } = new List<CreditExchange>();
 
+    public virtual ICollection<PersonalTask> PersonalTasks { get; set; } = new List<PersonalTask>();
+
     public virtual ICollection<SubtaskAssignment> SubtaskAssignmentAssignedToNavigations { get; set; } = new List<SubtaskAssignment>();
 
     public virtual ICollection<SubtaskAssignment> SubtaskAssignmentCreatedByNavigations { get; set; } = new List<SubtaskAssignment>();

@@ -9,7 +9,7 @@ public partial class Comment
 
     public string? Content { get; set; }
 
-    public DateOnly? DateSubmitted { get; set; }
+    public DateTime? DateSubmitted { get; set; }
 
     public string? SubtaskId { get; set; }
 

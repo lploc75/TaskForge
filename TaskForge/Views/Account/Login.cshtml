@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="~/css/login.css"> <!-- Đường dẫn tới CSS của bạn -->
+    <link rel="stylesheet" href="~/css/login.css">
     <title>Moon Phases Login Page</title>
    
 </head>
@@ -25,6 +25,13 @@
             <img src="~/imgs/owlhiding.png"alt="Owl Image" class="owl-image" id="owl">
             <img src="~/imgs/owlReveal.png"alt="Hiding Owl Image" class="owl-image" id="hidingOwl" style="display: none;">
             <h2>Login your account</h2>
+              <!-- Thêm phần hiển thị thông báo lỗi ở đây -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="error-message">
+                    <p>@ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage</p>
+                </div>
+            }
             <form action="#" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>
@@ -39,46 +46,7 @@
             </form>
         </div>
     </div>
-
-    <script>
-        function toggleDayNight() {
-            const now = new Date();
-            const currentHour = now.getHours();
-
-            const moon = document.getElementById("moon");
-            const sun = document.getElementById("sun");
-            const greeting = document.getElementById("greeting");
-
-            if (currentHour >= 6 && currentHour < 18) {
-                sun.style.display = "block";
-                moon.style.display = "none";
-                greeting.innerText = "Good Morning";
-            } else {
-                sun.style.display = "none";
-                moon.style.display = "block";
-                greeting.innerText = "Good Evening";
-            }
-        }
-
-        window.onload = toggleDayNight;
-        const passwordInput = document.getElementById('password');
-        const owl = document.getElementById('owl');
-        const hidingOwl = document.getElementById('hidingOwl');
-
-        passwordInput.addEventListener('focus', () => {
-            owl.style.display = 'none';
-            hidingOwl.style.display = 'block';
-        });
-
-        passwordInput.addEventListener('blur', () => {
-            owl.style.display = 'block';
-            hidingOwl.style.display = 'none';
-        });
-
-        function showOwl() {
-            owl.style.display = 'block';
-            hidingOwl.style.display = 'none';
-        }
-    </script>
+    
+    <script src ="~/js/login.js"></script>
 </body>
 </html>
