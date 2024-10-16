@@ -26,8 +26,56 @@ namespace TaskForge.Controllers
         [HttpGet]
         public IActionResult ForgotPassword()
         {
-            return View();
+            return View("ForgotPassword");  // Hiển thị ForgotPassword.cshtml
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var result = await _accountService.ForgotPasswordAsync(email);
+            if (!result)
+            {
+                ModelState.AddModelError("", "Email không tồn tại trong hệ thống.");
+                return View("ForgotPassword");
+            }
+
+            ViewBag.Message = "Email khôi phục mật khẩu đã được gửi.";
+            return View("ForgotPasswordConfirmation");  // Hiển thị ForgotPasswordConfirmation.cshtml
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            if (!_accountService.ValidatePasswordResetToken(token))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+
+            ViewBag.Token = token;
+            return View("ResetPassword");  // Hiển thị ResetPassword.cshtml
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(string token, string newPassword, string confirmPassword)
+        {
+            if (!_accountService.ValidatePasswordResetToken(token))
+            {
+                return RedirectToAction("ForgotPassword");
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ModelState.AddModelError("", "Mật khẩu mới và xác nhận mật khẩu không khớp.");
+                ViewBag.Token = token;
+                return View("ResetPassword");
+            }
+
+            _accountService.UpdatePassword(token, newPassword);
+
+            ViewBag.Message = "Mật khẩu của bạn đã được cập nhật thành công.";
+            return RedirectToAction("Login");
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Login(Account account)

@@ -28,5 +28,20 @@ namespace TaskForge.Repository
 
             return employee?.Role;
         }
+
+        public Account GetAccountByEmail(string email)
+        {
+            return _context.Accounts.FirstOrDefault(a => a.Email == email);
+        }
+
+        public Account GetAccountById(string accountId)
+        {
+            return _context.Accounts.FirstOrDefault(a => a.AccountId == accountId);
+        }
+        public void UpdateAccount(Account account)
+        {
+            _context.Accounts.Update(account);
+            _context.SaveChanges();
+        }
     }
 }

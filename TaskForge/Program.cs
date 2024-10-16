@@ -14,23 +14,25 @@ namespace TaskForge
 
             // Cấu hình DbContext với SQL Server
             builder.Services.AddDbContext<TaskForgeContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("LocConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("LocConnection")));
 
-            // Register AccountService and any required dependencies
-            builder.Services.AddScoped<AccountService>();       // Register AccountService
-            builder.Services.AddScoped<AccountRepository>();    // Register AccountRepository if needed by AccountService
-            builder.Services.AddScoped<EmployeeService>();
-            builder.Services.AddScoped<EmployeeRepository>();
-            // Add services to the container.
+            // Đăng ký các dịch vụ với Dependency Injection
+            builder.Services.AddMemoryCache();                       // Thêm In-Memory Cache
+            builder.Services.AddScoped<EmailService>();              // Đăng ký EmailService
+            builder.Services.AddScoped<AccountService>();            // Đăng ký AccountService
+            builder.Services.AddScoped<AccountRepository>();         // Đăng ký AccountRepository nếu cần cho AccountService
+            builder.Services.AddScoped<EmployeeService>();           // Đăng ký EmployeeService
+            builder.Services.AddScoped<EmployeeRepository>();        // Đăng ký EmployeeRepository
+
+            // Thêm dịch vụ MVC
             builder.Services.AddControllersWithViews();
 
-            
             // Cấu hình Cookie Authentication
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Account/Login";
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                    options.LoginPath = "/Account/Login";             // Trang đăng nhập
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Thời gian hết hạn của Cookie
                 });
 
             // Thêm dịch vụ Authorization
@@ -38,12 +40,11 @@ namespace TaskForge
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+                app.UseHsts();                                       // HSTS cho sản xuất
             }
 
             app.UseHttpsRedirection();
