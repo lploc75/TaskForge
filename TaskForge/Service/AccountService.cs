@@ -77,5 +77,19 @@ namespace TaskForge.Service
                 }
             }
         }
+        public async Task<bool> ChangePasswordAsync(string accountId, string currentPassword, string newPassword)
+        {
+            var account = _accountRepository.GetAccountById(accountId);
+            if (account == null || account.Password != currentPassword)
+            {
+                return false; // Current password doesn't match
+            }
+
+            // Update password
+            account.Password = newPassword;
+            _accountRepository.UpdateAccount(account);
+
+            return true;
+        }
     }
 }

@@ -137,6 +137,23 @@ namespace TaskForge.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
         }
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            if (newPassword != confirmPassword)
+            {
+                return Json(new { success = false, message = "Mật khẩu mới và xác nhận mật khẩu không khớp." });
+            }
 
+            var accountId = User.FindFirstValue("AccountId");
+            var result = await _accountService.ChangePasswordAsync(accountId, currentPassword, newPassword);
+
+            if (!result)
+            {
+                return Json(new { success = false, message = "Mật khẩu hiện tại không chính xác." });
+            }
+
+            return Json(new { success = true, message = "Mật khẩu của bạn đã được cập nhật thành công." });
+        }
     }
 }

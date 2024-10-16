@@ -246,8 +246,11 @@ INSERT INTO TaskEvaluation (evaluation_id, evaluation_date, comment, task_id) VA
 
 -- Dữ liệu cho bảng Subtask
 INSERT INTO Subtask (subtask_id, subtask_name, description, status, priority, difficulty, deadline, submission_date, task_id, team_id) VALUES
-('SUBTASK001', 'Prepare for Meeting Subtask', 'Prepare necessary documents.', 'In Progress', 1, 2, '2024-10-15', NULL, 'TASK001', 'TEAM001'),
-('SUBTASK002', 'Publish Article Subtask', 'Prepare content for article.', 'Completed', 2, 3, '2024-10-20', NULL, 'TASK002', 'TEAM001');
+('SUBTASK001', 'Invintes involes people.', 'there are one from outside.', 'Completed', 1, 2, '2024-10-5', NULL, 'TASK001', 'TEAM001'),
+('SUBTASK002', 'Publish Article Subtask', 'Prepare content for article.', 'Completed', 2, 3, '2024-10-20', NULL, 'TASK002', 'TEAM001'),
+('SUBTASK003', 'Prepare Camera, documents', 'Camera must be abc.', 'In Progress', 2, 1, '2024-10-6', NULL, 'TASK001', 'TEAM001'),
+('SUBTASK004', 'Buy drinks.', 'only water.', 'Not Start', 3, 1, '2024-10-7', NULL, 'TASK001', 'TEAM001'),
+('SUBTASK005', 'Mail for every one who will attend.', 'Find other mails in my chat.', 'Pending', 1, 2, '2024-10-7', NULL, 'TASK001', 'TEAM001');
 
 -- Chèn dữ liệu vào TaskAssignment
 INSERT INTO TaskAssignment (task_id, created_by, assigned_to) VALUES
@@ -266,7 +269,10 @@ INSERT INTO PersonalTask (ptask_id, account_id, status, priority, assignment_dat
 -- Chèn dữ liệu vào SubtaskAssignment
 INSERT INTO SubtaskAssignment (subtask_id, created_by, assigned_to) VALUES
 ('SUBTASK001', 'ACC004', 'ACC003'),
-('SUBTASK002', 'ACC004', 'ACC005');
+('SUBTASK002', 'ACC004', 'ACC005'),
+('SUBTASK003', 'ACC004', 'ACC003'),
+('SUBTASK004', 'ACC004', 'ACC003'),
+('SUBTASK005', 'ACC004', 'ACC003');
 
 -- Dữ liệu cho bảng SubtaskEvaluation
 INSERT INTO SubtaskEvaluation (evaluation_id, evaluation_date, comment, subtask_id, teamwork_rating, timeliness_rating, kpi_rating) VALUES

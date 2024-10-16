@@ -47,5 +47,9 @@ namespace TaskForge.Controllers
             List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
             return View(assignedSubtasks);  // Truyền Model trực tiếp
         }
+        public IActionResult Setting()
+        {
+            return View();
+        }
     }
 }

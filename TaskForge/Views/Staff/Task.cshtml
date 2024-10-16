@@ -16,35 +16,68 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="~/css/staffTask.css" rel="stylesheet">
 </head>
+
+<style>
+    .task-header {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .arrow-icon {
+        margin-left: auto;
+        font-size: 3em; /* Tăng kích thước mũi tên */
+    }
+</style>
+
 <body>
     <div class="sidebar-placeholder"></div>
     <!-- Main Content -->
     <div class="main-content">
+
+        <!-- Create Personal Task Button -->
+        <div class="create-task-button">
+            <button onclick="createPersonalTask()">
+                <i class="fas fa-plus"></i> Create Personal Task
+            </button>
+        </div>
+
         <!-- In Progress Tasks Section -->
         <div class="task-container">
-            <div class="task-header">
-                <h2>In Progress Tasks</h2>
+            <div class="task-header" onclick="toggleSection('inProgressTaskList', this)">
+                <h2>In Progress Tasks (@Model.Where(s => s.Status == "In Progress").Count())</h2>
+                <span class="arrow-icon">&#9652;</span> <!-- Mũi tên lên mặc định -->
             </div>
-            <div class="task-list">
+            <div class="task-list" id="inProgressTaskList">
                 @foreach (var subtask in Model.Where(s => s.Status == "In Progress"))
                 {
-                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By', '@subtask.Deadline', '@subtask.SubmissionDate', '500 Credits', '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status', '@subtask.Description')">
+                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
+                    <!-- Form for Submit Task 
+                    <form asp-action="SubmitTask" asp-controller="Staff" method="post">
+                        <input type="hidden" name="taskId" value="@subtask.SubtaskId" />
+                        <button type="submit" class="button">Submit Task</button>
+                    </form>-->
                 }
             </div>
         </div>
 
-        <!-- Completed Tasks Section -->
+        <!-- Personal Tasks Section -->
         <div class="task-container">
-            <div class="task-header">
-                <h2>Completed Tasks</h2>
+            <div class="task-header" onclick="toggleSection('personalTaskList', this)">
+                <h2>Personal Tasks (@Model.Where(s => s.Status == "Personal Task").Count())</h2>
+                <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
             </div>
-            <div class="task-list">
-                @foreach (var subtask in Model.Where(s => s.Status == "Completed"))
+            <div class="task-list" id="personalTaskList" style="display: none;">
+                @foreach (var subtask in Model.Where(s => s.Status == "Personal Task"))
                 {
-                    <div class="task-item">
+                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
@@ -54,13 +87,16 @@
 
         <!-- Not Started Tasks Section -->
         <div class="task-container">
-            <div class="task-header">
-                <h2>Not Started Tasks</h2>
+            <div class="task-header" onclick="toggleSection('notStartedTaskList', this)">
+                <h2>Not Started Tasks (@Model.Where(s => s.Status == "Not Started").Count())</h2>
+                <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
             </div>
-            <div class="task-list">
+            <div class="task-list" id="notStartedTaskList" style="display: none;">
                 @foreach (var subtask in Model.Where(s => s.Status == "Not Started"))
                 {
-                    <div class="task-item">
+                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
@@ -70,13 +106,16 @@
 
         <!-- Pending Tasks Section -->
         <div class="task-container">
-            <div class="task-header">
-                <h2>Pending Tasks</h2>
+            <div class="task-header" onclick="toggleSection('pendingTaskList', this)">
+                <h2>Pending Tasks (@Model.Where(s => s.Status == "Pending").Count())</h2>
+                <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
             </div>
-            <div class="task-list">
+            <div class="task-list" id="pendingTaskList" style="display: none;">
                 @foreach (var subtask in Model.Where(s => s.Status == "Pending"))
                 {
-                    <div class="task-item">
+                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
@@ -84,13 +123,26 @@
             </div>
         </div>
 
-        <!-- Action Buttons -->
-        <footer class="footer">
-            <div class="button-container">
-                <button class="button" onclick="createPersonalTask()">Create Personal Task</button>
-                <button class="button" onclick="viewTaskHistory()">View Task History</button>
+        <!-- View Task History Section -->
+        <div class="task-container">
+            <div class="task-header" onclick="toggleSection('completedTaskList', this)">
+                <h2>View Task History (@Model.Where(s => s.Status == "Completed").Count())</h2>
+                <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
             </div>
-        </footer>
+            <div class="task-list" id="completedTaskList" style="display: none;">
+                @foreach (var subtask in Model.Where(s => s.Status == "Completed"))
+                {
+                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
+                        <span class="task-title">@subtask.SubtaskName</span>
+                        <span class="task-status">@subtask.Status</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+
     </div>
 
     <!-- Modal for Task Details -->
@@ -101,34 +153,64 @@
             <p id="modalAssigner">Assigner: </p>
             <p id="modalAssignedDate">Assigned Date: </p>
             <p id="modalDueDate">Deadline: </p>
+            <p id="modalSubmissionDate">Submission Date: </p> <!-- Thêm phần này để hiển thị Submission Date -->
             <p id="modalReward">Reward: </p>
             <p id="modalContent">Task description and details go here.</p>
-
-            <!-- Action Buttons -->
-            <div class="button-container">
-                <button id="uploadButton" class="button" onclick="uploadDocument()">Upload Document</button>
-                <button id="submitButton" class="button" onclick="submitDocument()">Submit Task</button>
-                <button id="unsubmitButton" class="button" onclick="unsubmitTask()">UnSubmit</button>
-                <button id="acceptButton" class="button" onclick="acceptTask()">Accept Task</button>
             </div>
         </div>
     </div>
 
+
     <script>
-        function openModal(title, assigner, assignedDate, dueDate, reward, priority, difficulty, status, description) {
+        function openModal(title, assigner, assignedDate, deadline ,submissionDate, priority, difficulty, status, description) {
+            const reward = difficulty * 10; // Tính phần thưởng dựa trên độ khó
+            // Gán các giá trị cho modal
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalAssigner').innerText = `Assigner: ${assigner}`;
             document.getElementById('modalAssignedDate').innerText = `Assigned Date: ${assignedDate}`;
-            document.getElementById('modalDueDate').innerText = `Deadline: ${dueDate}`;
-            document.getElementById('modalReward').innerText = `Rewards: ${reward}`;
+            document.getElementById('modalDueDate').innerText = `Deadline: ${deadline}`;
+            document.getElementById('modalSubmissionDate').innerText = `Submission Date: ${submissionDate}`;
+            document.getElementById('modalReward').innerText = `Reward: ${reward} Credits`;
             document.getElementById('modalContent').innerHTML = `
-                        <p>Priority: ${priority}</p>
-                        <p>Difficulty: ${difficulty}</p>
-                        <p>Status: ${status}</p>
-                        <p>Description: ${description}</p>
-                    `;
+                <p>Priority: ${priority}</p>
+                <p>Difficulty: ${difficulty}</p>
+                <p>Status: ${status}</p>
+                <p>Description: ${description}</p>
+            `;
+            // Đặt trạng thái mặc định cho các nút
+            document.getElementById('uploadButton').style.display = 'none';
+            document.getElementById('submitButton').style.display = 'none';
+            document.getElementById('unsubmitButton').style.display = 'none';
+            document.getElementById('acceptButton').style.display = 'none';
+
+            // Hiển thị nút dựa trên trạng thái của nhiệm vụ
+            if (status === "In Progress") {
+                document.getElementById('uploadButton').style.display = 'inline-block';
+                document.getElementById('submitButton').style.display = 'inline-block';
+            } else if (status === "Not Started") {
+                document.getElementById('acceptButton').style.display = 'inline-block';
+            } else if (status === "Pending") {
+                document.getElementById('unsubmitButton').style.display = 'inline-block';
+            }
+
+            // Hiển thị modal
             document.getElementById('taskModal').style.display = 'flex';
         }
+
+            function toggleSection(sectionId, headerElement) {
+            const section = document.getElementById(sectionId);
+            const arrowIcon = headerElement.querySelector('.arrow-icon');
+
+            // Chuyển đổi trạng thái hiển thị
+            if (section.style.display === 'none' || section.style.display === '') {
+                section.style.display = 'block';
+                arrowIcon.innerHTML = '&#9652;'; // Mũi tên lên
+            } else {
+                section.style.display = 'none';
+                arrowIcon.innerHTML = '&#9662;'; // Mũi tên xuống
+            }
+        }
+
 
         function closeModal() {
             document.getElementById('taskModal').style.display = 'none';
@@ -138,8 +220,20 @@
             alert("Opening personal task creation form.");
         }
 
-        function viewTaskHistory() {
-            alert("Displaying task history.");
+        function uploadDocument() {
+            alert("Uploading document...");
+        }
+
+        function submitDocument() {
+            alert("Submitting task...");
+        }
+
+        function unsubmitTask() {
+            alert("Unsubmitting task...");
+        }
+
+        function acceptTask() {
+            alert("Accepting task...");
         }
     </script>
 </body>
