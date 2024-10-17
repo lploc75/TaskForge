@@ -244,13 +244,14 @@ INSERT INTO TaskEvaluation (evaluation_id, evaluation_date, comment, task_id) VA
 ('EVAL001', '2024-10-01', 'Good progress on the task.', 'TASK002'),
 ('EVAL002', '2024-10-02', 'Needs more effort on development.', 'TASK001');
 
--- Dữ liệu cho bảng Subtask
-INSERT INTO Subtask (subtask_id, subtask_name, description, status, priority, difficulty, deadline, submission_date, task_id, team_id) VALUES
-('SUBTASK001', 'Invintes involes people.', 'there are one from outside.', 'Completed', 1, 2, '2024-10-5', NULL, 'TASK001', 'TEAM001'),
-('SUBTASK002', 'Publish Article Subtask', 'Prepare content for article.', 'Completed', 2, 3, '2024-10-20', NULL, 'TASK002', 'TEAM001'),
-('SUBTASK003', 'Prepare Camera, documents', 'Camera must be abc.', 'In Progress', 2, 1, '2024-10-6', NULL, 'TASK001', 'TEAM001'),
-('SUBTASK004', 'Buy drinks.', 'only water.', 'Not Start', 3, 1, '2024-10-7', NULL, 'TASK001', 'TEAM001'),
-('SUBTASK005', 'Mail for every one who will attend.', 'Find other mails in my chat.', 'Pending', 1, 2, '2024-10-7', NULL, 'TASK001', 'TEAM001');
+-- Dữ liệu cho bảng Subtask với submission_date cho trạng thái "Completed"
+INSERT INTO Subtask (subtask_id, subtask_name, description, status, priority, difficulty, assignment_date, deadline, submission_date, task_id, team_id) VALUES
+('SUBTASK001', 'Invintes involes people.', 'there are one from outside.', 'Completed', 1, 2, '2024-09-30 08:00:00', '2024-10-05 17:00:00', '2024-10-05 17:00:00', 'TASK001', 'TEAM001'),
+('SUBTASK002', 'Publish Article Subtask', 'Prepare content for article.', 'Completed', 2, 3, '2024-10-01 09:30:00', '2024-10-20 17:00:00', '2024-10-20 17:00:00', 'TASK002', 'TEAM001'),
+('SUBTASK003', 'Prepare Camera, documents', 'Camera must be abc.', 'In Progress', 2, 1, '2024-10-02 10:15:00', '2024-10-06 17:00:00', NULL, 'TASK001', 'TEAM001'),
+('SUBTASK004', 'Buy drinks.', 'only water.', 'Not Start', 3, 1, '2024-10-03 14:00:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001'),
+('SUBTASK005', 'Mail for every one who will attend.', 'Find other mails in my chat.', 'Pending', 1, 2, '2024-10-04 16:45:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001'),
+('SUBTASK006', 'Buy paper.', 'paper is A4.', 'In Progress', 1, 1, '2024-10-03 14:00:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001');
 
 -- Chèn dữ liệu vào TaskAssignment
 INSERT INTO TaskAssignment (task_id, created_by, assigned_to) VALUES
@@ -272,7 +273,8 @@ INSERT INTO SubtaskAssignment (subtask_id, created_by, assigned_to) VALUES
 ('SUBTASK002', 'ACC004', 'ACC005'),
 ('SUBTASK003', 'ACC004', 'ACC003'),
 ('SUBTASK004', 'ACC004', 'ACC003'),
-('SUBTASK005', 'ACC004', 'ACC003');
+('SUBTASK005', 'ACC004', 'ACC003'),
+('SUBTASK006', 'ACC004', 'ACC003');
 
 -- Dữ liệu cho bảng SubtaskEvaluation
 INSERT INTO SubtaskEvaluation (evaluation_id, evaluation_date, comment, subtask_id, teamwork_rating, timeliness_rating, kpi_rating) VALUES
@@ -284,8 +286,8 @@ INSERT INTO Credit (difficulty, credits) VALUES
 (1, 1),
 (2, 2),
 (3, 3),
-(4, 4),
-(5, 5);
+(4, 4);
+
 
 -- Dữ liệu cho bảng SubtaskCredit
 INSERT INTO SubtaskCredit (subtask_id, difficulty) VALUES

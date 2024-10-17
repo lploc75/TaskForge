@@ -56,5 +56,19 @@ namespace TaskForge.Service
         {
             return _employeeRepository.UpdateEmployee(accountId, updatedEmployee);
         }
+
+        public bool UpdateSubtaskStatus(string taskId, string status)
+        {
+            // Gọi repository để cập nhật trạng thái task
+            var task = _employeeRepository.GetSubtaskById(taskId);
+            if (task != null)
+            {
+                task.Status = status;
+                _employeeRepository.UpdateSubtask(task);
+                return true;
+            }
+            return false;
+        }
+
     }
 }

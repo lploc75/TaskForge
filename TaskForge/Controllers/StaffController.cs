@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskForge.Service;
 using TaskForge.Models;
 using System.Collections.Generic;
+using TaskForge.Repository;
 
 namespace TaskForge.Controllers
 {
@@ -70,16 +71,24 @@ namespace TaskForge.Controllers
 
         public IActionResult Task()
         {
+            // Lấy 'AccountId' từ các claims của người dùng hiện tại đã đăng nhập
             string accountId = User.FindFirst("AccountId")?.Value;
 
-            if (string.IsNullOrEmpty(accountId))
-            {
-                return RedirectToAction("Error", "Home");
-            }
+            //// Nếu 'AccountId' là null hoặc rỗng, tức là người dùng chưa xác thực
+            //if (string.IsNullOrEmpty(accountId))
+            //{
+            //    // Chuyển hướng đến action "Error" trong controller "Home" nếu không tìm thấy tài khoản hợp lệ
+            //    return RedirectToAction("Error", "Home");
+            //}
 
+            // Lấy danh sách các subtasks được gán cho tài khoản dựa vào accountId,
+            // nếu không tìm thấy subtasks nào, khởi tạo danh sách trống
             List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
-            return View(assignedSubtasks);  // Truyền Model trực tiếp
+
+            // Trả về View và truyền danh sách subtasks đã gán vào Model
+            return View(assignedSubtasks);
         }
+
         [HttpPost]
         public IActionResult UpdateProfile(string accountId, Employee updatedEmployee)
         {
@@ -129,6 +138,18 @@ namespace TaskForge.Controllers
             }
 
             return View(employee);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateStatus(string taskId, string status)
+        {
+            // Gọi service để cập nhật trạng thái task
+            var result = _employeeService.UpdateSubtaskStatus(taskId, status);
+            if (result)
+            {
+                return RedirectToAction("Task");
+            }
+            return RedirectToAction("Error", "Home");
         }
 
     }

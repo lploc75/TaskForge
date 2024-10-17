@@ -96,5 +96,17 @@ namespace TaskForge.Repository
 
             return false;
         }
+
+        public void UpdateSubtask(Models.Subtask subtask)
+        {
+            _context.Subtasks.Update(subtask);
+            _context.SaveChanges();
+        }
+
+        public Models.Subtask GetSubtaskById(string id)
+        {
+            return _context.Subtasks.Find(id); // Đảm bảo `_context.Subtasks` đúng với bảng `subtask`
+        }
+
     }
 }

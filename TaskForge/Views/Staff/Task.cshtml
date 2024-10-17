@@ -48,7 +48,7 @@
                 <h2>In Progress Tasks (@Model.Where(s => s.Status == "In Progress").Count())</h2>
                 <span class="arrow-icon">&#9652;</span> <!-- Mũi tên lên mặc định -->
             </div>
-            <div class="task-list" id="inProgressTaskList">
+            <div class="task-list" id="inProgressTaskList" style="display: block;">
                 @foreach (var subtask in Model.Where(s => s.Status == "In Progress"))
                 {
                     <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
@@ -57,7 +57,12 @@
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
-            
+                    <!-- Form để Submit Task -->
+                    <form method="post" action="/Staff/UpdateStatus">
+                        <input type="hidden" name="taskId" value="@subtask.SubtaskId" />
+                        <input type="hidden" name="status" value="Pending" />
+                        <button type="submit" class="button">Submit Task</button>
+                    </form>
                 }
             </div>
         </div>
@@ -84,11 +89,11 @@
         <!-- Not Started Tasks Section -->
         <div class="task-container">
             <div class="task-header" onclick="toggleSection('notStartedTaskList', this)">
-                <h2>Not Started Tasks (@Model.Where(s => s.Status == "Not Started").Count())</h2>
+                <h2>Not Started Tasks (@Model.Where(s => s.Status == "Not Start").Count())</h2>
                 <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
             </div>
             <div class="task-list" id="notStartedTaskList" style="display: none;">
-                @foreach (var subtask in Model.Where(s => s.Status == "Not Started"))
+                @foreach (var subtask in Model.Where(s => s.Status == "Not Start"))
                 {
                     <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
                     '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
@@ -96,6 +101,12 @@
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
+                    <!-- Form để Accept Task -->
+                    <form method="post" action="/Staff/UpdateStatus">
+                        <input type="hidden" name="taskId" value="@subtask.SubtaskId" />
+                        <input type="hidden" name="status" value="In Progress" />
+                        <button type="submit" class="button">Accept Task</button>
+                    </form>
                 }
             </div>
         </div>
@@ -115,6 +126,12 @@
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
+                    <!-- Form để Accept Task -->
+                    <form method="post" action="/Staff/UpdateStatus">
+                        <input type="hidden" name="taskId" value="@subtask.SubtaskId" />
+                        <input type="hidden" name="status" value="In Progress" />
+                        <button type="submit" class="button">Unsubmit</button>
+                    </form>
                 }
             </div>
         </div>
@@ -188,7 +205,7 @@
             if (status === "In Progress") {
                 document.getElementById('uploadButton').style.display = 'inline-block';
                 document.getElementById('submitButton').style.display = 'inline-block';
-            } else if (status === "Not Started") {
+            } else if (status === "Not Start") {
                 document.getElementById('acceptButton').style.display = 'inline-block';
             } else if (status === "Pending") {
                 document.getElementById('unsubmitButton').style.display = 'inline-block';
@@ -203,12 +220,12 @@
             const arrowIcon = headerElement.querySelector('.arrow-icon');
 
             // Chuyển đổi trạng thái hiển thị
-            if (section.style.display === 'none' || section.style.display === '') {
-                section.style.display = 'block';
-                arrowIcon.innerHTML = '&#9652;'; // Mũi tên lên
-            } else {
+            if (section.style.display === 'block') {
                 section.style.display = 'none';
                 arrowIcon.innerHTML = '&#9662;'; // Mũi tên xuống
+            } else {
+                section.style.display = 'block';
+                arrowIcon.innerHTML = '&#9652;'; // Mũi tên lên
             }
         }
 
