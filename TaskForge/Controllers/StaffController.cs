@@ -141,10 +141,10 @@ namespace TaskForge.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateStatus(string taskId, string status)
+        public IActionResult UpdateStatus(string subtaskId, string status)
         {
             // Gọi service để cập nhật trạng thái task
-            var result = _employeeService.UpdateSubtaskStatus(taskId, status);
+            var result = _employeeService.UpdateSubtaskStatus(subtaskId, status);
             if (result)
             {
                 return RedirectToAction("Task");

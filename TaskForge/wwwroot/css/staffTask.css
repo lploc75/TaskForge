@@ -70,13 +70,25 @@ body {
     padding: 15px;
     border-radius: 8px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Giúp nút nằm ở góc phải */
     align-items: center;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     margin-bottom: 10px;
 }
-
+    .task-item .task-info {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Khoảng cách giữa task-title và task-status */
+    }
+        .task-item .task-info .task-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .task-item .task-info .task-status {
+            font-size: 14px;
+            color: #555;
+        }
     .task-item:hover {
         background-color: #f4f4f4;
         cursor: pointer;
@@ -92,12 +104,14 @@ body {
         color: #555;
     }
 
+
+
 /* Button Container */
+
 .button-container {
     display: flex;
-    gap: 15px;
-    margin-top: 20px;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    align-items: center;
 }
 
     .button-container .button {
