@@ -57,18 +57,27 @@ namespace TaskForge.Service
             return _employeeRepository.UpdateEmployee(accountId, updatedEmployee);
         }
 
-        public bool UpdateSubtaskStatus(string taskId, string status)
+        public bool UpdateSubtaskStatus(string subtaskId, string status)
         {
-            // Gọi repository để cập nhật trạng thái task
-            var task = _employeeRepository.GetSubtaskById(taskId);
-            if (task != null)
+            // Gọi repository để lấy subtask
+            var subtask = _employeeRepository.GetSubtaskById(subtaskId);
+            if (subtask != null)
             {
-                task.Status = status;
-                _employeeRepository.UpdateSubtask(task);
+                subtask.Status = status;
+                if (status == "Pending")
+                {
+                    subtask.SubmissionDate = DateTime.Now; // Cập nhật SubmissionDate
+                }
+                else
+                {
+                    subtask.SubmissionDate = null;
+                }
+                _employeeRepository.UpdateSubtask(subtask);
                 return true;
             }
             return false;
         }
+
 
     }
 }
