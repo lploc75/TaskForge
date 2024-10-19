@@ -65,11 +65,13 @@
                                 <input type="hidden" name="status" value="Pending" />
                                 <button type="submit" class="button">Submit Task</button>
                             </form>
+                            <!-- Form để Upload File -->
+                            <form method="get" action="/Staff/UploadFile">
+                                <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                <button type="submit" class="button">Upload File</button>
+                            </form>
                         </div>
                     </div>
- 
-
- 
                 }
             </div>
         </div>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskForge.DBContext;
 using TaskForge.Repository;
 using TaskForge.Service;
+using static Dropbox.Api.TeamLog.EventCategory;
 
 namespace TaskForge
 {
@@ -23,6 +24,8 @@ namespace TaskForge
             builder.Services.AddScoped<AccountRepository>();         // Đăng ký AccountRepository nếu cần cho AccountService
             builder.Services.AddScoped<EmployeeService>();           // Đăng ký EmployeeService
             builder.Services.AddScoped<EmployeeRepository>();        // Đăng ký EmployeeRepository
+            builder.Services.AddScoped<DropboxService>();            // Đăng ký DropboxService với DI container
+            builder.Services.AddScoped<FileRepository>();        // Đăng ký FileRepository
 
             // Thêm dịch vụ MVC
             builder.Services.AddControllersWithViews();

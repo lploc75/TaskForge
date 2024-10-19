@@ -11,10 +11,13 @@ namespace TaskForge.Controllers
     public class StaffController : Controller
     {
         private readonly EmployeeService _employeeService;
+        private readonly DropboxService _dropboxService;
 
-        public StaffController(EmployeeService employeeService)
+        // Constructor duy nhất cho cả hai service
+        public StaffController(EmployeeService employeeService, DropboxService dropboxService)
         {
             _employeeService = employeeService;
+            _dropboxService = dropboxService;
         }
 
         public IActionResult Index()
@@ -150,6 +153,61 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Task");
             }
             return RedirectToAction("Error", "Home");
+        }
+        // Action để hiển thị trang upload file
+        [HttpGet]
+        public IActionResult UploadFile(string subtaskId)
+        {
+            ViewBag.SubtaskId = subtaskId; // Lưu trữ subtaskId để hiển thị trên view nếu cần
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(IFormFile file, string subtaskId)
+        {
+            if (file == null || file.Length == 0)
+            {
+                ViewBag.Message = "No file selected.";
+                return View();
+            }
+
+            // Lấy AccountId từ claim của người dùng đã đăng nhập
+            var accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                ViewBag.Message = "Could not determine account ID.";
+                return View();
+            }
+
+            // Lưu tệp tạm thời lên server
+            var tempFilePath = Path.Combine(Path.GetTempPath(), file.FileName);
+            using (var stream = new FileStream(tempFilePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Tạo đối tượng File để lưu thông tin tệp
+            var newFile = new Models.File
+            {
+                FileId = Guid.NewGuid().ToString(),
+                FileName = file.FileName,
+                UploadDate = DateOnly.FromDateTime(DateTime.Now),
+                SubtaskId = subtaskId, // Nhận SubtaskId từ query string
+                AccountId = accountId  // Lấy từ claim của người dùng hiện tại
+            };
+
+            // Tải tệp lên Dropbox trong thư mục TaskForge/AccountId với tên tệp subtaskId_TenFile và lưu thông tin vào database
+            var dropboxFilePath = await _dropboxService.UploadFileAsync(tempFilePath, file.FileName, accountId, subtaskId, newFile);
+
+            // Xóa tệp tạm thời sau khi tải lên
+            if (System.IO.File.Exists(tempFilePath))
+            {
+                System.IO.File.Delete(tempFilePath);
+            }
+
+            ViewBag.Message = "File uploaded successfully to Dropbox and saved to database.";
+
+            return View();
         }
 
     }

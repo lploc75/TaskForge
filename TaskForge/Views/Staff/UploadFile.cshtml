@@ -1,0 +1,23 @@
+﻿@model TaskForge.Models.File
+
+@{
+    ViewData["Title"] = "Upload File";
+    var subtaskId = ViewBag.SubtaskId;
+}
+
+<h2>Upload File for Subtask @subtaskId</h2>
+
+<form asp-controller="Staff" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="subtaskId" value="@subtaskId" />
+    <div class="form-group">
+        <label for="file">Choose File</label>
+        <input type="file" class="form-control" id="file" name="file" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+
+@if (ViewBag.Message != null)
+{
+        <div class="alert alert-info mt-3">@ViewBag.Message</div>
+}
