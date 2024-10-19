@@ -112,10 +112,11 @@ body {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    gap: 10px; /* Điều chỉnh khoảng cách giữa các nút */
 }
 
     .button-container .button {
-        padding: 10px 20px;
+        padding: 8px 16px; /* Giảm khoảng đệm (padding) để thu nhỏ phần màu xanh xung quanh chữ */
         font-size: 16px;
         background-color: #36b9cc;
         border: none;

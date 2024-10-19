@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="~/css/staffTask.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/staff/task.css" />
 </head>
 
 <style>
@@ -60,7 +60,7 @@
                         </div>
                         <div class="button-container">
                             <!-- Form để Submit Task -->
-                            <form method="post" action="/Staff/UpdateStatus">
+                            <form method="post" action="/Staff/UpdateStatus" onsubmit="return confirmSubmitTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="Pending" />
                                 <button type="submit" class="button">Submit Task</button>
@@ -113,7 +113,7 @@
                         </div>
                         <div class="button-container">
                             <!-- Form để Accept Task -->
-                            <form method="post" action="/Staff/UpdateStatus">
+                            <form method="post" action="/Staff/UpdateStatus" onsubmit="return confirmAcceptTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="In Progress" />
                                 <button type="submit" class="button">Accept Task</button>
@@ -142,7 +142,7 @@
                         </div>
                         <div class="button-container">
                             <!-- Form để Accept Task -->
-                            <form method="post" action="/Staff/UpdateStatus">
+                                <form method="post" action="/Staff/UpdateStatus" onsubmit="return confirmUnsubmitTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="In Progress" />
                                 <button type="submit" class="button">Unsubmit</button>
@@ -187,76 +187,6 @@
             <p id="modalContent">Task description and details go here.</p>
         </div>
     </div>
-  
-
-    <script>
-        function checkIfSubmit(event, title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description) {
-            // Kiểm tra nếu phần tử được click là nút submit
-            if (event.target.tagName === 'BUTTON' && event.target.type === 'submit') {
-                return; // Không làm gì nếu là nút submit
-            }
-
-            // Nếu không phải nút submit, mở modal
-            openModal(title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description);
-        }
-
-        function openModal(title, assigner, assignedDate, deadline ,submissionDate, priority, difficulty, status, description) {
-            const reward = difficulty * 10; // Tính phần thưởng dựa trên độ khó
-            // Gán các giá trị cho modal
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalAssigner').innerText = `Assigner: ${assigner}`;
-            document.getElementById('modalAssignedDate').innerText = `Assigned Date: ${assignedDate}`;
-            document.getElementById('modalDueDate').innerText = `Deadline: ${deadline}`;
-            document.getElementById('modalSubmissionDate').innerText = `Submission Date: ${submissionDate}`;
-            document.getElementById('modalReward').innerText = `Reward: ${reward} Credits`;
-            document.getElementById('modalContent').innerHTML = `
-                <p>Priority: ${priority}</p>
-                <p>Difficulty: ${difficulty}</p>
-                <p>Status: ${status}</p>
-                <p>Description: ${description}</p>
-            `;
-            // Hiển thị modal
-            document.getElementById('taskModal').style.display = 'flex';
-        }
-
-            function toggleSection(sectionId, headerElement) {
-            const section = document.getElementById(sectionId);
-            const arrowIcon = headerElement.querySelector('.arrow-icon');
-
-            // Chuyển đổi trạng thái hiển thị
-            if (section.style.display === 'block') {
-                section.style.display = 'none';
-                arrowIcon.innerHTML = '&#9662;'; // Mũi tên xuống
-            } else {
-                section.style.display = 'block';
-                arrowIcon.innerHTML = '&#9652;'; // Mũi tên lên
-            }
-        }
-
-
-        function closeModal() {
-            document.getElementById('taskModal').style.display = 'none';
-        }
-
-        function createPersonalTask() {
-            alert("Opening personal task creation form.");
-        }
-
-        function uploadDocument() {
-            alert("Uploading document...");
-        }
-
-        function submitDocument() {
-            alert("Submitting task...");
-        }
-
-        function unsubmitTask() {
-            alert("Unsubmitting task...");
-        }
-
-        function acceptTask() {
-            alert("Accepting task...");
-        }
-    </script>
+  <script src="~/js/staff/task.js"></script>
 </body>
 </html>
