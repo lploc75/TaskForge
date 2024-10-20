@@ -1,0 +1,52 @@
+﻿/* Đặt khoảng cách giữa các thành phần trong form */
+.form-group {
+    margin-bottom: 15px; /* Khoảng cách dưới giữa mỗi phần của form */
+}
+
+    /* Định dạng cho nhãn (label) của form */
+    .form-group label {
+        font-weight: bold; /* In đậm chữ của nhãn */
+        margin-bottom: 5px; /* Khoảng cách dưới nhãn */
+        display: block; /* Hiển thị nhãn trên một dòng riêng */
+    }
+
+/* Định dạng cho input file */
+.form-control {
+    padding: 10px; /* Đệm bên trong ô input */
+    border-radius: 5px; /* Bo tròn các góc của ô input */
+    border: 1px solid #ccc; /* Viền của ô input */
+    width: 100%; /* Đặt chiều rộng bằng 100% của container */
+}
+
+/* Nút upload */
+.btn-primary {
+    background-color: #36b9cc; /* Màu nền của nút */
+    border: none; /* Loại bỏ viền */
+    border-radius: 5px; /* Bo tròn các góc của nút */
+    padding: 10px 20px; /* Khoảng đệm bên trong nút */
+    color: white; /* Màu chữ */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Thay đổi con trỏ thành dạng pointer khi hover */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển đổi màu khi hover */
+}
+
+    .btn-primary:hover {
+        background-color: #2a9aa8; /* Màu nền khi hover */
+    }
+
+/* Thông báo khi upload thành công hoặc lỗi */
+.alert {
+    padding: 15px; /* Đệm bên trong hộp thông báo */
+    border-radius: 5px; /* Bo tròn các góc của hộp */
+    font-size: 14px; /* Kích thước chữ trong thông báo */
+}
+
+.alert-info {
+    background-color: #d1ecf1; /* Màu nền thông báo thông tin */
+    color: #0c5460; /* Màu chữ thông báo thông tin */
+}
+
+/* Khoảng cách trên của thông báo */
+.mt-3 {
+    margin-top: 20px;
+}

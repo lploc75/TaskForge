@@ -99,10 +99,10 @@ namespace TaskForge.Controllers
 
                 // Xử lý đăng nhập thành công
                 var claims = new List<Claim>
-        {
-            new Claim("AccountId", validatedAccount.AccountId.ToString()),
-            new Claim(ClaimTypes.Role, role)
-        };
+                {
+                    new Claim("AccountId", validatedAccount.AccountId.ToString()),
+                    new Claim(ClaimTypes.Role, role)
+                };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties

@@ -108,5 +108,31 @@ namespace TaskForge.Repository
             return _context.Subtasks.Find(id); // Đảm bảo `_context.Subtasks` đúng với bảng `subtask`
         }
 
+        public async Task<List<Subtask>> GetFilteredTasksAsync(string status, string priority, string difficulty, DateTime? deadline)
+        {
+            var query = _context.Subtasks.AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(t => t.Status == status);
+            }
+
+            if (!string.IsNullOrEmpty(priority))
+            {
+                query = query.Where(t => t.Priority == int.Parse(priority));
+            }
+
+            if (!string.IsNullOrEmpty(difficulty))
+            {
+                query = query.Where(t => t.Difficulty == int.Parse(difficulty));
+            }
+
+            if (deadline.HasValue)
+            {
+                query = query.Where(t => t.Deadline <= deadline);
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }

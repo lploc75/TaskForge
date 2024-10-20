@@ -18,4 +18,6 @@ public partial class Project
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 
     public virtual ICollection<Employee> Accounts { get; set; } = new List<Employee>();
+
+    public virtual ICollection<Department> Depts { get; set; } = new List<Department>();
 }

@@ -1,0 +1,53 @@
+﻿@model TaskForge.Models.File
+
+@{
+    ViewData["Title"] = "Upload File";
+    Layout = "_StaffLayout";
+    var subtaskId = ViewBag.SubtaskId;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Liên kết tệp CSS ngoài -->
+    <link rel="stylesheet" href="~/css/staff/uploadcs.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>Upload File for Subtask @ViewBag.SubtaskId</h2>
+
+        <!-- Form upload file -->
+        <form asp-controller="Staff" asp-action="UploadFile" method="post"
+              enctype="multipart/form-data" onsubmit="return confirmUploadFile()">
+            <input type="hidden" name="subtaskId" value="@ViewBag.SubtaskId" />
+
+            <!-- Chọn file -->
+            <div class="form-group">
+                <label for="file">Choose File</label>
+                <input type="file" class="form-control" id="file" name="file" />
+            </div>
+
+            <!-- Nút upload -->
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+
+        <!-- Hiển thị thông báo -->
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-info mt-3">@ViewBag.Message</div>
+        }
+    </div>
+    <!-- Scripts nếu cần -->
+    <script>
+        // Hàm xác nhận khi upload file
+        function confirmUploadFile() {
+            return confirm("Are you sure you want to upload the file?");
+        }
+    </script>
+</body>
+</html>

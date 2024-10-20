@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskForge.DBContext;
 using TaskForge.Repository;
 using TaskForge.Service;
+using static Dropbox.Api.TeamLog.EventCategory;
 
 namespace TaskForge
 {
@@ -17,12 +18,23 @@ namespace TaskForge
                 options.UseSqlServer(builder.Configuration.GetConnectionString("LocConnection")));
 
             // Đăng ký các dịch vụ với Dependency Injection
-            builder.Services.AddMemoryCache();                       // Thêm In-Memory Cache
-            builder.Services.AddScoped<EmailService>();              // Đăng ký EmailService
-            builder.Services.AddScoped<AccountService>();            // Đăng ký AccountService
-            builder.Services.AddScoped<AccountRepository>();         // Đăng ký AccountRepository nếu cần cho AccountService
-            builder.Services.AddScoped<EmployeeService>();           // Đăng ký EmployeeService
-            builder.Services.AddScoped<EmployeeRepository>();        // Đăng ký EmployeeRepository
+            builder.Services.AddMemoryCache();
+            builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<AccountService>();
+            builder.Services.AddScoped<AccountRepository>();
+            builder.Services.AddScoped<EmployeeService>();
+            builder.Services.AddScoped<EmployeeRepository>();
+            builder.Services.AddScoped<DropboxService>();
+            builder.Services.AddScoped<FileRepository>();
+            builder.Services.AddHttpContextAccessor();
+
+            // Thêm dịch vụ Session
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn session
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             // Thêm dịch vụ MVC
             builder.Services.AddControllersWithViews();
@@ -31,8 +43,8 @@ namespace TaskForge
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Account/Login";             // Trang đăng nhập
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Thời gian hết hạn của Cookie
+                    options.LoginPath = "/Account/Login";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 });
 
             // Thêm dịch vụ Authorization
@@ -44,12 +56,14 @@ namespace TaskForge
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();                                       // HSTS cho sản xuất
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            // Kích hoạt session
+            app.UseSession();
             app.UseRouting();
 
             // Thêm UseAuthentication trước UseAuthorization

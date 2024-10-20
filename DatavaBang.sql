@@ -46,6 +46,13 @@ CREATE TABLE Project (
     status VARCHAR(50),
     deadline DATETIME,
 );
+CREATE TABLE DepartmentProject(
+	project_id INT,
+	dept_id VARCHAR(10),
+	PRIMARY KEY(project_id, dept_id),
+	FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+);
 CREATE TABLE EmployeeProject(
     account_id VARCHAR(10),
     project_id INT,
@@ -168,6 +175,16 @@ CREATE TABLE Comment (
     subtask_id VARCHAR(10),
     FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id)
 );
+CREATE TABLE [File] (
+    file_id NVARCHAR(50) PRIMARY KEY,  -- Kiểu chuỗi với độ dài 50 ký tự
+    file_name NVARCHAR(255) NOT NULL,
+    upload_date DATE NOT NULL,
+    file_path NVARCHAR(255) NOT NULL,
+	account_id VARCHAR(10),
+	subtask_id VARCHAR(10),
+	FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id),
+    FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id)
+);
 
 -- Dữ liệu cho bảng Account
 INSERT INTO Account (account_id, username, password, email, phone_number) VALUES
@@ -250,8 +267,7 @@ INSERT INTO Subtask (subtask_id, subtask_name, description, status, priority, di
 ('SUBTASK002', 'Publish Article Subtask', 'Prepare content for article.', 'Completed', 2, 3, '2024-10-01 09:30:00', '2024-10-20 17:00:00', '2024-10-20 17:00:00', 'TASK002', 'TEAM001'),
 ('SUBTASK003', 'Prepare Camera, documents', 'Camera must be abc.', 'In Progress', 2, 1, '2024-10-02 10:15:00', '2024-10-06 17:00:00', NULL, 'TASK001', 'TEAM001'),
 ('SUBTASK004', 'Buy drinks.', 'only water.', 'Not Start', 3, 1, '2024-10-03 14:00:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001'),
-('SUBTASK005', 'Mail for every one who will attend.', 'Find other mails in my chat.', 'Pending', 1, 2, '2024-10-04 16:45:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001'),
-('SUBTASK006', 'Buy paper.', 'paper is A4.', 'In Progress', 1, 1, '2024-10-03 14:00:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001');
+('SUBTASK005', 'Mail for every one who will attend.', 'Find other mails in my chat.', 'Pending', 1, 2, '2024-10-04 16:45:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001');
 
 -- Chèn dữ liệu vào TaskAssignment
 INSERT INTO TaskAssignment (task_id, created_by, assigned_to) VALUES
@@ -273,8 +289,7 @@ INSERT INTO SubtaskAssignment (subtask_id, created_by, assigned_to) VALUES
 ('SUBTASK002', 'ACC004', 'ACC005'),
 ('SUBTASK003', 'ACC004', 'ACC003'),
 ('SUBTASK004', 'ACC004', 'ACC003'),
-('SUBTASK005', 'ACC004', 'ACC003'),
-('SUBTASK006', 'ACC004', 'ACC003');
+('SUBTASK005', 'ACC004', 'ACC003');
 
 -- Dữ liệu cho bảng SubtaskEvaluation
 INSERT INTO SubtaskEvaluation (evaluation_id, evaluation_date, comment, subtask_id, teamwork_rating, timeliness_rating, kpi_rating) VALUES

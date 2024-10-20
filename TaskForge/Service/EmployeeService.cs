@@ -78,6 +78,9 @@ namespace TaskForge.Service
             return false;
         }
 
-
+        public async Task<List<Subtask>> GetFilteredTasksAsync(string status, string priority, string difficulty, DateTime? deadline)
+        {
+            return await _employeeRepository.GetFilteredTasksAsync(status, priority, difficulty, deadline);
+        }
     }
 }
