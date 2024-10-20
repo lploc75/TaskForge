@@ -56,6 +56,7 @@ CREATE TABLE DepartmentProject(
 CREATE TABLE EmployeeProject(
     account_id VARCHAR(10),
     project_id INT,
+    role VARCHAR(50),
     PRIMARY KEY (account_id, project_id),
     FOREIGN KEY (account_id) REFERENCES Employee(account_id),
     FOREIGN KEY (project_id) REFERENCES Project(project_id)
@@ -229,10 +230,11 @@ INSERT INTO Project (project_id, project_name, description, status, deadline) VA
 
 
 -- Dữ liệu cho bảng EmployeeProject
-INSERT INTO EmployeeProject (account_id, project_id) VALUES
-('ACC003', 1),
-('ACC004', 1),
-('ACC005', 1);
+INSERT INTO EmployeeProject (account_id, project_id, role) VALUES
+('ACC003', 1 , 'Staff'),
+('ACC004', 1, 'Leader'),
+('ACC005', 1, 'Staff'),
+('ACC002', 1, 'Manager');
 
 -- Dữ liệu cho bảng EmployeeTeam
 INSERT INTO EmployeeTeam (account_id, team_id) VALUES

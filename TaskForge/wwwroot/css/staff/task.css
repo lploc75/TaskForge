@@ -1,4 +1,13 @@
-﻿/* Reset */
+﻿.task-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.arrow-icon {
+    margin-left: auto;
+    font-size: 3em; /* Tăng kích thước mũi tên */
+}/* Reset */
 * {
     margin: 0;
     padding: 0;
