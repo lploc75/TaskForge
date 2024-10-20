@@ -46,6 +46,13 @@ CREATE TABLE Project (
     status VARCHAR(50),
     deadline DATETIME,
 );
+CREATE TABLE DepartmentProject(
+	project_id INT,
+	dept_id VARCHAR(10),
+	PRIMARY KEY(project_id, dept_id),
+	FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+);
 CREATE TABLE EmployeeProject(
     account_id VARCHAR(10),
     project_id INT,

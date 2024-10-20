@@ -1,4 +1,15 @@
-﻿
+﻿function filterTasksByStatus() {
+    var status = document.getElementById("status").value;
+
+    // Hide/Show sections based on the selected status
+    document.getElementById("inProgressTaskSection").style.display = (status === "In Progress" || status === "") ? "block" : "none";
+    document.getElementById("completedTaskSection").style.display = (status === "Completed" || status === "") ? "block" : "none";
+    document.getElementById("pendingTaskSection").style.display = (status === "Completed" || status === "") ? "block" : "none";
+    document.getElementById("notStartedSection").style.display = (status === "Completed" || status === "") ? "block" : "none";
+    document.getElementById("personalTaskSection").style.display = (status === "Completed" || status === "") ? "block" : "none";
+
+    // Add similar logic for other sections
+}
     function checkIfSubmit(event, title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description) {
             // Kiểm tra nếu phần tử được click là nút submit
             if (event.target.tagName === 'BUTTON' && event.target.type === 'submit') {

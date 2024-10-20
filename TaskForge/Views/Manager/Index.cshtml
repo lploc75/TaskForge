@@ -1,6 +1,300 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model TaskForge.Models.Employee
+
 @{
+    ViewData["Title"] = "Trang chủ";
+    Layout = "_ManagerLayout"; // Changed the layout for manager if needed
 }
-<p>Manager</p>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Profile</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="~/css/manager.css" /> <!-- Include manager-specific CSS -->
+
+</head>
+<style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa; /* Light blue background */
+            color: #333;
+            margin: 20px;
+        }
+
+        /* Profile Container */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            background-color: #f0f4ff; /* Light blue */
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #333;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 95%;
+        }
+
+        .profile-left {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .profile-image {
+            width: 150px; /* Increase avatar size */
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 20px;
+            background-color: #ddd; /* Grey background for avatar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .profile-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .basic-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .basic-info h2 {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            .basic-info p {
+                font-size: 16px;
+                margin: 3px 0;
+            }
+
+        .status {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #4CAF50; /* Green */
+            border-radius: 15px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            max-width: fit-content;
+        }
+
+        .profile-right {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+
+            .contact-info i {
+                color: #007bff; /* Blue for icon */
+                margin-right: 10px;
+                font-size: 18px;
+            }
+
+            .contact-info span {
+                color: #333;
+                font-size: 16px;
+            }
+
+
+        /* Notification Dropdown Styling */
+        .notification-dropdown {
+            display: none;
+    position: fixed;
+            top: 50px;
+            right: 10px;
+            width: 300px;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1500;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+            .notification-dropdown h3 {
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .tab {
+            cursor: pointer;
+            padding: 5px;
+        }
+
+            .tab.active {
+                color: #007bff;
+                font-weight: bold;
+                border-bottom: 2px solid #007bff;
+            }
+
+        .notification-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+            .notification-item:hover {
+                background-color: #f0f4ff;
+            }
+
+            .notification-item.unread::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                background-color: #007bff;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+            .notification-item img.user-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+            .notification-item p {
+                margin: 0;
+                flex: 1;
+            }
+
+            .notification-item span {
+                font-size: 12px;
+                color: #666;
+            }
+
+        /* Bell Icon */
+        .icon-container .fa-bell {
+            font-size: 24px;
+            color: #007bff; /* Blue */
+            cursor: pointer;
+        }
+
+</style>
+<body>
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <div class="profile-left">
+            <div class="profile-image">
+                <img src="https://via.placeholder.com/150" alt="Avatar">
+            </div>
+            <div class="basic-info">
+                <h2>@(Model?.Fullname ?? "N/A")</h2>
+                <p>@(Model?.Role ?? "N/A") - Mã @(Model?.AccountId ?? "N/A")</p>
+                <p>@(Model?.Dept?.DeptName ?? "N/A")</p>
+                <span class="status">@(Model?.Status ?? "N/A")</span>
+            </div>
+        </div>
+        <div class="profile-right">
+            <!-- Phone number from Account if available, else use "N/A" -->
+            <div class="contact-info">
+                <i class="fas fa-phone"></i>
+                <span>@(Model?.Account?.PhoneNumber ?? "N/A")</span>
+            </div>
+            <!-- Email from Account model -->
+            <div class="contact-info">
+                <i class="fas fa-envelope"></i>
+                <span>@(Model?.Account?.Email ?? "N/A")</span>
+            </div>
+            <!-- Additional Information (if any) -->
+            <div class="contact-info">
+                <i class="fas fa-id-badge"></i>
+                <span>Ngày bắt đầu: @(Model?.StartDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+            </div>
+            <div class="contact-info">
+                <i class="fas fa-id-badge"></i>
+                <span>Ngày kết thúc: @(Model?.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    const notificationDropdown = document.getElementById("notificationDropdown");
+    const bellIcon = document.querySelector(".icon-container .fa-bell");
+    const allTab = document.getElementById("all-tab");
+    const unreadTab = document.getElementById("unread-tab");
+    const notificationItems = document.querySelectorAll(".notification-item");
+
+    // Toggle notification dropdown on bell icon click
+    bellIcon.addEventListener("click", function (event) {
+        event.stopPropagation();
+        notificationDropdown.style.display = notificationDropdown.style.display === "none" ? "block" : "none";
+    });
+
+    // Close the dropdown when clicking outside
+    window.addEventListener("click", function (event) {
+        if (!notificationDropdown.contains(event.target) && event.target !== bellIcon) {
+            notificationDropdown.style.display = "none";
+        }
+    });
+
+    // Mark notification as read
+    function markAsRead(item) {
+        item.classList.remove("unread");
+    }
+
+    // Show all notifications when "All" tab is clicked
+    allTab.addEventListener("click", function () {
+        allTab.classList.add("active");
+        unreadTab.classList.remove("active");
+        notificationItems.forEach(item => item.style.display = "flex");
+    });
+
+    // Show only unread notifications when "Unread" tab is clicked
+    unreadTab.addEventListener("click", function () {
+        unreadTab.classList.add("active");
+        allTab.classList.remove("active");
+        notificationItems.forEach(item => {
+            if (item.classList.contains("unread")) {
+                item.style.display = "flex";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    });
+
+</script>
+</html>
