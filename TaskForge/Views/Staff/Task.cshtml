@@ -43,10 +43,10 @@
         </div>
 
         <!-- Filter Form -->
-        <form asp-action="TaskFilter" method="get">
+        <form asp-action="FilteredTasks" method="get">
             <div class="form-group">
                 <label for="status">Status</label>
-                <select id="status" name="status" class="form-control" onchange="filterTasksByStatus()">
+                <select id="status" name="status" class="form-control">
                     <option value="">All</option>
                     <option value="Completed">Completed</option>
                     <option value="In Progress">In Progress</option>
@@ -85,8 +85,9 @@
             <button type="submit" class="btn btn-primary">Filter</button>
         </form>
 
+
         <!-- In Progress Tasks Section -->
-        <div class="task-container" id="inProgressTaskSection">
+        <div class="task-container">
             <div class="task-header" onclick="toggleSection('inProgressTaskList', this)">
                 <h2>In Progress Tasks (@Model.Where(s => s.Status == "In Progress").Count())</h2>
                 <span class="arrow-icon">&#9652;</span> <!-- Mũi tên lên mặc định -->
@@ -120,7 +121,7 @@
         </div>
 
         <!-- Personal Tasks Section -->
-        <div class="task-container" id="personalTaskSection">
+        <div class="task-container">
             <div class="task-header" onclick="toggleSection('personalTaskList', this)">
                 <h2>Personal Tasks (@Model.Where(s => s.Status == "Personal Task").Count())</h2>
                 <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
@@ -139,7 +140,7 @@
         </div>
 
         <!-- Not Started Tasks Section -->
-        <div class="task-container" id="notStartedSection">
+        <div class="task-container">
             <div class="task-header" onclick="toggleSection('notStartedTaskList', this)">
                 <h2>Not Started Tasks (@Model.Where(s => s.Status == "Not Start").Count())</h2>
                 <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
@@ -168,7 +169,7 @@
         </div>
 
         <!-- Pending Tasks Section -->
-        <div class="task-container" id="pendingTaskSection">
+        <div class="task-container" >
             <div class="task-header" onclick="toggleSection('pendingTaskList', this)">
                 <h2>Pending Tasks (@Model.Where(s => s.Status == "Pending").Count())</h2>
                 <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
@@ -198,7 +199,7 @@
         </div>
 
         <!-- View Task History Section -->
-        <div class="task-container" id="completedTaskSection">
+        <div class="task-container">
             <div class="task-header" onclick="toggleSection('completedTaskList', this)">
                 <h2>View Task History (@Model.Where(s => s.Status == "Completed").Count())</h2>
                 <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->

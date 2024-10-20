@@ -1,0 +1,73 @@
+﻿@model List<TaskForge.Models.Subtask>
+
+@{
+    ViewData["Title"] = "Filtered Tasks";
+    Layout = "_StaffLayout";
+}
+
+<div class="main-content">
+    <!-- Filter Form -->
+    <form asp-action="FilteredTasks" method="get">
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                <option value="">All</option>
+                <option value="Completed">Completed</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Not Start">Not Start</option>
+                <option value="Pending">Pending</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority" class="form-control">
+                <option value="">All</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="difficulty">Difficulty</label>
+            <select id="difficulty" name="difficulty" class="form-control">
+                <option value="">All</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="deadline">Deadline</label>
+            <input type="date" id="deadline" name="deadline" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+
+    <h2>Filtered Tasks</h2>
+    <div class="task-list">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var subtask in Model)
+            {
+                <div class="task-item">
+                    <h3>@subtask.SubtaskName (@subtask.Status)</h3>
+                    <p>Priority: @subtask.AssignmentDate</p>
+                    <p>Deadline: @subtask.Deadline?.ToString("dd/MM/yyyy")</p>
+                    <p>Priority: @subtask.Priority</p>
+                    <p>Difficulty: @subtask.Difficulty</p>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No tasks found with the specified criteria.</p>
+        }
+    </div>
+</div>

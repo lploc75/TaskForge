@@ -26,6 +26,9 @@ namespace TaskForge
             builder.Services.AddScoped<EmployeeRepository>();
             builder.Services.AddScoped<DropboxService>();
             builder.Services.AddScoped<FileRepository>();
+            builder.Services.AddScoped<ProjectRepository>();
+            builder.Services.AddScoped<ProjectService>();
+
             builder.Services.AddHttpContextAccessor();
 
             // Thêm dịch vụ Session

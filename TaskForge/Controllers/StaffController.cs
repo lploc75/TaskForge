@@ -92,12 +92,11 @@ namespace TaskForge.Controllers
             return View(assignedSubtasks);
         }
         [HttpGet]
-        public async Task<IActionResult> TaskFilter(string status, string priority, string difficulty, DateTime? deadline)
+        public async Task<IActionResult> FilteredTasks(string status, string priority, string difficulty, DateTime? deadline)
         {
             var filteredTasks = await _employeeService.GetFilteredTasksAsync(status, priority, difficulty, deadline);
-            return View("Task", filteredTasks); // Return filtered tasks to the view
+            return View("FilteredTasks", filteredTasks); // Return filtered tasks to the view
         }
-
 
         [HttpPost]
         public IActionResult UpdateProfile(string accountId, Employee updatedEmployee)
