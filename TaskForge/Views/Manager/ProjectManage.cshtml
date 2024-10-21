@@ -1,0 +1,498 @@
+﻿@{
+    Layout = "_ManagerLayout";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Kanban Quản lý dự án</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        /* Kanban Board Styling */
+        .kanban-board {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .header h1 {
+                font-size: 24px;
+                color: #333;
+            }
+
+        .search-input {
+            width: 300px;
+            padding: 12px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+        }
+
+        /* Kanban Sections */
+        .kanban-section {
+            margin-bottom: 40px;
+            padding: 15px;
+            background-color: #ffffffc1;
+            border-radius: 10px;
+        }
+
+            .kanban-section h2 {
+                font-size: 20px;
+                color: #333;
+                margin-bottom: 15px;
+            }
+
+        .kanban-row {
+            display: flex;
+            justify-content: left;
+            gap: 50px;
+        }
+
+        /* Kanban Cards */
+        .task-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .task-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .task-card h3 {
+                font-size: 18px;
+                color: #007bff;
+                margin-bottom: 10px;
+            }
+
+            .task-card p {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 10px;
+            }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 8px;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .progress-completed {
+            background-color: #4CAF50;
+        }
+
+        .progress-ongoing {
+            background-color: #007bff;
+        }
+
+        .progress-cancelled {
+            background-color: #FF5722;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+            .btn-edit:hover {
+                background-color: #138496;
+            }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+            .btn-delete:hover {
+                background-color: #c82333;
+            }
+
+        .create-project-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            transition: background-color 0.3s;
+        }
+
+            .create-project-btn:hover {
+                background-color: #388e3c;
+            }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 40%;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+            .close:hover {
+                color: #555;
+            }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .modal-content button:hover {
+                background-color: #0056b3;
+            }
+
+    </style>
+</head>
+<body>
+    <div class="kanban-board">
+        <div class="header">
+            <h1>Bảng Kanban - Quản lý dự án</h1>
+            <div class="actions">
+                <input type="text" class="search-input" placeholder="Tìm kiếm...">
+            </div>
+        </div>
+
+        <!-- Section 1: Đang Tiến Hành -->
+        <div class="kanban-section">
+            <h2>Đang tiến hành</h2>
+            <div class="kanban-row">
+                @try
+                {
+                    @if (ViewBag.OngoingProjects != null && ViewBag.OngoingProjects.Count > 0)
+                    {
+                        @foreach (var project in ViewBag.OngoingProjects)
+                        {
+                            <div class="task-card">
+                                <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
+                                <p>Mô tả: @project.Description</p>
+                                <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
+                                <div class="progress-bar">
+                                    <div class="progress progress-ongoing" style="width: 60%;"></div>
+                                </div>
+                                <span>Trạng thái: @project.Status</span>
+
+                                <!-- Edit and Delete Buttons -->
+                                @{
+                                    var departmentIds = "";
+                                    foreach (var department in project.Departments)
+                                    {
+                                        departmentIds += department.DeptId + ",";
+                                    }
+                                    departmentIds = departmentIds.TrimEnd(','); // Xóa dấu phẩy cuối cùng
+                                }
+                                <button class="btn btn-edit"
+                                        onclick="openEditModal('@project.ProjectId', '@project.ProjectName', '@project.Description', '@project.Deadline?.ToString("yyyy-MM-dd")', '@departmentIds')">
+                                    Sửa
+                                </button>
+
+                                <button class="btn btn-delete" onclick="openDeleteModal('@project.ProjectId', '@project.ProjectName')">Xóa</button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>Không có dự án nào đang tiến hành.</p>
+                    }
+                }
+                catch (Exception ex)
+                {
+                    <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
+                }
+            </div>
+        </div>
+
+        <!-- Section 2: Đã Hoàn Thành -->
+        <div class="kanban-section">
+            <h2>Đã hoàn thành</h2>
+            <div class="kanban-row">
+                @try
+                {
+                    @if (ViewBag.CompletedProjects != null && ViewBag.CompletedProjects.Count > 0)
+                    {
+                        @foreach (var project in ViewBag.CompletedProjects)
+                        {
+                            <div class="task-card">
+                                <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
+                                <p>Mô tả: @project.Description</p>
+                                <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
+                                <div class="progress-bar">
+                                    <div class="progress progress-completed" style="width: 100%;"></div>
+                                </div>
+                                <span>Trạng thái: @project.Status</span>
+                                <button class="btn btn-edit" onclick="openEditModal('@project.ProjectId')">Sửa</button>
+                                <button class="btn btn-delete" onclick="deleteProject('@project.ProjectId')">Xóa</button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>Không có dự án nào đã hoàn thành.</p>
+                    }
+                }
+                catch (Exception ex)
+                {
+                    <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
+                }
+            </div>
+        </div>
+
+        <!-- Section 3: Đã Hủy -->
+        <div class="kanban-section">
+            <h2>Đã hủy</h2>
+            <div class="kanban-row">
+                @try
+                {
+                    @if (ViewBag.CancelledProjects != null && ViewBag.CancelledProjects.Count > 0)
+                    {
+                        @foreach (var project in ViewBag.CancelledProjects)
+                        {
+                            <div class="task-card">
+                                <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
+                                <p>Mô tả: @project.Description</p>
+                                <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
+                                <div class="progress-bar">
+                                    <div class="progress progress-cancelled" style="width: 20%;"></div>
+                                </div>
+                                <span>Trạng thái: @project.Status</span>
+                                <button class="btn btn-edit" onclick="openEditModal('@project.ProjectId')">Sửa</button>
+                                <button class="btn btn-delete" onclick="deleteProject('@project.ProjectId')">Xóa</button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>Không có dự án nào đã hủy.</p>
+                    }
+                }
+                catch (Exception ex)
+                {
+                    <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
+                }
+            </div>
+        </div>
+
+        <!-- Nút Tạo Mới Dự Án -->
+        <button class="create-project-btn" onclick="openModal()">+ Tạo dự án mới</button>
+    </div>
+
+    <!-- Modal tạo dự án mới -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Tạo dự án mới</h2>
+            <form asp-action="CreateProject" method="post">
+                <label for="project-name">Tên dự án</label>
+                <input type="text" id="project-name" name="ProjectName" placeholder="Nhập tên dự án..." required>
+
+                <label for="description">Mô tả dự án</label>
+                <textarea id="description" name="Description" rows="3" placeholder="Mô tả về dự án..."></textarea>
+
+                <label for="deadline">Hạn chót</label>
+                <input type="date" id="deadline" name="Deadline" required>
+
+                <!-- Chọn nhiều phòng ban -->
+                <label for="departments">Chọn phòng ban</label>
+                @foreach (var department in ViewBag.Departments)
+                {
+                    <div>
+                        <input type="checkbox" id="department-@department.DeptId" name="SelectedDepartments" value="@department.DeptId">
+                        <label for="department-@department.DeptId">@department.DeptName</label>
+                    </div>
+                }
+
+                <button type="submit">Tạo dự án</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal chỉnh sửa dự án -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Chỉnh sửa dự án</h2>
+            <form asp-action="EditProject" method="post">
+                <input type="hidden" id="edit-project-id" name="ProjectId">
+
+                <label for="edit-project-name">Tên dự án</label>
+                <input type="text" id="edit-project-name" name="ProjectName" required>
+
+                <label for="edit-description">Mô tả dự án</label>
+                <textarea id="edit-description" name="Description" rows="3"></textarea>
+
+                <label for="edit-deadline">Hạn chót</label>
+                <input type="date" id="edit-deadline" name="Deadline" required>
+
+                <label for="edit-departments">Chọn phòng ban</label>
+                @foreach (var department in ViewBag.Departments)
+                {
+                    <div>
+                        <input type="checkbox" class="edit-department-checkbox" id="edit-department-@department.DeptId" name="SelectedDepartments" value="@department.DeptId">
+                        <label for="edit-department-@department.DeptId">@department.DeptName</label>
+                    </div>
+                }
+
+                <button type="submit">Cập nhật dự án</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal xóa dự án -->
+    <div id="deleteModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+            <h2>Xóa dự án</h2>
+            <p>Bạn có chắc chắn muốn xóa dự án "<span id="delete-project-name"></span>"?</p>
+            <form asp-action="DeleteProject" method="post">
+                <input type="hidden" id="delete-project-id" name="ProjectId">
+                <button type="submit" class="btn btn-delete">Xóa</button>
+                <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mở modal tạo dự án mới
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // Đóng modal tạo dự án mới
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Mở modal chỉnh sửa dự án
+        function openEditModal(projectId, projectName, description, deadline, departments) {
+            // Đặt giá trị cho các trường trong modal chỉnh sửa
+            document.getElementById('edit-project-id').value = projectId;
+            document.getElementById('edit-project-name').value = projectName;
+            document.getElementById('edit-description').value = description;
+            document.getElementById('edit-deadline').value = deadline;
+
+            // Đặt phòng ban đã chọn
+            let departmentCheckboxes = document.querySelectorAll('.edit-department-checkbox');
+            departmentCheckboxes.forEach(checkbox => {
+                checkbox.checked = departments.includes(checkbox.value);
+            });
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // Đóng modal chỉnh sửa dự án
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Mở modal xác nhận xóa dự án
+        function openDeleteModal(projectId, projectName) {
+            document.getElementById('delete-project-id').value = projectId;
+            document.getElementById('delete-project-name').innerText = projectName;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        // Đóng modal xác nhận xóa dự án
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

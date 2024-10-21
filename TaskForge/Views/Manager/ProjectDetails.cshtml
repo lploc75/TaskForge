@@ -1,0 +1,225 @@
+﻿@model TaskForge.Models.Project
+
+@{
+    Layout = "_ManagerLayout";
+}
+
+<h1 class="page-title">Chi tiết dự án: @Model.ProjectName</h1>
+
+<!-- Project description and details -->
+<div class="project-details">
+    <p><strong>Mô tả:</strong> @Model.Description</p>
+    <p><strong>Trạng thái:</strong> @Model.Status</p>
+    <p><strong>Hạn chót:</strong> @Model.Deadline?.ToString("yyyy-MM-dd")</p>
+</div>
+
+<!-- Error message alert -->
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @ViewBag.ErrorMessage
+    </div>
+}
+
+<!-- Button to create new task -->
+<button class="btn-create-task" onclick="openCreateTaskModal()">+ Tạo Task Mới</button>
+
+<!-- Task list -->
+<h2>Các Task thuộc dự án:</h2>
+<table class="task-table">
+    <thead>
+        <tr>
+            <th>Tên Task</th>
+            <th>Mô tả</th>
+            <th>Trạng thái</th>
+            <th>Ngày giao</th>
+            <th>Hạn chót</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in ViewBag.Tasks)
+        {
+            <tr>
+                <td>@task.TaskName</td>
+                <td>@task.Description</td>
+                <td>@task.Status</td>
+                <td>@task.AssignmentDate?.ToString("yyyy-MM-dd")</td>
+                <td>@task.Deadline?.ToString("yyyy-MM-dd")</td>
+                <td><a class="action-link" href="@Url.Action("TaskDetails", "Task", new { id = task.TaskId })">Xem chi tiết</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Back to Project Management Page -->
+<a class="back-link" href="@Url.Action("ProjectManage", "Manager")">Quay lại trang quản lý dự án</a>
+
+<!-- Modal to create new task -->
+<div id="createTaskModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCreateTaskModal()">&times;</span>
+        <h2>Tạo Task Mới</h2>
+        <form asp-action="CreateTaskForProject" method="post">
+            <input type="hidden" name="ProjectId" value="@Model.ProjectId" />
+
+            <label for="taskName">Tên Task</label>
+            <input type="text" id="taskName" name="taskName" required />
+
+            <label for="description">Mô tả Task</label>
+            <textarea id="description" name="description" rows="3" required></textarea>
+
+            <label for="deadline">Hạn chót</label>
+            <input type="date" id="deadline" name="deadline" required />
+
+            <label for="departments">Chọn phòng ban</label>
+            <select id="departments" name="departmentIds" multiple required>
+                @foreach (var department in ViewBag.Departments)
+                {
+                    <option value="@department.DeptId">@department.DeptName</option>
+                }
+            </select>
+
+            <button type="submit" class="btn-submit">Tạo Task</button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for modal -->
+<script>
+    function openCreateTaskModal() {
+        document.getElementById('createTaskModal').style.display = 'flex';
+    }
+
+    function closeCreateTaskModal() {
+        document.getElementById('createTaskModal').style.display = 'none';
+    }
+</script>
+
+<!-- CSS -->
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .project-details p {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-top: 20px;
+        background-color: #f44336;
+        color: white;
+    }
+
+    .btn-create-task {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 20px 0;
+    }
+
+    .task-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+        .task-table th, .task-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .task-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .task-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    .action-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .action-link:hover {
+            text-decoration: underline;
+        }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+        position: relative;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .modal input, .modal textarea, .modal select {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .btn-submit {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+</style>
