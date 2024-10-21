@@ -427,7 +427,7 @@ public partial class TaskForgeContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("status");
 
-            entity.HasMany(d => d.Depts).WithMany(p => p.Projects)
+            entity.HasMany(d => d.Departments).WithMany(p => p.Projects)
                 .UsingEntity<Dictionary<string, object>>(
                     "DepartmentProject",
                     r => r.HasOne<Department>().WithMany()

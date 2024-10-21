@@ -28,6 +28,8 @@ namespace TaskForge
             builder.Services.AddScoped<FileRepository>();
             builder.Services.AddScoped<ProjectRepository>();
             builder.Services.AddScoped<ProjectService>();
+            builder.Services.AddScoped<TaskRepository>();
+            builder.Services.AddScoped<TaskService>();
 
             builder.Services.AddHttpContextAccessor();
 
@@ -47,7 +49,8 @@ namespace TaskForge
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/Account/Login";
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                    options.AccessDeniedPath = "/Account/Login"; // Đường dẫn khi bị từ chối quyền truy cập
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
                 });
 
             // Thêm dịch vụ Authorization

@@ -29,50 +29,51 @@
             </button>
         </div>
 
-        <!-- Filter Form -->
-        <form asp-action="FilteredTasks" method="get">
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status" name="status" class="form-control">
-                    <option value="">All</option>
-                    <option value="Completed">Completed</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Not Start">Not Start</option>
-                    <option value="Pending">Pending</option>
-                </select>
-            </div>
+        <div class="FilteredTasks">
+            <!-- Filter Form -->
+            <form asp-action="FilteredTasks" method="get">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="">All</option>
+                        <option value="Completed">Completed</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Not Start">Not Start</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="priority">Priority</label>
-                <select id="priority" name="priority" class="form-control">
-                    <option value="">All</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority" class="form-control">
+                        <option value="">All</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="difficulty">Difficulty</label>
-                <select id="difficulty" name="difficulty" class="form-control">
-                    <option value="">All</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="difficulty">Difficulty</label>
+                    <select id="difficulty" name="difficulty" class="form-control">
+                        <option value="">All</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="deadline">Deadline</label>
-                <input type="date" id="deadline" name="deadline" class="form-control" />
-            </div>
+                <div class="form-group">
+                    <label for="deadline">Deadline</label>
+                    <input type="date" id="deadline" name="deadline" class="form-control" />
+                </div>
 
-            <button type="submit" class="btn btn-primary">Filter</button>
-        </form>
-
-
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+       
         <!-- In Progress Tasks Section -->
         <div class="task-container">
             <div class="task-header" onclick="toggleSection('inProgressTaskList', this)">

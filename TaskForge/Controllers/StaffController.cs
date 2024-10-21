@@ -4,6 +4,7 @@ using TaskForge.Service;
 using TaskForge.Models;
 using System.Collections.Generic;
 using TaskForge.Repository;
+using System.Security.Claims;
 
 namespace TaskForge.Controllers
 {
@@ -15,8 +16,10 @@ namespace TaskForge.Controllers
         private readonly AccountService _accountService;
         private readonly AccountRepository _accountRepository;
         private readonly DropboxService _dropboxService;
+        private readonly ProjectService _projectService;
 
         public StaffController(EmployeeService employeeService, AccountService accountService, AccountRepository accountRepository, DropboxService dropboxService)
+
         {
             _employeeService = employeeService;
             _accountService = accountService;
@@ -82,6 +85,8 @@ namespace TaskForge.Controllers
                 ModelState.AddModelError("", "Failed to redeem credits.");
                 return View("Exchange");
             }
+            _projectService = projectService;
+
         }
         [HttpPost]
         public IActionResult SubmitExchange(int pointsToRedeem)
@@ -190,19 +195,32 @@ namespace TaskForge.Controllers
             // Lấy 'AccountId' từ các claims của người dùng hiện tại đã đăng nhập
             string accountId = User.FindFirst("AccountId")?.Value;
 
-            //// Nếu 'AccountId' là null hoặc rỗng, tức là người dùng chưa xác thực
-            //if (string.IsNullOrEmpty(accountId))
-            //{
-            //    // Chuyển hướng đến action "Error" trong controller "Home" nếu không tìm thấy tài khoản hợp lệ
-            //    return RedirectToAction("Error", "Home");
-            //}
-
             // Lấy danh sách các subtasks được gán cho tài khoản dựa vào accountId,
             // nếu không tìm thấy subtasks nào, khởi tạo danh sách trống
             List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
 
             // Trả về View và truyền danh sách subtasks đã gán vào Model
             return View(assignedSubtasks);
+        }
+        public IActionResult Project()
+        {
+            var accountId = User.FindFirstValue("AccountId");
+            if (accountId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var ongoingProjects = _projectService.GetProjectsByStatusAndAccount("In Progress", accountId);
+            var completedProjects = _projectService.GetProjectsByStatusAndAccount("Completed", accountId);
+            var cancelledProjects = _projectService.GetProjectsByStatusAndAccount("Cancelled", accountId);
+            var departments = _projectService.GetAllDepartments();
+
+            ViewBag.OngoingProjects = ongoingProjects;
+            ViewBag.CompletedProjects = completedProjects;
+            ViewBag.CancelledProjects = cancelledProjects;
+            ViewBag.Departments = departments;
+
+            return View();
         }
         [HttpGet]
         public async Task<IActionResult> FilteredTasks(string status, string priority, string difficulty, DateTime? deadline)
@@ -283,7 +301,6 @@ namespace TaskForge.Controllers
                 // Gọi Dropbox API để trao đổi mã lấy access token
                 await _dropboxService.ExchangeCodeForTokenAsync(code);
 
-                // Sau đó tiếp tục tải file nếu cần
             }
 
             ViewBag.SubtaskId = subtaskId;
@@ -332,8 +349,8 @@ namespace TaskForge.Controllers
                 FileId = Guid.NewGuid().ToString(),
                 FileName = file.FileName,
                 UploadDate = DateOnly.FromDateTime(DateTime.Now),
-                SubtaskId = subtaskId,
-                AccountId = accountId
+                AccountId = accountId,
+                SubtaskId = subtaskId
             };
 
             // Tải tệp lên Dropbox
@@ -346,7 +363,7 @@ namespace TaskForge.Controllers
             }
 
             ViewBag.Message = "File uploaded successfully to Dropbox and saved to database.";
-
+            ViewBag.SubtaskId = subtaskId;
             return View();
         }
 
