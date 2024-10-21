@@ -77,13 +77,6 @@ namespace TaskForge.Controllers
             // Lấy 'AccountId' từ các claims của người dùng hiện tại đã đăng nhập
             string accountId = User.FindFirst("AccountId")?.Value;
 
-            //// Nếu 'AccountId' là null hoặc rỗng, tức là người dùng chưa xác thực
-            //if (string.IsNullOrEmpty(accountId))
-            //{
-            //    // Chuyển hướng đến action "Error" trong controller "Home" nếu không tìm thấy tài khoản hợp lệ
-            //    return RedirectToAction("Error", "Home");
-            //}
-
             // Lấy danh sách các subtasks được gán cho tài khoản dựa vào accountId,
             // nếu không tìm thấy subtasks nào, khởi tạo danh sách trống
             List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
@@ -170,7 +163,6 @@ namespace TaskForge.Controllers
                 // Gọi Dropbox API để trao đổi mã lấy access token
                 await _dropboxService.ExchangeCodeForTokenAsync(code);
 
-                // Sau đó tiếp tục tải file nếu cần
             }
 
             ViewBag.SubtaskId = subtaskId;
@@ -219,8 +211,8 @@ namespace TaskForge.Controllers
                 FileId = Guid.NewGuid().ToString(),
                 FileName = file.FileName,
                 UploadDate = DateOnly.FromDateTime(DateTime.Now),
-                SubtaskId = subtaskId,
-                AccountId = accountId
+                AccountId = accountId,
+                SubtaskId = subtaskId
             };
 
             // Tải tệp lên Dropbox
@@ -233,7 +225,7 @@ namespace TaskForge.Controllers
             }
 
             ViewBag.Message = "File uploaded successfully to Dropbox and saved to database.";
-
+            ViewBag.SubtaskId = subtaskId;
             return View();
         }
 

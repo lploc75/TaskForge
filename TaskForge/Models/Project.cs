@@ -19,5 +19,5 @@ public partial class Project
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 
-    public virtual ICollection<Department> Depts { get; set; } = new List<Department>();
+    public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
 }
