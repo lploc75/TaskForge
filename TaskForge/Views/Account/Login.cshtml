@@ -1,0 +1,52 @@
+﻿@model TaskForge.Models.Account
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~/css/login.css">
+    <title>Moon Phases Login Page</title>
+   
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="sun" id="sun"></div>
+            <div class="moon" id="moon"></div>
+            <h1 id="greeting">Good Morning</h1>
+            <p>Login your Account to get a better User Experience</p>
+        </div>
+        <div class="right-panel">
+            <img src="~/imgs/owlReveal.png" alt="Owl Image" class="owl-image" id="owl">
+            <img src="~/imgs/owlhiding.png" alt="Hiding Owl Image" class="owl-image" id="hidingOwl" style="display: none;">
+            <h2>Login your account</h2>
+              <!-- Thêm phần hiển thị thông báo lỗi ở đây -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="error-message">
+                    <p>@ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage</p>
+                </div>
+            }
+            <form action="#" method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <a href="~/Account/ForgotPassword" class="forgot-password">Forget password?</a>
+                <button type="submit" class="login-btn" onclick="showOwl()">Login</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src ="~/js/login.js"></script>
+</body>
+</html>

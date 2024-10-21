@@ -1,0 +1,289 @@
+﻿@*
+*@
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_StaffLayout";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-bottom: none;
+            transition: 0.3s;
+        }
+
+            .tab.active {
+                border-color: #444CE7;
+                color: #444CE7;
+                font-weight: bold;
+                background-color: #f0f4ff;
+            }
+
+        .section {
+            display: none;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+            .section.active {
+                display: block;
+            }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+        .alert {
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Settings</h2>
+
+        <!-- Tabs for Navigation -->
+        <div class="tabs">
+            <div class="tab active" data-target="profile-section">Profile</div>
+            <div class="tab" data-target="password-section">Change Password</div>
+        </div>
+
+        <!-- Display success or error message -->
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="alert alert-info">@ViewBag.Message</div>
+        }
+        <!-- Profile Section -->
+        <div class="section active" id="profile-section">
+            <h3>Update Profile</h3>
+
+            @if (Model != null && Model.Account != null)
+            {
+                <form method="post" action="/Staff/UpdateProfile">
+                    <input type="hidden" name="AccountId" value="@Model.AccountId" />
+
+                    <!-- Hidden fields to preserve required Account fields -->
+                    <input type="hidden" name="Account.AccountId" value="@Model.Account.AccountId" />
+                    <input type="hidden" name="Account.Username" value="@Model.Account.Username" />
+                    <input type="hidden" name="Account.Password" value="@Model.Account.Password" />
+
+                    <div class="form-group">
+                        <label for="accountId">Account ID</label>
+                        <input type="text" id="accountId" value="@Model.AccountId" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" value="@Model.Account.Username" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="fullname" name="Fullname" value="@Model.Fullname" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="Gender" required>
+                            @* Kiểm tra Model.Gender và thêm thuộc tính selected thông qua mã Razor *@
+                            @if (Model.Gender == "M")
+                            {
+                                <option value="M" selected>Male</option>
+                                <option value="F">Female</option>
+                            }
+                            else
+                            {
+                                <option value="M">Male</option>
+                                <option value="F" selected>Female</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="Dob" value="@Model.Dob?.ToString("yyyy-MM-dd")" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" id="role" value="@Model.Role" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <input type="text" id="status" value="@Model.Status" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dept">Department ID</label>
+                        <input type="text" id="dept" value="@Model.DeptId" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="Account.Email" value="@Model.Account.Email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" name="Account.PhoneNumber" value="@Model.Account.PhoneNumber">
+                    </div>
+
+                    <button type="submit">Save Changes</button>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-danger">Error: Unable to load employee data. Please try again later.</div>
+            }
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="section" id="password-section">
+            <h3>Change Password</h3>
+
+            <!-- Message Display -->
+            <div id="message"></div>
+
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="current-password">Current Password</label>
+                    <input type="password" name="currentPassword" id="current-password" placeholder="Enter current password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" name="newPassword" id="new-password" placeholder="Enter new password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <input type="password" name="confirmPassword" id="confirm-password" placeholder="Confirm new password" required>
+                </div>
+                <button type="button" onclick="submitChangePassword()">Change Password</button>
+            </form>
+        </div>
+
+        <script>
+            function submitChangePassword() {
+                const form = document.getElementById("changePasswordForm");
+                const currentPassword = document.getElementById("current-password").value;
+                const newPassword = document.getElementById("new-password").value;
+                const confirmPassword = document.getElementById("confirm-password").value;
+                const messageDiv = document.getElementById("message");
+
+                // Clear previous messages
+                messageDiv.innerHTML = "";
+
+                // Basic client-side validation
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    messageDiv.innerHTML = `<div class="alert alert-danger">All fields are required.</div>`;
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    messageDiv.innerHTML = `<div class="alert alert-danger">New password and confirmation password do not match.</div>`;
+                    return;
+                }
+
+                const formData = new FormData(form);
+
+                fetch('/Account/ChangePassword', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            messageDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            form.reset();
+                        } else {
+                            messageDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        messageDiv.innerHTML = `<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>`;
+                    });
+            }
+
+            // JavaScript for handling tab switching
+            const tabs = document.querySelectorAll('.tab');
+            const sections = document.querySelectorAll('.section');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and sections
+                    tabs.forEach(t => t.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+
+                    // Add active class to the clicked tab and corresponding section
+                    tab.classList.add('active');
+                    const target = document.getElementById(tab.dataset.target);
+                    target.classList.add('active');
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
