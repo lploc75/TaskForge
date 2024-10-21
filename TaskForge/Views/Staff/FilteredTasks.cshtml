@@ -1,0 +1,101 @@
+﻿@model List<TaskForge.Models.Subtask>
+
+@{
+    ViewData["Title"] = "Filtered Tasks";
+    Layout = "_StaffLayout";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Tasks</title>
+    <link href="~/css/staff/FilteredTasks.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="main-content">
+        <!-- Filter Form -->
+        <form asp-action="FilteredTasks" method="get">
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Not Start">Not Start</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="difficulty">Difficulty</label>
+                <select id="difficulty" name="difficulty" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deadline">Deadline</label>
+                <input type="date" id="deadline" name="deadline" class="form-control" />
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="btn">Filter</button>
+            </div>
+        </form>
+
+        <h2>Filtered Tasks</h2>
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th>Subtask ID</th>
+                    <th>Subtask Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Difficulty</th>
+                    <th>Assignment Date</th>
+                    <th>Deadline</th>
+                    <th>Submission Date</th>
+                    <th>Task ID</th>
+                    <th>Team ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var subtask in Model)
+                {
+                    <tr>
+                        <td>@subtask.SubtaskId</td>
+                        <td>@subtask.SubtaskName</td>
+                        <td>@subtask.Description</td>
+                        <td>@subtask.Status</td>
+                        <td>@subtask.Priority</td>
+                        <td>@subtask.Difficulty</td>
+                        <td>@subtask.AssignmentDate</td>
+                        <td>@subtask.Deadline</td>
+                        <td>@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")</td>
+                        <td>@subtask.TaskId</td>
+                        <td>@subtask.TeamId</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+</body>
+</html>

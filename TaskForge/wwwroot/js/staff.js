@@ -1,5 +1,4 @@
 ﻿// Đoạn mã JavaScript đã sao chép
-
 document.addEventListener("DOMContentLoaded", function () {
     // Sử dụng các biến đã được truyền từ ViewData
     const ctx = document.getElementById('radarChart').getContext('2d');

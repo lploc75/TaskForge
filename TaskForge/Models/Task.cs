@@ -23,6 +23,8 @@ public partial class Task
 
     public int? ProjectId { get; set; }
 
+    public virtual ICollection<DepartmentTask> DepartmentTasks { get; set; } = new List<DepartmentTask>();
+
     public virtual Project? Project { get; set; }
 
     public virtual ICollection<Subtask> Subtasks { get; set; } = new List<Subtask>();

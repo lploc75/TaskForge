@@ -77,9 +77,17 @@ namespace TaskForge.Service
             }
             return false;
         }
+
         public StaffAndLeader GetStaffByAccountId(string accountId)
         {
             return _employeeRepository.GetStaffByAccountId(accountId); // Make sure to implement this method
+        }
+
+
+
+        public async Task<List<Subtask>> GetFilteredTasksAsync(string status, string priority, string difficulty, DateTime? deadline)
+        {
+            return await _employeeRepository.GetFilteredTasksAsync(status, priority, difficulty, deadline);
         }
 
     }

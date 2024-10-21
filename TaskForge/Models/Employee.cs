@@ -27,11 +27,11 @@ public partial class Employee
 
     public virtual Department? Dept { get; set; }
 
+    public virtual ICollection<EmployeeProject> EmployeeProjects { get; set; } = new List<EmployeeProject>();
+
     public virtual ICollection<TaskAssignment> TaskAssignmentAssignedToNavigations { get; set; } = new List<TaskAssignment>();
 
     public virtual ICollection<TaskAssignment> TaskAssignmentCreatedByNavigations { get; set; } = new List<TaskAssignment>();
-
-    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();
 }

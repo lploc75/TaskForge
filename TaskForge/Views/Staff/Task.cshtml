@@ -14,21 +14,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="~/css/staffTask.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/staff/task.css" />
 </head>
-
-<style>
-    .task-header {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .arrow-icon {
-        margin-left: auto;
-        font-size: 3em; /* Tăng kích thước mũi tên */
-    }
-</style>
 
 <body>
     <div class="sidebar-placeholder"></div>
@@ -41,6 +28,50 @@
                 <i class="fas fa-plus"></i> Create Personal Task
             </button>
         </div>
+
+        <!-- Filter Form -->
+        <form asp-action="FilteredTasks" method="get">
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Not Start">Not Start</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" name="priority" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="difficulty">Difficulty</label>
+                <select id="difficulty" name="difficulty" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deadline">Deadline</label>
+                <input type="date" id="deadline" name="deadline" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+
 
         <!-- In Progress Tasks Section -->
         <div class="task-container">
@@ -60,16 +91,18 @@
                         </div>
                         <div class="button-container">
                             <!-- Form để Submit Task -->
-                            <form method="post" action="/Staff/UpdateStatus">
+                            <form method="post" action="/Staff/UpdateStatus" onsubmit="return confirmSubmitTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="Pending" />
                                 <button type="submit" class="button">Submit Task</button>
                             </form>
+                            <!-- Form để Upload File -->
+                            <form method="get" action="/Staff/UploadFile">
+                                <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                <button type="submit" class="button">Upload File</button>
+                            </form>
                         </div>
                     </div>
- 
-
- 
                 }
             </div>
         </div>
@@ -111,7 +144,7 @@
                         </div>
                         <div class="button-container">
                             <!-- Form để Accept Task -->
-                            <form method="post" action="/Staff/UpdateStatus">
+                            <form method="post" action="/Staff/UpdateStatus" onsubmit="return confirmAcceptTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="In Progress" />
                                 <button type="submit" class="button">Accept Task</button>
@@ -123,7 +156,7 @@
         </div>
 
         <!-- Pending Tasks Section -->
-        <div class="task-container">
+        <div class="task-container" >
             <div class="task-header" onclick="toggleSection('pendingTaskList', this)">
                 <h2>Pending Tasks (@Model.Where(s => s.Status == "Pending").Count())</h2>
                 <span class="arrow-icon">&#9662;</span> <!-- Mũi tên xuống mặc định -->
@@ -140,7 +173,7 @@
                         </div>
                         <div class="button-container">
                             <!-- Form để Accept Task -->
-                            <form method="post" action="/Staff/UpdateStatus">
+                                <form method="post" action="/Staff/UpdateStatus" onsubmit="return confirmUnsubmitTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="In Progress" />
                                 <button type="submit" class="button">Unsubmit</button>
@@ -185,76 +218,6 @@
             <p id="modalContent">Task description and details go here.</p>
         </div>
     </div>
-  
-
-    <script>
-        function checkIfSubmit(event, title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description) {
-            // Kiểm tra nếu phần tử được click là nút submit
-            if (event.target.tagName === 'BUTTON' && event.target.type === 'submit') {
-                return; // Không làm gì nếu là nút submit
-            }
-
-            // Nếu không phải nút submit, mở modal
-            openModal(title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description);
-        }
-
-        function openModal(title, assigner, assignedDate, deadline ,submissionDate, priority, difficulty, status, description) {
-            const reward = difficulty * 10; // Tính phần thưởng dựa trên độ khó
-            // Gán các giá trị cho modal
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalAssigner').innerText = `Assigner: ${assigner}`;
-            document.getElementById('modalAssignedDate').innerText = `Assigned Date: ${assignedDate}`;
-            document.getElementById('modalDueDate').innerText = `Deadline: ${deadline}`;
-            document.getElementById('modalSubmissionDate').innerText = `Submission Date: ${submissionDate}`;
-            document.getElementById('modalReward').innerText = `Reward: ${reward} Credits`;
-            document.getElementById('modalContent').innerHTML = `
-                <p>Priority: ${priority}</p>
-                <p>Difficulty: ${difficulty}</p>
-                <p>Status: ${status}</p>
-                <p>Description: ${description}</p>
-            `;
-            // Hiển thị modal
-            document.getElementById('taskModal').style.display = 'flex';
-        }
-
-            function toggleSection(sectionId, headerElement) {
-            const section = document.getElementById(sectionId);
-            const arrowIcon = headerElement.querySelector('.arrow-icon');
-
-            // Chuyển đổi trạng thái hiển thị
-            if (section.style.display === 'block') {
-                section.style.display = 'none';
-                arrowIcon.innerHTML = '&#9662;'; // Mũi tên xuống
-            } else {
-                section.style.display = 'block';
-                arrowIcon.innerHTML = '&#9652;'; // Mũi tên lên
-            }
-        }
-
-
-        function closeModal() {
-            document.getElementById('taskModal').style.display = 'none';
-        }
-
-        function createPersonalTask() {
-            alert("Opening personal task creation form.");
-        }
-
-        function uploadDocument() {
-            alert("Uploading document...");
-        }
-
-        function submitDocument() {
-            alert("Submitting task...");
-        }
-
-        function unsubmitTask() {
-            alert("Unsubmitting task...");
-        }
-
-        function acceptTask() {
-            alert("Accepting task...");
-        }
-    </script>
+  <script src="~/js/staff/task.js"></script>
 </body>
 </html>

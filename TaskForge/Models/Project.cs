@@ -15,7 +15,9 @@ public partial class Project
 
     public DateTime? Deadline { get; set; }
 
+    public virtual ICollection<EmployeeProject> EmployeeProjects { get; set; } = new List<EmployeeProject>();
+
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 
-    public virtual ICollection<Employee> Accounts { get; set; } = new List<Employee>();
+    public virtual ICollection<Department> Depts { get; set; } = new List<Department>();
 }

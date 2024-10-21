@@ -111,7 +111,7 @@ namespace TaskForge.Service
                 CreditPointsUsed = pointsToRedeem,
                 CashAmount = cashEquivalent,
                 ExchangeDate = DateTime.Now,
-                Status = "Completed"
+                Status = "Pending"
             };
 
             _accountRepository.UpdateStaff(staff);

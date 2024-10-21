@@ -4,6 +4,6 @@
     {
         public int AvailableCredits { get; set; }
         public decimal CashEquivalent { get; set; }
-        public int ExchangeId { get; set; }  
+        public int ExchangeId { get; set; }
     }
 }
