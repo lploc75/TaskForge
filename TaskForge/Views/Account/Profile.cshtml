@@ -1,0 +1,149 @@
+﻿@{
+    ViewData["Title"] = "Profile";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .profile-card {
+            width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .profile-header img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                margin-right: 20px;
+            }
+
+            .profile-header h2 {
+                font-size: 24px;
+                margin: 0;
+            }
+
+            .profile-header p {
+                margin: 4px 0;
+                color: #666;
+                font-size: 14px;
+            }
+
+        .status {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background-color: #e8f7e5;
+            color: #34a853;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .profile-info {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+            .info-item img {
+                width: 24px;
+                height: 24px;
+                margin-right: 10px;
+            }
+
+            .info-item .label {
+                font-size: 12px;
+                color: #888;
+            }
+
+            .info-item .value {
+                font-size: 14px;
+                color: #333;
+                font-weight: bold;
+                margin-left: 5px;
+            }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="https://via.placeholder.com/100" alt="Profile Image">
+            <div>
+                <h2>Lê Việt Thắng</h2>
+                <p>Tổng Giám đốc</p>
+                <p>Mã KD1/11/HN.291</p>
+                <p>Ban điều hành</p>
+                <div class="status">Đang làm việc</div>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-item">
+                <img src="https://img.icons8.com/fluency/48/000000/email.png" alt="Email Icon">
+                <div>
+                    <span class="label">Email</span><br>
+                    <span class="value">giamdoc@gmail.com</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/fluency/48/000000/phone.png" alt="Phone Icon">
+                <div>
+                    <span class="label">Điện thoại</span><br>
+                    <span class="value" style="color: #e53935;">0912345678</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/fluency/48/000000/planner.png" alt="Birthday Icon">
+                <div>
+                    <span class="label">Ngày sinh</span><br>
+                    <span class="value">01/11/1983</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/fluency/48/000000/home.png" alt="Address Icon">
+                <div>
+                    <span class="label">Nguyên quán</span><br>
+                    <span class="value">Tỉnh Hà Giang, Việt Nam</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/fluency/48/000000/gender.png" alt="Gender Icon">
+                <div>
+                    <span class="label">Giới tính</span><br>
+                    <span class="value">Nam</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

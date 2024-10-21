@@ -9,6 +9,10 @@ namespace TaskForge.Controllers
 {
     public class AccountController : Controller
     {
+        public IActionResult Profile()
+        {
+            return View();
+        }
         private readonly AccountService _accountService;
 
         // Constructor for dependency injection
