@@ -13,6 +13,8 @@ public partial class Department
 
     public int? NumberOfTeam { get; set; }
 
+    public virtual ICollection<DepartmentTask> DepartmentTasks { get; set; } = new List<DepartmentTask>();
+
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
 
     public virtual ICollection<Team> Teams { get; set; } = new List<Team>();

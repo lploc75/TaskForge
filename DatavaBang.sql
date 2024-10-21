@@ -98,6 +98,15 @@ CREATE TABLE Task (
     project_id INT,
     FOREIGN KEY (project_id) REFERENCES Project(project_id)
 );
+CREATE TABLE DepartmentTask(
+	task_id VARCHAR(10),
+	dept_id VARCHAR(10),
+	dept_participant_count int,
+	additonal_dept VARCHAR(100),
+	PRIMARY KEY(task_id, dept_id),
+	FOREIGN KEY (task_id) REFERENCES Task(task_id),
+	FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+);
 CREATE TABLE PersonalTask (
     ptask_id VARCHAR(10) PRIMARY KEY,
 	account_id VARCHAR(10),
@@ -250,8 +259,8 @@ INSERT INTO StaffAndLeader (account_id, total_kpi, total_timeliness, total_teamw
 
 -- Dữ liệu cho bảng CreditExchange
 INSERT INTO CreditExchange (account_id, exchange_date, credit_points_used, cash_amount, status) VALUES
-('ACC003', '2024-10-05', 10, 50.00, 'Completed'),
-('ACC004', '2024-10-06', 15, 75.00, 'Pending');
+('ACC003', '2024-10-05', 100, 50.00, 'Completed'),
+('ACC004', '2024-10-06', 150, 75.00, 'Pending');
 
 -- Dữ liệu cho bảng Task
 INSERT INTO Task (task_id, task_name, description, status, priority, deadline, submission_date, project_id) VALUES
@@ -305,6 +314,9 @@ INSERT INTO Credit (difficulty, credits) VALUES
 (3, 3),
 (4, 4);
 
+-- Dữ liệu cho bảng DepartmentTask
+INSERT INTO DepartmentTask (task_id, dept_id, dept_participant_count, additonal_dept) VALUES
+('TASK001', 'DEP002', 1 , null);
 
 -- Dữ liệu cho bảng SubtaskCredit
 INSERT INTO SubtaskCredit (subtask_id, difficulty) VALUES
@@ -315,3 +327,7 @@ INSERT INTO SubtaskCredit (subtask_id, difficulty) VALUES
 INSERT INTO Comment (comment_id, content, date_submitted, subtask_id) VALUES
 ('CMT001', 'Looks great, keep it up!', '2024-10-03', 'SUBTASK001'),
 ('CMT002', 'Need to add more details.', '2024-10-04', 'SUBTASK002');
+
+-- Dữ liệu cho bảng DepartmentProject
+INSERT INTO DepartmentProject(project_id,dept_id) VALUES
+(1, 'DEP002');
