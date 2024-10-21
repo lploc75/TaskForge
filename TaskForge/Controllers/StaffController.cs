@@ -11,10 +11,120 @@ namespace TaskForge.Controllers
     public class StaffController : Controller
     {
         private readonly EmployeeService _employeeService;
+        private readonly AccountService _accountService;
+        private readonly AccountRepository _accountRepository;
 
-        public StaffController(EmployeeService employeeService)
+        public StaffController(EmployeeService employeeService, AccountService accountService, AccountRepository accountRepository)
         {
             _employeeService = employeeService;
+            _accountService = accountService;
+            _accountRepository = accountRepository;
+
+        }
+        // Exchange Page Action
+        public IActionResult Exchange()
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            // Get available credit points for the logged-in user
+            StaffAndLeader staff = _employeeService.GetStaffByAccountId(accountId);
+            if (staff == null || staff.CreditPoints == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            int availableCredits = staff.CreditPoints ?? 0;
+            decimal cashEquivalent = availableCredits * 0.5m; // Assuming 1 credit = $0.50
+
+            // ViewModel for the Exchange view
+            var model = new ExchangeViewModel
+            {
+                AvailableCredits = availableCredits,
+                CashEquivalent = cashEquivalent
+            };
+
+            return View(model);
+        }
+
+        // Action to Redeem Credits
+        [HttpPost]
+        public IActionResult RedeemCredits(int pointsToRedeem)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            if (pointsToRedeem < 100)
+            {
+                ModelState.AddModelError("", "Minimum of 100 points must be redeemed at a time.");
+                return View("Exchange");
+            }
+
+            var exchangeId = _accountService.RedeemCredits(accountId, pointsToRedeem);
+
+            if (exchangeId != 0)
+            {
+                return RedirectToAction("ExchangeConfirmation", new { exchangeId });
+            }
+            else
+            {
+                ModelState.AddModelError("", "Failed to redeem credits.");
+                return View("Exchange");
+            }
+        }
+        [HttpPost]
+        public IActionResult SubmitExchange(int pointsToRedeem)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            if (pointsToRedeem < 100)
+            {
+                ModelState.AddModelError("", "Minimum of 100 points must be redeemed at a time.");
+                return View("Exchange");
+            }
+
+            var exchangeId = _accountService.RedeemCredits(accountId, pointsToRedeem);
+
+            if (exchangeId != 0)
+            {
+                return RedirectToAction("ExchangeConfirmation", new { exchangeId });
+            }
+            else
+            {
+                ModelState.AddModelError("", "Failed to redeem credits.");
+                return View("Exchange");
+            }
+        }
+        public IActionResult ExchangeConfirmation(int exchangeId)
+        {
+            var exchange = _accountRepository.GetCreditExchangeById(exchangeId);
+
+            if (exchange == null || exchange.Account == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            var model = new ExchangeViewModel
+            {
+                AvailableCredits = exchange.Account.CreditPoints ?? 0,
+                CashEquivalent = exchange.CashAmount,
+                ExchangeId = exchange.ExchangeId // Set ExchangeId for display
+            };
+
+            return View(model);
         }
 
         public IActionResult Index()

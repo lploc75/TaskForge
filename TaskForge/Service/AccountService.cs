@@ -91,5 +91,33 @@ namespace TaskForge.Service
 
             return true;
         }
+        public int RedeemCredits(string accountId, int pointsToRedeem)
+        {
+            var staff = _accountRepository.GetStaffByAccountId(accountId);
+
+            if (staff == null || staff.CreditPoints < pointsToRedeem)
+            {
+                return 0; // Return 0 for failure
+            }
+
+            // Deduct credits
+            staff.CreditPoints -= pointsToRedeem;
+
+            // Calculate cash equivalent and save in the CreditExchange table
+            decimal cashEquivalent = pointsToRedeem * 0.5m;
+            var creditExchange = new CreditExchange
+            {
+                AccountId = accountId,
+                CreditPointsUsed = pointsToRedeem,
+                CashAmount = cashEquivalent,
+                ExchangeDate = DateTime.Now,
+                Status = "Completed"
+            };
+
+            _accountRepository.UpdateStaff(staff);
+            _accountRepository.RecordCreditExchange(creditExchange);
+
+            return creditExchange.ExchangeId; // Return the exchange_id
+        }
     }
 }

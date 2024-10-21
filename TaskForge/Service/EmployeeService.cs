@@ -77,7 +77,10 @@ namespace TaskForge.Service
             }
             return false;
         }
-
+        public StaffAndLeader GetStaffByAccountId(string accountId)
+        {
+            return _employeeRepository.GetStaffByAccountId(accountId); // Make sure to implement this method
+        }
 
     }
 }

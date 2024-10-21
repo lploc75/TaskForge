@@ -107,6 +107,10 @@ namespace TaskForge.Repository
         {
             return _context.Subtasks.Find(id); // Đảm bảo `_context.Subtasks` đúng với bảng `subtask`
         }
+        public StaffAndLeader GetStaffByAccountId(string accountId)
+        {
+            return _context.StaffAndLeaders.FirstOrDefault(s => s.AccountId == accountId);
+        }
 
     }
 }

@@ -9,6 +9,8 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f5f7fa; /* Xanh nhạt nhạt */
     color: #333;
+    margin: 0; /* Loại bỏ margin mặc định của trình duyệt */
+    padding: 0; /* Loại bỏ padding mặc định của trình duyệt */
 }
 
 /* Sidebar */

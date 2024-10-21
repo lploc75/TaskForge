@@ -1,0 +1,53 @@
+﻿@model TaskForge.Models.ExchangeViewModel
+@{
+    Layout = "_StaffLayout";
+}
+<div class="confirmation-page">
+    <div class="confirmation-container">
+        <img src="~/imgs/basket-icon.png" alt="Basket Image" class="confirmation-image">
+        <h2>Your Cash redemption request for @Model.CashEquivalent USD is being processed.</h2>
+        <p>Your exchange ID is: <strong>@Model.ExchangeId</strong></p>
+    </div>
+</div>
+
+<style>
+    /* Styling for the confirmation page */
+    .confirmation-page {
+        text-align: center;
+        padding: 0;
+        background-color: #f8f9fa;
+        height: 80vh; /* Full height for the page */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .confirmation-container {
+        width: 100%; /* Full width for the container */
+        height: 100vh; /* Full height for the container */
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        border-radius: 0; /* Remove any border-radius */
+        box-shadow: none; /* Remove shadow */
+    }
+
+    .confirmation-image {
+        width: 600px; /* Increased width for a larger image */
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    p {
+        font-size: 18px;
+        color: #555;
+    }
+</style>
