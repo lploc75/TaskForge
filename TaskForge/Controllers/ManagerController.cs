@@ -133,7 +133,6 @@ namespace TaskForge.Controllers
         }
 
 
-
         // Xử lý việc tạo Task cho dự án
         [HttpPost]
         public IActionResult CreateTaskForProject(int projectId, string taskName, string description, DateTime deadline, List<string> departmentIds)

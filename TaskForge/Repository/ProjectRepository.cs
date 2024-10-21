@@ -15,7 +15,7 @@ namespace TaskForge.Repository
             _context = context;
         }
 
-        // Lấy danh sách dự án mà nhân viên có vai trò là "Manager"
+        // Lấy danh sách dự án của nhân viên
         public List<Project> GetProjectsByStatusAndAccount(string status, string accountId)
         {
             return _context.EmployeeProjects

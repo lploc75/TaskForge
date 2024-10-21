@@ -49,6 +49,7 @@ namespace TaskForge
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/Account/Login";
+                    options.AccessDeniedPath = "/Account/Login"; // Đường dẫn khi bị từ chối quyền truy cập
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
                 });
 
