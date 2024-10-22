@@ -110,10 +110,11 @@ CREATE TABLE DepartmentTask(
 CREATE TABLE PersonalTask (
     ptask_id VARCHAR(10) PRIMARY KEY,
 	account_id VARCHAR(10),
+	ptask_name VARCHAR(100),
 	status VARCHAR(50),
     priority INT,
 	assignment_date DATETIME,
-    deadline DATE,
+    deadline DATETIME,
 	description TEXT,
     FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id)
 );
@@ -286,13 +287,13 @@ INSERT INTO TaskAssignment (task_id, created_by, assigned_to) VALUES
 ('TASK002', 'ACC006', 'ACC004');
 
 -- Dữ liệu cho bảng PersonalTask
-INSERT INTO PersonalTask (ptask_id, account_id, status, priority, assignment_date, deadline, description) VALUES
-('PT001', 'ACC003', 'Not Started', 1, '2024-10-10 08:30:00', '2024-10-15', 'Review team performance reports.'),
-('PT002', 'ACC004', 'In Progress', 2, '2024-10-11 09:00:00', '2024-10-20', 'Prepare for the quarterly team meeting.'),
-('PT003', 'ACC003', 'Completed', 3, '2024-09-15 14:00:00', '2024-09-20', 'Complete the yearly project review documentation.'),
-('PT004', 'ACC005', 'In Progress', 1, '2024-10-05 13:00:00', '2024-10-25', 'Research new tools for project management.'),
-('PT005', 'ACC004', 'Not Started', 2, '2024-10-12 10:00:00', '2024-11-01', 'Draft proposals for upcoming team projects.'),
-('PT006', 'ACC005', 'In Progress', 3, '2024-10-14 15:00:00', '2024-10-30', 'Organize files and update documentation for all ongoing projects.');
+INSERT INTO PersonalTask (ptask_id, account_id, ptask_name ,status, priority, assignment_date, deadline, description) VALUES
+('PT001', 'ACC003', 'Review team' ,'Not Started', 1, '2024-10-10 08:30:00', '2024-10-15 08:30:00', 'Review team performance reports.'),
+('PT002', 'ACC004', 'Prepare meeting' ,'In Progress', 2, '2024-10-11 09:00:00', '2024-10-20 08:30:00', 'Prepare for the quarterly team meeting.'),
+('PT003', 'ACC003', 'Complete review' ,'Completed', 3, '2024-09-15 14:00:00', '2024-09-20 08:30:00', 'Complete the yearly project review documentation.'),
+('PT004', 'ACC005', 'Research new tool' ,'In Progress', 1, '2024-10-05 13:00:00', '2024-10-25 08:30:00', 'Research new tools for project management.'),
+('PT005', 'ACC004', 'Draft proposal' ,'Not Started', 2, '2024-10-12 10:00:00', '2024-11-01 08:30:00', 'Draft proposals for upcoming team projects.'),
+('PT006', 'ACC005', 'Organize files' ,'In Progress', 3, '2024-10-14 15:00:00', '2024-10-30 08:30:00', 'Organize files and update documentation for all ongoing projects.');
 
 -- Chèn dữ liệu vào SubtaskAssignment
 INSERT INTO SubtaskAssignment (subtask_id, created_by, assigned_to) VALUES

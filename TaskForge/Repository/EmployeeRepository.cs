@@ -43,6 +43,7 @@ namespace TaskForge.Repository
                 {
                     PtaskId = pt.PtaskId,                // Lấy PtaskId
                     AccountId = pt.AccountId,            // Lấy AccountId
+                    PtaskName = pt.PtaskName,            // lấy PtaskName
                     Status = pt.Status,                  // Lấy Status
                     Priority = pt.Priority,              // Lấy Priority
                     AssignmentDate = pt.AssignmentDate,  // Lấy AssignmentDate
@@ -131,31 +132,6 @@ namespace TaskForge.Repository
         {
             return _context.PersonalTasks.Find(id);
         }
-        public async Task<List<Subtask>> GetFilteredTasksAsync(string status, string priority, string difficulty, DateTime? deadline)
-        {
-            var query = _context.Subtasks.AsQueryable();
 
-            if (!string.IsNullOrEmpty(status))
-            {
-                query = query.Where(t => t.Status == status);
-            }
-
-            if (!string.IsNullOrEmpty(priority))
-            {
-                query = query.Where(t => t.Priority == int.Parse(priority));
-            }
-
-            if (!string.IsNullOrEmpty(difficulty))
-            {
-                query = query.Where(t => t.Difficulty == int.Parse(difficulty));
-            }
-
-            if (deadline.HasValue)
-            {
-                query = query.Where(t => t.Deadline <= deadline);
-            }
-
-            return await query.ToListAsync();
-        }
     }
 }

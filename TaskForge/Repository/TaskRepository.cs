@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaskForge.Models;
 using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskForge.Repository
 {
@@ -49,6 +50,29 @@ namespace TaskForge.Repository
                 }
             }
         }
+        // Lấy Personal Task theo Id
+        public PersonalTask GetPersonalTaskById(string PtaskId)
+        {
+            return _context.PersonalTasks.Find(PtaskId);
+        }
+
+        // Cập nhật Personal Task
+        public void UpdatePersonalTask(PersonalTask personalTask)
+        {
+            _context.PersonalTasks.Update(personalTask);
+            _context.SaveChanges(); // Lưu thay đổi vào cơ sở dữ liệu
+        }
+        public PersonalTask GetPersonalTasksById(string ptaskId)
+        {
+            return _context.PersonalTasks.FirstOrDefault(t => t.PtaskId == ptaskId);
+        }
+
+        public void DeletePersonalTasks(PersonalTask task)
+        {
+            _context.PersonalTasks.Remove(task);
+            _context.SaveChanges();
+
+        }
 
         public void AssignTaskToDepartments(string taskId, List<string> departmentIds)
         {
@@ -84,6 +108,69 @@ namespace TaskForge.Repository
             }
         }
 
+        // Thêm dự án mới vào database
+        public void AddPersonalTask(PersonalTask ptask)
+        {
+            _context.PersonalTasks.Add(ptask);
+            _context.SaveChanges();
+        }
+        // Lấy danh sách Subtask đã lọc từ cơ sở dữ liệu cho người dùng
+        public async Task<List<Subtask>> GetFilteredSubtasksForUserAsync(string accountId, string status, string priority, string difficulty, DateTime? deadline)
+        {
+            // Join giữa Subtask và SubtaskAssignment để lấy các subtask được giao cho người dùng cụ thể
+            var query = from subtask in _context.Subtasks
+                        join assignment in _context.SubtaskAssignments
+                        on subtask.SubtaskId equals assignment.SubtaskId
+                        where assignment.AssignedTo == accountId
+                        select subtask;
+
+            // Các điều kiện lọc
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(t => t.Status == status);
+            }
+
+            if (!string.IsNullOrEmpty(priority))
+            {
+                query = query.Where(t => t.Priority == int.Parse(priority));
+            }
+
+            if (!string.IsNullOrEmpty(difficulty))
+            {
+                query = query.Where(t => t.Difficulty == int.Parse(difficulty));
+            }
+
+            if (deadline.HasValue)
+            {
+                query = query.Where(t => t.Deadline <= deadline);
+            }
+
+            return await query.ToListAsync();
+        }
+
+
+        // Lấy danh sách PersonalTask đã lọc từ cơ sở dữ liệu cho người dùng
+        public async Task<List<PersonalTask>> GetFilteredPersonalTasksForUserAsync(string accountId, string status, string priority, DateTime? deadline)
+        {
+            var query = _context.PersonalTasks.Where(t => t.AccountId == accountId).AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(t => t.Status == status);
+            }
+
+            if (!string.IsNullOrEmpty(priority))
+            {
+                query = query.Where(t => t.Priority == int.Parse(priority));
+            }
+
+            if (deadline.HasValue)
+            {
+                query = query.Where(t => t.Deadline <= deadline);
+            }
+
+            return await query.ToListAsync();
+        }
 
     }
 }

@@ -22,10 +22,15 @@
     <div class="sidebar-placeholder"></div>
     <!-- Main Content -->
     <div class="main-content">
-
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success" id="successMessage">
+                @TempData["SuccessMessage"]
+            </div>
+        }
         <!-- Create Personal Task Button -->
         <div class="create-task-button">
-            <button onclick="createPersonalTask()">
+            <button onclick="openCreatePersonalTask();">
                 <i class="fas fa-plus"></i> Create Personal Task
             </button>
         </div>
@@ -33,6 +38,15 @@
         <div class="FilteredTasks">
             <!-- Filter Form -->
             <form asp-action="FilteredTasks" method="get">
+                <div class="form-group">
+                    <label for="taskType">Task Type</label>
+                    <select id="taskType" name="taskType" class="form-control" onchange="toggleDifficultyField()">
+                        <option value="all">All</option>
+                        <option value="personal">Personal Task</option>
+                        <option value="subtask">Subtask</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="status">Status</label>
                     <select id="status" name="status" class="form-control">
@@ -55,7 +69,8 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <!-- Difficulty Field -->
+                <div class="form-group" id="difficultyField">
                     <label for="difficulty">Difficulty</label>
                     <select id="difficulty" name="difficulty" class="form-control">
                         <option value="">All</option>
@@ -119,30 +134,30 @@
                 @foreach (var personalTask in personalTasks)
                 {
                     <div class="task-item"
-                         onclick="checkIfPTaskSubmit(event, '@personalTask.PtaskId', '@personalTask.AssignmentDate',
+                         onclick="checkIfPTaskSubmit(event, '@personalTask.PtaskName', '@personalTask.AssignmentDate',
                  '@personalTask.Deadline', '@personalTask.Priority', '@personalTask.Status', '@personalTask.Description')">
                         <div class="task-info">
-                         <span class="task-title">@personalTask.PtaskId</span>
+                            <span class="task-title">@personalTask.PtaskName</span>
                         <span class="task-status">(@personalTask.Status)</span>
                         </div>
                         <div class="button-container">
-                            <form method="post" action="" onsubmit="return confirmSubmitTask()">
-                                <input type="hidden" name="PtaskId" value="@personalTask.PtaskId" />
-                                <input type="hidden" name="status" value="In Progress" />
-                                <button type="submit" class="button">Update</button>
-                            </form>
+                            <button class="button" onclick="openUpdatePersonalTaskModal('@personalTask.PtaskId', 
+                            '@personalTask.PtaskName', '@personalTask.AssignmentDate', '@personalTask.Deadline', 
+                            '@personalTask.Priority', '@personalTask.Description');">Update</button>
                             <form method="post" action="/Staff/UpdatePersonalTaskStatus" onsubmit="return confirmUnsubmitTask()">
                                 <input type="hidden" name="PtaskId" value="@personalTask.PtaskId" />
                                 <input type="hidden" name="status" value="@personalTask.Status" />
                                 <button type="submit" class="button">Change status</button>
                             </form>
+                            <form method="post" action="/Staff/DeletePersonalTask" onsubmit="return confirmDeletePersonalTask()">
+                                <input type="hidden" name="PtaskId" value="@personalTask.PtaskId" />
+                                <button type="submit" class="button">Delete</button>
+                            </form>
                         </div>
                     </div>
-                    
                 }
             </div>
         </div>
-
 
         <!-- Not Started Tasks Section -->
         <div class="task-container">
@@ -220,7 +235,6 @@
         </div>
     </div>
 
-
     <!-- Modal for Task Details -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
@@ -244,6 +258,100 @@
             <p id="personalTaskContent">Task description and details go here.</p>
         </div>
     </div>
+
+    <!-- Modal for Creating Personal Task -->
+    <div class="modal" id="createPersonalTaskModal">
+        <div class="modal-content">
+            <button class="close-button" onclick="closeModal('createPersonalTaskModal')">&times;</button>
+            <h3>Create New Personal Task</h3>
+
+            <form id="createPersonalTaskForm" method="post" action="/Staff/CreatePersonalTask">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" name="PtaskName" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="assignedDate">Assignment Date</label>
+                    <input type="datetime-local" id="assignedDate" name="assignedDate" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="deadline">Deadline</label>
+                    <input type="datetime-local" id="deadline" name="deadline" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority" class="form-control" required>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="3">4 </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="button">Create Task</button>
+                    <button type="button" class="button" onclick="closeModal('createPersonalTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Updating Personal Task -->
+    <div class="modal" id="updatePersonalTaskModal">
+        <div class="modal-content">
+            <button class="close-button" onclick="closeModal('updatePersonalTaskModal')">&times;</button>
+            <h3>Update Personal Task</h3>
+
+            <form id="updatePersonalTaskForm" method="post" action="/Staff/UpdatePersonalTask">
+                <input type="hidden" id="PtaskId" name="PtaskId" />
+
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="updateTaskTitle" name="PtaskName" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="assignedDate">Assignment Date</label>
+                    <input type="datetime-local" id="updateAssignedDate" name="assignedDate" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="deadline">Deadline</label>
+                    <input type="datetime-local" id="updateDeadline" name="deadline" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="updatePriority" name="priority" class="form-control" required>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="updateDescription" name="description" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="button">Update Task</button>
+                    <button type="button" class="button" onclick="closeModal('updatePersonalTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
   <script src="~/js/staff/task.js"></script>
 </body>
 </html>

@@ -14,13 +14,15 @@ namespace TaskForge.Controllers
         private readonly EmployeeService _employeeService;
         private readonly DropboxService _dropboxService;
         private readonly ProjectService _projectService;
+        private readonly TaskService _taskService;
 
         // Constructor duy nhất cho cả hai service
-        public StaffController(EmployeeService employeeService, DropboxService dropboxService, ProjectService projectService)
+        public StaffController(EmployeeService employeeService, DropboxService dropboxService, ProjectService projectService, TaskService taskService)
         {
             _employeeService = employeeService;
             _dropboxService = dropboxService;
             _projectService = projectService;
+            _taskService = taskService;
         }
 
         public IActionResult Index()
@@ -113,10 +115,36 @@ namespace TaskForge.Controllers
             return View();
         }
         [HttpGet]
-        public async Task<IActionResult> FilteredTasks(string status, string priority, string difficulty, DateTime? deadline)
+        public async Task<IActionResult> FilteredTasks(string taskType, string status, string priority, string difficulty, DateTime? deadline)
         {
-            var filteredTasks = await _employeeService.GetFilteredTasksAsync(status, priority, difficulty, deadline);
-            return View("FilteredTasks", filteredTasks); // Return filtered tasks to the view
+            // Lấy accountId từ thông tin xác thực của người dùng
+            string accountId = User.FindFirst("AccountId")?.Value;
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return Unauthorized(); // Nếu không có accountId, yêu cầu người dùng đăng nhập lại
+            }
+
+            // Khởi tạo các danh sách trống để lưu kết quả
+            var filteredSubtasks = new List<Subtask>();
+            var filteredPersonalTasks = new List<PersonalTask>();
+
+            // Lấy Subtasks nếu taskType là 'all' hoặc 'subtask'
+            if (taskType == "all" || taskType == "subtask")
+            {
+                filteredSubtasks = await _taskService.GetFilteredSubtasksForUserAsync(accountId, status, priority, difficulty, deadline);
+            }
+
+            // Lấy Personal Tasks nếu taskType là 'all' hoặc 'personal'
+            if (taskType == "all" || taskType == "personal")
+            {
+                filteredPersonalTasks = await _taskService.GetFilteredPersonalTasksForUserAsync(accountId, status, priority, deadline);
+            }
+
+            // Lưu các kết quả lọc vào ViewBag
+            ViewBag.Subtasks = filteredSubtasks;
+            ViewBag.PersonalTasks = filteredPersonalTasks;
+
+            return View("FilteredTasks"); // Trả về view "FilteredTasks"
         }
 
         [HttpPost]
@@ -194,11 +222,109 @@ namespace TaskForge.Controllers
             }
             // Gọi service để cập nhật trạng thái task
             var result = _employeeService.UpdatePersonalTaskkStatus(PtaskId, status);
+            // Thêm thông báo thành công
+            TempData["SuccessMessage"] = "Personal task's status was updated successfully!";
             if (result)
             {
                 return RedirectToAction("Task");
             }
             return RedirectToAction("Error", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult CreatePersonalTask(string PtaskName, DateTime assignedDate, DateTime deadline, int priority, string description)
+        {
+            // Lấy AccountId của người dùng hiện tại
+            var accountId = User.FindFirstValue("AccountId");
+            if (accountId == null)
+            {
+                return RedirectToAction("Login", "Account"); // Nếu không có accountId, chuyển hướng tới trang Login
+            }
+
+            if (ModelState.IsValid)
+            {
+                // Sinh ID ngẫu nhiên cho PersonalTask
+                string ptask_id = GenerateRandomPtaskId();
+
+                // Tạo đối tượng PersonalTask mới
+                var ptask = new PersonalTask
+                {
+                    PtaskId = ptask_id,              // Gán PtaskId ngẫu nhiên
+                    AccountId = accountId,           // Gán AccountId của người dùng
+                    PtaskName = PtaskName,           // Lấy tên task từ form
+                    Status = "In Progress",           // Trạng thái mặc định khi tạo task là "In Progress"
+                    Priority = priority,             // Gán độ ưu tiên từ form
+                    AssignmentDate = assignedDate,   // Gán ngày tạo task từ form
+                    Deadline = deadline,             // Gán hạn deadline từ form
+                    Description = description       // Gán mô tả từ form
+                };
+
+                // Gọi service hoặc repository để lưu PersonalTask vào database
+                _taskService.AddPersonalTask(ptask);
+                // Thêm thông báo thành công
+                TempData["SuccessMessage"] = "Personal task created successfully!";
+                // Sau khi tạo task, chuyển hướng người dùng về trang Task
+                return RedirectToAction("Task");
+            }
+
+            // Nếu model không hợp lệ, quay lại trang và hiển thị lại form
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult UpdatePersonalTask(string PtaskId, string PtaskName, string Description, DateTime assignedDate, DateTime deadline, int priority)
+        {
+            // Lấy Personal Task từ Service
+            var personalTask = _taskService.GetPersonalTaskById(PtaskId);
+            if (personalTask == null)
+            {
+                return NotFound("Personal Task not found.");
+            }
+
+            // Cập nhật thông tin của Personal Task
+            personalTask.PtaskName = PtaskName;
+            personalTask.Description = Description;
+            personalTask.AssignmentDate = assignedDate;
+            personalTask.Deadline = deadline;
+            personalTask.Priority = priority;
+
+            // Gọi Service để cập nhật task
+            _taskService.UpdatePersonalTask(personalTask);
+            // Thêm thông báo thành công
+            TempData["SuccessMessage"] = "Personal task updated successfully!";
+            // Chuyển hướng lại trang quản lý sau khi cập nhật
+            return RedirectToAction("Task");
+        }
+
+        [HttpPost]
+        public IActionResult DeletePersonalTask(string PtaskId)
+        {
+            var task = _taskService.GetPersonalTaskById(PtaskId);
+            if (task == null)
+            {
+                TempData["ErrorMessage"] = "Task not found.";
+                return RedirectToAction("Task");
+            }
+
+            // Gọi service để xóa task
+            _taskService.DeletePersonalTask(PtaskId);
+
+            // Thông báo xóa thành công
+            TempData["SuccessMessage"] = "Task deleted successfully!";
+            return RedirectToAction("Task");
+        }
+
+        // Phương thức tạo ID mới ngẫu nhiên cho PersonalTask
+        public string GenerateRandomPtaskId()
+        {
+            // Tạo đối tượng Random
+            Random random = new Random();
+
+            // Tạo số ngẫu nhiên trong khoảng từ 1 đến 999
+            int randomNumber = random.Next(1, 1000); // Số ngẫu nhiên từ 1 đến 999
+
+            // Trả về ID mới với định dạng "PT" + số ngẫu nhiên với 3 chữ số
+            return "PT" + randomNumber.ToString("D3"); // D3 định dạng số thành 3 chữ số (ví dụ: "PT045")
         }
         // Action để hiển thị trang upload file
         [HttpGet]

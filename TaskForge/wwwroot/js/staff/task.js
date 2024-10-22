@@ -48,6 +48,32 @@ function openPersonalTaskModal(title, assignedDate, deadline, priority, status, 
             `;
     document.getElementById('personalTaskModal').style.display = 'flex';
 }
+// Mở modal để tạo Personal Task mới
+function openCreatePersonalTask() {
+    document.getElementById('createPersonalTaskModal').style.display = 'flex';
+}
+function openUpdatePersonalTaskModal(ptaskId, title, assignedDate, deadline, priority, description) {
+    document.getElementById('PtaskId').value = ptaskId;
+    document.getElementById('updateTaskTitle').value = title;
+    document.getElementById('updateAssignedDate').value = formatDateTime(assignedDate); // Format assignedDate
+    document.getElementById('updateDeadline').value = formatDateTime(deadline);         // Format deadline
+    document.getElementById('updatePriority').value = priority;
+    document.getElementById('updateDescription').value = description;
+
+    document.getElementById('updatePersonalTaskModal').style.display = 'flex';
+}
+
+function formatDateTime(dateString) {
+    const date = new Date(dateString); // Convert to Date object
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
     function toggleSection(sectionId, headerElement) {
             const section = document.getElementById(sectionId);
@@ -87,5 +113,36 @@ function confirmAcceptTask() {
 }
 // Hàm xác nhận khi accept task
 function confirmAcceptTask() {
-    return confirm("Are you sure you want to chnge this personal task status?");
+    return confirm("Are you sure you want to change this personal task status?");
 }
+// Hàm xác nhận khi accept task
+function confirmDeletePersonalTask() {
+    return confirm("Are you sure you want to delete this task?'");
+}
+// Chờ cho trang load xong
+window.onload = function () {
+    // Tìm thông báo thành công
+    var successMessage = document.getElementById("successMessage");
+
+    // Nếu thông báo tồn tại, ẩn nó sau 5 giây
+    if (successMessage) {
+        setTimeout(function () {
+            successMessage.style.display = 'none'; // Ẩn thông báo
+        }, 5000); // 5000ms = 5 giây
+    }
+};
+function toggleDifficultyField() {
+    const taskType = document.getElementById("taskType").value;
+    const difficultyField = document.getElementById("difficultyField");
+
+    if (taskType === "personal") {
+        difficultyField.style.display = "none"; // Hide Difficulty for Personal Task
+    } else {
+        difficultyField.style.display = "block"; // Show Difficulty for Subtask
+    }
+}
+
+//// Ensure the field visibility is correct when the page loads
+//document.addEventListener("DOMContentLoaded", function () {
+//    toggleDifficultyField();
+//});

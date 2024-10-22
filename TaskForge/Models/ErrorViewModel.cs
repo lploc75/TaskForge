@@ -1,5 +1,4 @@
-﻿
-namespace TaskForge.Models
+﻿namespace TaskForge.Models
 {
     public class ErrorViewModel
     {

@@ -1,8 +1,8 @@
-﻿@model List<TaskForge.Models.Subtask>
-
-@{
+﻿@{
     ViewData["Title"] = "Filtered Tasks";
     Layout = "_StaffLayout";
+    var subtasks = ViewBag.Subtasks as List<TaskForge.Models.Subtask>;
+    var personalTasks = ViewBag.PersonalTasks as List<TaskForge.Models.PersonalTask>;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +17,15 @@
     <div class="main-content">
         <!-- Filter Form -->
         <form asp-action="FilteredTasks" method="get">
+            <div class="form-group">
+                <label for="taskType">Task Type</label>
+                <select id="taskType" name="taskType" class="form-control" onchange="toggleDifficultyField()">
+                    <option value="all">All</option>
+                    <option value="personal">Personal Task</option>
+                    <option value="subtask">Subtask</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="status">Status</label>
                 <select id="status" name="status" class="form-control">
@@ -39,7 +48,8 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <!-- Difficulty Field -->
+            <div class="form-group" id="difficultyField">
                 <label for="difficulty">Difficulty</label>
                 <select id="difficulty" name="difficulty" class="form-control">
                     <option value="">All</option>
@@ -61,41 +71,87 @@
         </form>
 
         <h2>Filtered Tasks</h2>
-        <table class="task-table">
-            <thead>
-                <tr>
-                    <th>Subtask ID</th>
-                    <th>Subtask Name</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Difficulty</th>
-                    <th>Assignment Date</th>
-                    <th>Deadline</th>
-                    <th>Submission Date</th>
-                    <th>Task ID</th>
-                    <th>Team ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var subtask in Model)
-                {
+
+        <!-- Subtasks Section -->
+        @if (subtasks != null && subtasks.Any())
+        {
+            <h3>Subtasks</h3>
+            <table class="task-table">
+                <thead>
                     <tr>
-                        <td>@subtask.SubtaskId</td>
-                        <td>@subtask.SubtaskName</td>
-                        <td>@subtask.Description</td>
-                        <td>@subtask.Status</td>
-                        <td>@subtask.Priority</td>
-                        <td>@subtask.Difficulty</td>
-                        <td>@subtask.AssignmentDate</td>
-                        <td>@subtask.Deadline</td>
-                        <td>@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")</td>
-                        <td>@subtask.TaskId</td>
-                        <td>@subtask.TeamId</td>
+                        <th>Subtask ID</th>
+                        <th>Subtask Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Difficulty</th>
+                        <th>Assignment Date</th>
+                        <th>Deadline</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var subtask in subtasks)
+                    {
+                        <tr>
+                            <td>@subtask.SubtaskId</td>
+                            <td>@subtask.SubtaskName</td>
+                            <td>@subtask.Description</td>
+                            <td>@subtask.Status</td>
+                            <td>@subtask.Priority</td>
+                            <td>@subtask.Difficulty</td>
+                            <td>@subtask.AssignmentDate</td>
+                            <td>@subtask.Deadline</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        <!-- Personal Tasks Section -->
+        @if (personalTasks != null && personalTasks.Any())
+        {
+            <h3>Personal Tasks</h3>
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Task Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Assignment Date</th>
+                        <th>Deadline</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var personalTask in personalTasks)
+                    {
+                        <tr>
+                            <td>@personalTask.PtaskId</td>
+                            <td>@personalTask.PtaskName</td>
+                            <td>@personalTask.Description</td>
+                            <td>@personalTask.Status</td>
+                            <td>@personalTask.Priority</td>
+                            <td>@personalTask.AssignmentDate</td>
+                            <td>@personalTask.Deadline</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <script>
+        function toggleDifficultyField() {
+            var taskType = document.getElementById('taskType').value;
+            var difficultyField = document.getElementById('difficultyField');
+            if (taskType === 'personal') {
+                difficultyField.style.display = 'none';
+            } else {
+                difficultyField.style.display = 'block';
+            }
+        }
+    </script>
 
 </body>
 </html>

@@ -1,4 +1,41 @@
-﻿/* Định dạng form theo chiều ngang */
+﻿.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    position: relative;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.create-task-button {
+    position: fixed; /* Cố định vị trí nút */
+    bottom: 15px; /* Cách đáy màn hình 20px */
+    right: 15px; /* Cách phải màn hình 20px */
+    z-index: 1000; /* Đảm bảo nút luôn nằm trên các thành phần khác */
+}
+
+    .create-task-button button {
+        background-color: #4CAF50; /* Màu nền xanh */
+        color: white; /* Màu chữ trắng */
+        border: none; /* Không có viền */
+        padding: 10px 20px; /* Khoảng cách trong nút */
+        border-radius: 5px; /* Tạo hình tròn cho nút */
+        font-size: 16px; /* Kích thước chữ */
+        cursor: pointer; /* Thay đổi con trỏ chuột khi hover */
+        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+        transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu mượt */
+    }
+
+        .create-task-button button:hover {
+            background-color: #45a049;
+        }
+
+/* Định dạng form theo chiều ngang */
 .FilteredTasks form {
     display: flex;
     flex-wrap: wrap;
@@ -36,6 +73,7 @@
     background-color: #4CAF50;
     color: white;
     border: none;
+    font-size: 16px; /* Kích thước chữ */
     border-radius: 4px;
     cursor: pointer;
     height: 38px; /* Chiều cao của button khớp với các trường input */
