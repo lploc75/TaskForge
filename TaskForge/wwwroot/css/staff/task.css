@@ -126,12 +126,30 @@ body {
     padding: 15px;
     border-radius: 8px;
     display: flex;
-    justify-content: space-between; /* Giúp nút nằm ở góc phải */
-    align-items: center;
+    justify-content: space-between; /* Giúp các thành phần nằm hai bên */
+    align-items: center; /* Giúp các thành phần nằm trên một hàng ngang */
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     margin-bottom: 10px;
 }
+
+
+.task-info {
+    flex-grow: 1; /* Đảm bảo phần thông tin sẽ chiếm không gian lớn nhất */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.button-container {
+    display: flex;
+    justify-content: flex-end; /* Đảm bảo các nút nằm bên phải */
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0; /* Không cho phép thu nhỏ button khi thiếu không gian */
+}
+
     .task-item .task-info {
         display: flex;
         align-items: center;
@@ -166,11 +184,10 @@ body {
 
 .button-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; /* Đảm bảo các nút nằm bên phải */
     align-items: center;
-    gap: 10px; /* Điều chỉnh khoảng cách giữa các nút */
+    gap: 10px;
 }
-
     .button-container .button {
         padding: 8px 16px; /* Giảm khoảng đệm (padding) để thu nhỏ phần màu xanh xung quanh chữ */
         font-size: 16px;

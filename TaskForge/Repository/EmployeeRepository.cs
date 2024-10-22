@@ -35,6 +35,22 @@ namespace TaskForge.Repository
                 .Select(sa => sa.Subtask)                          // Chọn Subtask từ SubtaskAssignment
                 .ToList() ?? new List<Subtask>();
         }
+        public List<PersonalTask> GetPersonalTasks(string accountId)
+        {
+            return _context.PersonalTasks
+                .Where(pt => pt.AccountId == accountId)  // Lọc theo accountId
+                .Select(pt => new PersonalTask
+                {
+                    PtaskId = pt.PtaskId,                // Lấy PtaskId
+                    AccountId = pt.AccountId,            // Lấy AccountId
+                    Status = pt.Status,                  // Lấy Status
+                    Priority = pt.Priority,              // Lấy Priority
+                    AssignmentDate = pt.AssignmentDate,  // Lấy AssignmentDate
+                    Deadline = pt.Deadline,              // Lấy Deadline
+                    Description = pt.Description         // Lấy Description
+                })
+                .ToList();
+        }
 
         public Dictionary<int, int> GetTaskDifficultyStats(string accountId)
         {
@@ -102,12 +118,19 @@ namespace TaskForge.Repository
             _context.Subtasks.Update(subtask);
             _context.SaveChanges();
         }
-
+        public void UpdatePtask(Models.PersonalTask ptask)
+        {
+            _context.PersonalTasks.Update(ptask);
+            _context.SaveChanges();
+        }
         public Models.Subtask GetSubtaskById(string id)
         {
             return _context.Subtasks.Find(id); // Đảm bảo `_context.Subtasks` đúng với bảng `subtask`
         }
-
+        public Models.PersonalTask GetPtaskById(string id)
+        {
+            return _context.PersonalTasks.Find(id);
+        }
         public async Task<List<Subtask>> GetFilteredTasksAsync(string status, string priority, string difficulty, DateTime? deadline)
         {
             var query = _context.Subtasks.AsQueryable();

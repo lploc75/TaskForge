@@ -80,12 +80,17 @@ namespace TaskForge.Controllers
             // Lấy 'AccountId' từ các claims của người dùng hiện tại đã đăng nhập
             string accountId = User.FindFirst("AccountId")?.Value;
 
-            // Lấy danh sách các subtasks được gán cho tài khoản dựa vào accountId,
+            // Lấy danh sách các subtasks và personalTask được gán cho tài khoản dựa vào accountId,
             // nếu không tìm thấy subtasks nào, khởi tạo danh sách trống
-            List<Subtask> assignedSubtasks = _employeeService.GetAssignedSubtasks(accountId) ?? new List<Subtask>();
+            var subtasks = _employeeService.GetAssignedSubtasks(accountId);
+            var personalTasks = _employeeService.GetPersonalTasks(accountId);
 
+            // Sử dụng ViewBag để truyền dữ liệu
+            ViewBag.Subtasks = subtasks;
+            ViewBag.PersonalTasks = personalTasks;
+            ViewBag.AccountId = accountId;
             // Trả về View và truyền danh sách subtasks đã gán vào Model
-            return View(assignedSubtasks);
+            return View();
         }
         public IActionResult Project()
         {
@@ -166,7 +171,7 @@ namespace TaskForge.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateStatus(string subtaskId, string status)
+        public IActionResult UpdateSubtaskStatus(string subtaskId, string status)
         {
             // Gọi service để cập nhật trạng thái task
             var result = _employeeService.UpdateSubtaskStatus(subtaskId, status);
@@ -176,7 +181,25 @@ namespace TaskForge.Controllers
             }
             return RedirectToAction("Error", "Home");
         }
-
+        [HttpPost]
+        public IActionResult UpdatePersonalTaskStatus(string PtaskId, string status)
+        {
+            if(status.Equals("In Progress"))
+            {
+                status = "Completed";
+            }
+            else
+            {
+                status = "In Progress";
+            }
+            // Gọi service để cập nhật trạng thái task
+            var result = _employeeService.UpdatePersonalTaskkStatus(PtaskId, status);
+            if (result)
+            {
+                return RedirectToAction("Task");
+            }
+            return RedirectToAction("Error", "Home");
+        }
         // Action để hiển thị trang upload file
         [HttpGet]
         public async Task<IActionResult> UploadFile(string code, string subtaskId)

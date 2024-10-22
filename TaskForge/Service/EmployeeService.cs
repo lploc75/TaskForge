@@ -20,6 +20,10 @@ namespace TaskForge.Service
         {
             return _employeeRepository.GetAssignedSubtasks(accountId);
         }
+        public List<PersonalTask> GetPersonalTasks(string accountId)
+        {
+            return _employeeRepository.GetPersonalTasks(accountId);
+        }
         public (int BeforeDeadline, int OnDeadline, int AfterDeadline) GetCompletedTaskStats(string accountId)
         {
             var completedTasks = _employeeRepository.GetAssignedSubtasks(accountId)
@@ -73,6 +77,18 @@ namespace TaskForge.Service
                     subtask.SubmissionDate = null;
                 }
                 _employeeRepository.UpdateSubtask(subtask);
+                return true;
+            }
+            return false;
+        }
+        public bool UpdatePersonalTaskkStatus(string subtaskId, string status)
+        {
+            // Gọi repository để lấy subtask
+            var Ptask = _employeeRepository.GetPtaskById(subtaskId);
+            if (Ptask != null)
+            {
+                Ptask.Status = status;
+                _employeeRepository.UpdatePtask(Ptask);
                 return true;
             }
             return false;
