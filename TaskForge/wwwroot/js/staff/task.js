@@ -131,6 +131,13 @@ window.onload = function () {
         }, 5000); // 5000ms = 5 giây
     }
 };
+function confirmCreateTask() {
+    return confirm("Are you sure you want to create this task?");
+}
+function confirmUpdateTask() {
+    return confirm("Are you sure you want to update this task?");
+}
+
 function toggleDifficultyField() {
     const taskType = document.getElementById("taskType").value;
     const difficultyField = document.getElementById("difficultyField");
@@ -142,7 +149,3 @@ function toggleDifficultyField() {
     }
 }
 
-//// Ensure the field visibility is correct when the page loads
-//document.addEventListener("DOMContentLoaded", function () {
-//    toggleDifficultyField();
-//});

@@ -199,12 +199,12 @@ CREATE TABLE [File] (
 
 -- Dữ liệu cho bảng Account
 INSERT INTO Account (account_id, username, password, email, phone_number) VALUES
-('ACC001', 'admin', 'password123', 'admin@example.com', '0123456789'),
-('ACC002', 'manager', 'password123', 'manager@example.com','0123456788'),
-('ACC003', 'staff01', 'password123', 'staff01@example.com', '0123456787'),
-('ACC004', 'leader01', 'password123', 'leader01@example.com','0123456786'),
-('ACC005', 'staff02', 'password123', 'staff02@example.com','0123456785'),
-('ACC006', 'depthead01', 'password123', 'depthead01@example.com','0123456784');
+('ACC001', 'admin', '123', 'admin@example.com', '0123456789'),
+('ACC002', 'manager', '123', 'manager@example.com','0123456788'),
+('ACC003', 'staff01', '123', 'staff01@example.com', '0123456787'),
+('ACC004', 'leader01', '123', 'leader01@example.com','0123456786'),
+('ACC005', 'staff02', '123', 'staff02@example.com','0123456785'),
+('ACC006', 'depthead01', '123', 'depthead01@example.com','0123456784');
 
 -- Dữ liệu cho bảng Feedback
 INSERT INTO Feedback (feedback_id, context, date_submitted, account_id) VALUES
@@ -235,7 +235,7 @@ INSERT INTO Employee (account_id, fullname, gender, dob, start_date, end_date, r
 -- Dữ liệu cho bảng Project
 INSERT INTO Project (project_id, project_name, description, status, deadline) VALUES
 (1, 'Project Alpha', 'This is the first project.', 'In Progress', '2024-12-31'),
-(2, 'Project Beta', 'This is the second project.', 'Pending', '2025-01-15'),
+(2, 'Project Beta', 'This is the second project.', 'Cancelled', '2025-01-15'),
 (3, 'Project Gamma', 'This is the third project.', 'Completed', '2024-09-30');
 
 
@@ -244,6 +244,7 @@ INSERT INTO EmployeeProject (account_id, project_id, role) VALUES
 ('ACC003', 1 , 'Staff'),
 ('ACC004', 1, 'Leader'),
 ('ACC005', 1, 'Staff'),
+('ACC006', 1, 'Department Head'),
 ('ACC002', 1, 'Manager');
 
 -- Dữ liệu cho bảng EmployeeTeam

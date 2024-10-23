@@ -1,0 +1,33 @@
+﻿using TaskForge.Models;
+using TaskForge.Repository;
+
+namespace TaskForge.Service
+{
+    public class FeedbackService
+    {
+        private readonly FeedbackRepository _feedbackRepository;
+
+        public FeedbackService(FeedbackRepository feedbackRepository)
+        {
+            _feedbackRepository = feedbackRepository;
+        }
+
+        // Lấy tất cả phản hồi
+        public List<Feedback> GetAllFeedbacks()
+        {
+            return _feedbackRepository.GetAllFeedbacks();
+        }
+
+        // Tạo phản hồi mới
+        public void CreateFeedback(Feedback feedback)
+        {
+            _feedbackRepository.CreateFeedback(feedback);
+        }
+
+        // Xóa phản hồi
+        public void DeleteFeedback(int feedbackId)
+        {
+            _feedbackRepository.DeleteFeedback(feedbackId);
+        }
+    }
+}

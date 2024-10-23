@@ -1,0 +1,119 @@
+﻿@model IEnumerable<TaskForge.Models.Account>
+
+@{
+    ViewData["Title"] = "Account Management";
+    Layout = "_AdminLayout";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Management</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="~/css/admin/viewAccountList.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="admin-dashboard">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success" id="successMessage">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        <h1 class="page-title">Account List</h1>
+
+        <!-- Button to create new account -->
+        <button class="btn-create-account" onclick="openCreateAccountModal()">+ Create New Account</button>
+
+        <!-- Account table -->
+        <table class="account-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var account in Model)
+                {
+                    <tr>
+                        <td>@account.Username</td>
+                        <td>@account.Email</td>
+                        <td>@account.PhoneNumber</td>
+                        <td>
+                            <div class="button-container">
+                                <!-- Button to update -->
+                                <button class="button" onclick="openUpdateAccountModal('@account.AccountId',
+                            '@account.Username', '@account.Password', '@account.Email',
+                            '@account.PhoneNumber');">
+                                    Update
+                                </button>
+                                <!-- Form to delete account -->
+                                <form method="post" action="/Admin/DeleteAccount" onsubmit="return confirmDeleteAccount()">
+                                    <input type="hidden" name="AccountId" value="@account.AccountId" />
+                                    <button type="submit" class="button">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Create Account -->
+    <div id="createAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateAccountModal()">&times;</span>
+            <h2>Create New Account</h2>
+            <form id="createAccountForm" method="post" action="/Admin/CreateAccount" onsubmit="return confirmCreateAccount()">
+                <label for="newUsername">Username:</label>
+                <input type="text" id="newUsername" name="Username" required placeholder="Enter username" />
+
+                <label for="newPassword">Password:</label>
+                <input type="password" id="newPassword" name="Password" required placeholder="Enter password" />
+
+                <label for="newEmail">Email:</label>
+                <input type="email" id="newEmail" name="Email" required placeholder="Enter email" />
+
+                <label for="newPhoneNumber">Phone Number:</label>
+                <input type="text" id="newPhoneNumber" name="PhoneNumber" placeholder="Enter phone number" />
+
+                <button type="submit" class="create-button">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Update Account -->
+    <div id="updateAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUpdateAccountModal()">&times;</span>
+            <h2>Update Account</h2>
+            <form id="updateAccountForm" method="post" action="/Admin/EditAccount" onsubmit="return confirmUpdateAccount()">
+                <input type="hidden" id="modalAccountId" name="AccountId" />
+
+                <label for="modalUsername">Username:</label>
+                <input type="text" id="modalUsername" name="Username" />
+
+                <label for="modalPassword">Password:</label>
+                <input type="password" id="modalPassword" name="Password" />
+
+                <label for="modalEmail">Email:</label>
+                <input type="email" id="modalEmail" name="Email" />
+
+                <label for="modalPhoneNumber">Phone Number:</label>
+                <input type="text" id="modalPhoneNumber" name="PhoneNumber" />
+
+                <button type="submit" class="button">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/js/admin/ViewAccountList.js"></script>
+</body>
+</html>

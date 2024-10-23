@@ -265,7 +265,7 @@
             <button class="close-button" onclick="closeModal('createPersonalTaskModal')">&times;</button>
             <h3>Create New Personal Task</h3>
 
-            <form id="createPersonalTaskForm" method="post" action="/Staff/CreatePersonalTask">
+            <form id="createPersonalTaskForm" method="post" action="/Staff/CreatePersonalTask" onsubmit="return confirmCreateTask()">
                 <div class="form-group">
                     <label for="taskTitle">Task Title</label>
                     <input type="text" id="taskTitle" name="PtaskName" class="form-control" required />
@@ -310,7 +310,7 @@
             <button class="close-button" onclick="closeModal('updatePersonalTaskModal')">&times;</button>
             <h3>Update Personal Task</h3>
 
-            <form id="updatePersonalTaskForm" method="post" action="/Staff/UpdatePersonalTask">
+            <form id="updatePersonalTaskForm" method="post" action="/Staff/UpdatePersonalTask" onsubmit="return confirmUpdateTask()">
                 <input type="hidden" id="PtaskId" name="PtaskId" />
 
                 <div class="form-group">

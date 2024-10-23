@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/adminLayout.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<style>
+    /* Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f7fa; /* Xanh nhạt nhạt */
+        color: #333;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 200px;
+        height: 100vh;
+        background-color: #ffffff; /* Trắng */
+        color: #333;
+        padding: 20px 0;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        border-right: 1px solid #ddd;
+    }
+
+    .navbar-title {
+        font-weight: bold;
+        font-size: 18px; /* Tùy chỉnh kích thước chữ */
+        color: #333; /* Màu sắc */
+        margin-right: auto; /* Đẩy các biểu tượng sang bên phải */
+    }
+
+    .sidebar ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+
+            .sidebar ul li a {
+                color: #333;
+                text-decoration: none;
+                font-size: 16px;
+                padding: 10px;
+                display: block;
+            }
+
+                .sidebar ul li a:hover {
+                    background-color: #e0efff; /* Xanh rất nhạt */
+                    border-radius: 5px;
+                }
+
+                .sidebar ul li a i {
+                    margin-right: 10px;
+                }
+
+    /* Navbar */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 200px;
+        background-color: #ffffff; /* Trắng */
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        z-index: 1000;
+        border-bottom: 1px solid #ddd;
+        width: calc(100% - 200px);
+        justify-content: flex-end;
+    }
+
+        .navbar .icon-container {
+            position: relative;
+            margin: 0 10px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+            .navbar .icon-container i {
+                font-size: 20px;
+            }
+
+            .navbar .icon-container .badge {
+                position: absolute;
+                top: -5px;
+                right: -10px;
+                background-color: #ff6f61; /* Đỏ cam */
+                color: white;
+                border-radius: 50%;
+                padding: 2px 5px;
+                font-size: 12px;
+            }
+
+        .navbar .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-left: 15px;
+        }
+
+            .navbar .avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+</style>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul>
+            <li><a asp-controller="Admin" asp-action="Index"><i class="material-icons">home</i> Dashboard</a></li>
+            <li><a asp-controller="Admin" asp-action="ViewAccountList"><i class="material-icons">account_circle</i>Account Management</a></li>
+            <li><a asp-controller="Admin" asp-action="ViewDepartmentList"><i class="material-icons">business</i>Manage Department Management</a></li>
+            <li><a asp-controller="Admin" asp-action="ViewCreditExchangeList"><i class="material-icons">shopping_cart</i> Credit Exchange Management</a></li>
+            <li><a asp-controller="Admin" asp-action="ViewFeedbackList"><i class="material-icons">feedback</i> Feedback Management</a></li>
+            <li><a asp-controller="Account" asp-action="Login"><i class="material-icons">logout</i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-title">Admin Dashboard</div>
+        <div class="icon-container">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div class="avatar">
+            <img src="https://via.placeholder.com/30" alt="Avatar">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" style="margin-left: 220px; padding-top: 60px;">
+        @RenderBody()
+    </div>
+
+</body>
+</html>
