@@ -22,6 +22,113 @@ namespace TaskForge.Repository
                 .Where(t => t.ProjectId == projectId)
                 .ToList();
         }
+        // Lấy Task theo Id
+        public TaskForge.Models.Task GetTaskById(string taskId)
+        {
+            return _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+        }
+        // Cập nhật Task
+        public void UpdateTask(TaskForge.Models.Task task)
+        {
+            var existingTask = _context.Tasks.FirstOrDefault(t => t.TaskId == task.TaskId);
+            if (existingTask != null)
+            {
+                // Cập nhật thông tin task
+                existingTask.TaskName = task.TaskName;
+                existingTask.Description = task.Description;
+                existingTask.Priority = task.Priority;
+                existingTask.AssignmentDate = task.AssignmentDate;
+                existingTask.Deadline = task.Deadline;
+                existingTask.Status = task.Status;
+
+                _context.Tasks.Update(existingTask);
+                _context.SaveChanges();
+            }
+            else
+            {
+                throw new KeyNotFoundException("Task not found");
+            }
+        }
+
+        // Xóa Task
+        public void DeleteTask(string taskId)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Xóa các bản ghi liên quan trong bảng TaskAssignment
+                    var taskAssignments = _context.TaskAssignments.Where(ta => ta.TaskId == taskId).ToList();
+                    if (taskAssignments.Any())
+                    {
+                        _context.TaskAssignments.RemoveRange(taskAssignments);
+                    }
+
+                    // Xóa các bản ghi liên quan trong bảng TaskEvaluation
+                    var taskEvaluations = _context.TaskEvaluations.Where(te => te.TaskId == taskId).ToList();
+                    if (taskEvaluations.Any())
+                    {
+                        _context.TaskEvaluations.RemoveRange(taskEvaluations);
+                    }
+
+                    // Xóa các bản ghi liên quan trong bảng DepartmentTask
+                    var departmentTasks = _context.DepartmentTasks.Where(dt => dt.TaskId == taskId).ToList();
+                    if (departmentTasks.Any())
+                    {
+                        _context.DepartmentTasks.RemoveRange(departmentTasks);
+                    }
+
+                    // Xóa tất cả các subtasks và các liên kết của chúng
+                    var subtasks = _context.Subtasks.Where(st => st.TaskId == taskId).ToList();
+                    foreach (var subtask in subtasks)
+                    {
+                        // Xóa tất cả các bản ghi liên quan trong bảng SubtaskAssignment
+                        var subtaskAssignments = _context.SubtaskAssignments.Where(sa => sa.SubtaskId == subtask.SubtaskId).ToList();
+                        if (subtaskAssignments.Any())
+                        {
+                            _context.SubtaskAssignments.RemoveRange(subtaskAssignments);
+                        }
+
+                        // Xóa tất cả các bản ghi liên quan trong bảng SubtaskEvaluation
+                        var subtaskEvaluations = _context.SubtaskEvaluations.Where(se => se.SubtaskId == subtask.SubtaskId).ToList();
+                        if (subtaskEvaluations.Any())
+                        {
+                            _context.SubtaskEvaluations.RemoveRange(subtaskEvaluations);
+                        }
+
+                        // Xóa các bình luận liên quan đến subtask
+                        var comments = _context.Comments.Where(c => c.SubtaskId == subtask.SubtaskId).ToList();
+                        if (comments.Any())
+                        {
+                            _context.Comments.RemoveRange(comments);
+                        }
+
+                        // Cuối cùng, xóa subtask
+                        _context.Subtasks.Remove(subtask);
+                    }
+
+                    // Sau khi đã xóa hết các liên kết, xóa task
+                    var task = _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+                    if (task != null)
+                    {
+                        _context.Tasks.Remove(task);
+                    }
+
+                    // Lưu các thay đổi vào database
+                    _context.SaveChanges();
+
+                    // Commit transaction nếu không có lỗi xảy ra
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    // Rollback transaction nếu có lỗi
+                    transaction.Rollback();
+                    throw new Exception("Error deleting task: " + ex.Message);
+                }
+            }
+        }
+
 
         // Thêm một task mới vào dự án
         public void CreateTask(TaskForge.Models.Task task, List<string> departmentIds)
@@ -50,6 +157,7 @@ namespace TaskForge.Repository
             }
         }
 
+        // Gán task cho các phòng ban
         public void AssignTaskToDepartments(string taskId, List<string> departmentIds)
         {
             foreach (var departmentId in departmentIds)

@@ -24,5 +24,20 @@
             {
                 _taskRepository.CreateTask(task, departmentIds);
             }
+        public TaskForge.Models.Task GetTaskById(string taskId)
+        {
+            return _taskRepository.GetTaskById(taskId);
         }
+
+        public void UpdateTask(TaskForge.Models.Task task)
+        {
+            _taskRepository.UpdateTask(task);
+        }
+
+        public void DeleteTask(string taskId)
+        {
+            _taskRepository.DeleteTask(taskId);
+        }
+
     }
+}
