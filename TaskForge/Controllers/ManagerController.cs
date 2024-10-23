@@ -4,11 +4,14 @@ using TaskForge.Models;
 using TaskForge.Service;
 using System.Collections.Generic;
 using System.Diagnostics;
+using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskForge.Controllers
 {
     public class ManagerController : Controller
     {
+        private readonly TaskForgeContext _context;
         private readonly EmployeeService _employeeService;
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
@@ -195,21 +198,21 @@ namespace TaskForge.Controllers
         {
             try
             {
-                var project = _projectService.GetProjectById(projectId);
-                if (project == null)
-                {
-                    return NotFound("Dự án không tồn tại.");
-                }
-
+                // Gọi service để xóa dự án và xử lý tất cả liên kết liên quan
                 _projectService.DeleteProject(projectId);
 
+                // Trả về kết quả thành công, chuyển hướng về trang quản lý dự án
                 return RedirectToAction("ProjectManage");
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "Có lỗi xảy ra khi xóa dự án: " + ex.Message;
+                // Nếu có lỗi xảy ra, trả về trang lỗi hoặc hiển thị thông báo lỗi ra giao diện
+                ViewBag.ErrorMessage = $"Error deleting project: {ex.Message}";
                 return View("Error");
             }
         }
+
+
+
     }
 }
