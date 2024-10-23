@@ -6,10 +6,11 @@ namespace TaskForge.Service
     public class AdminService
     {
         private readonly AccountRepository _accountRepository;
-
-        public AdminService(AccountRepository accountRepository)
+        private readonly TeamRepository _teamRepository;
+        public AdminService(AccountRepository accountRepository, TeamRepository teamRepository)
         {
             _accountRepository = accountRepository;
+            _teamRepository = teamRepository;
         }
 
         // Phương thức để lấy thông tin tài khoản Admin dựa vào AccountId
@@ -20,6 +21,10 @@ namespace TaskForge.Service
         public List<Account> GetAllAccounts()
         {
             return _accountRepository.GetAllAccounts();
+        }
+        public List<Team> GetAllTeams()
+        {
+            return _teamRepository.GetAllTeams();
         }
 
         // Lấy tài khoản theo ID

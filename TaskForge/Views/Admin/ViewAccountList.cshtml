@@ -107,7 +107,7 @@
                 <input type="email" id="modalEmail" name="Email" />
 
                 <label for="modalPhoneNumber">Phone Number:</label>
-                <input type="text" id="modalPhoneNumber" name="PhoneNumber" />
+                <input type="text" id="modalPhoneNumber" name="PhoneNumber" maxlength="11" pattern="\d{10,11}" title="Phone number must be 10 or 11 digits" />
 
                 <button type="submit" class="button">Save Changes</button>
             </form>

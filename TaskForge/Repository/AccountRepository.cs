@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskForge.DBContext;
 using TaskForge.Models;
+using static Dropbox.Api.Files.ListRevisionsMode;
 
 namespace TaskForge.Repository
 {
@@ -63,23 +64,25 @@ namespace TaskForge.Repository
 
             if (lastAccountId != null)
             {
-                // Tách phần số từ AccountId hiện tại, ví dụ ACC001 -> 1
-                var lastNumericPart = int.Parse(lastAccountId.Substring(3));
+                // Lấy phần số từ lastAccountId, bỏ phần chữ "ACC"
+                var lastNumericPart = int.Parse(lastAccountId.Substring(3)); // Giả sử tất cả AccountId có tiền tố ACC
 
-                // Tăng số lên 1, ví dụ 1 -> 2
+                // Tăng số lên 1
                 var newNumericPart = lastNumericPart + 1;
 
-                // Tạo AccountId mới với định dạng ACCxxx (với phần số có độ dài 3)
-                var newAccountId = "ACC" + newNumericPart.ToString("D3"); // D3 nghĩa là định dạng số có 3 chữ số, ví dụ 001, 002, ...
+                // Tạo AccountId mới với prefix "ACC" và phần số mới
+                var newAccountId = "ACC" + newNumericPart;
 
                 return newAccountId;
             }
             else
             {
-                // Nếu không có AccountId nào, bắt đầu từ ACC001
-                return "ACC001";
+                // Nếu không có AccountId nào, bắt đầu từ ACC1
+                return "ACC1";
             }
         }
+
+
         // Thêm tài khoản mới vào DB
         public void AddAccount(Account account)
         {

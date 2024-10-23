@@ -55,6 +55,12 @@ namespace TaskForge.Controllers
             return View(accounts);
         }
 
+        // UC-25: View Account List
+        public IActionResult Team()
+        {
+            var accounts = _adminService.GetAllTeams();
+            return View(accounts);
+        }
         // UC-28: CRUD Account
         [HttpPost]
         public IActionResult CreateAccount(string Username, string Password, string Email, string PhoneNumber)
