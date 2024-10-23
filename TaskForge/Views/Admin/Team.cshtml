@@ -1,5 +1,173 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Team Management";
+    Layout = "_AdminLayout";
+
+    // Lấy danh sách teams và departments từ ViewBag
+    var teams = ViewBag.Teams as List<TaskForge.Models.Team>;
+    var departments = ViewBag.Departments as List<TaskForge.Models.Department>;
 }
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="~/css/admin/team.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="admin-dashboard">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success" id="successMessage">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        <h1 class="page-title">Team List</h1>
+        <!-- Form lọc -->
+        <form method="get" action="/Admin/TeamFiltered">
+            <label for="filterDeptId" >Filter by Department:</label>
+            <select id="filterDeptId" name="deptId" class="filterDeptId">
+                <option value="">All Departments</option>
+                @foreach (var department in departments)
+                {
+                    <option value="@department.DeptId">@department.DeptName</option>
+                }
+            </select>
+
+            <label for="filterNumberOfTeam">Filter by Number of Members:</label>
+            <input type="number" id="filterNumberOfTeam" name="numberOfTeam" placeholder="Enter number of members" />
+
+            <label for="filterCreatedDate">Filter by Created Date:</label>
+            <input type="date" id="filterCreatedDate" name="createdDate" />
+
+            <button type="submit" class="filter-button">Apply Filters</button>
+        </form>
+        <!-- Button to create new team -->
+        <button class="btn-create-team" onclick="openCreateTeamModal()">+ Create New Team</button>
+
+        <!-- Team table -->
+        <table class="team-table">
+            <thead>
+                <tr>
+                    <th>Team ID</th>
+                    <th>Team Name</th>
+                    <th>Created Date</th>
+                    <th>Number of Members</th>
+                    <th>Department Name</th> <!-- Hiển thị tên phòng ban -->
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (teams != null && teams.Any())
+                {
+                    @foreach (var team in teams)
+                    {
+                        <tr>
+                            <td>@team.TeamId</td>
+                            <td>@team.TeamName</td>
+                            <td>@team.CreatedDate?.ToString("yyyy-MM-dd")</td>
+                            <td>@team.NumberOfMember</td>
+
+                            <td>
+                                @foreach (var department in departments)
+                                {
+                                    @if (department.DeptId == team.DeptId)
+                                    {
+                                        @department.DeptName
+                                    }
+                                }
+                            </td>
+
+                            <td>
+                                <div class="button-container">
+                                    <!-- Button to update -->
+                                    <button class="button" onclick="openUpdateTeamModal('@team.TeamId', '@team.TeamName',
+                                    '@team.CreatedDate?.ToString("yyyy-MM-dd")', '@team.NumberOfMember', '@team.DeptId');">
+                                        Update
+                                    </button>
+                                    <!-- Form to delete team -->
+                                    <form method="post" action="/Admin/DeleteTeam" onsubmit="return confirmDeleteTeam()">
+                                        <input type="hidden" name="TeamId" value="@team.TeamId" />
+                                        <button type="submit" class="button">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6">No teams available</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Create Team -->
+    <div id="createTeamModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateTeamModal()">&times;</span>
+            <h2>Create New Team</h2>
+            <form id="createTeamForm" method="post" action="/Admin/CreateTeam" onsubmit="return confirmCreateTeam()">
+                <label for="newTeamName">Team Name:</label>
+                <input type="text" id="newTeamName" name="TeamName" required placeholder="Enter team name" />
+
+                <label for="newCreatedDate">Created Date:</label>
+                <input type="date" id="newCreatedDate" name="CreatedDate" required readonly />
+
+                <label for="newNumberOfMember">Number of Members:</label>
+                <input type="number" id="newNumberOfMember" name="NumberOfMember" required placeholder="Enter number of members" />
+
+                <!-- Dropdown cho Department Name -->
+                <label for="newDeptId">Department:</label>
+                <select id="newDeptId" name="DeptId" required>
+                    <option value="">-- Select Department --</option>
+                    @foreach (var department in departments)
+                    {
+                        <option value="@department.DeptId">@department.DeptName</option>
+                    }
+                </select>
+
+                <button type="submit" class="create-button">Create Team</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Update Team -->
+    <div id="updateTeamModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUpdateTeamModal()">&times;</span>
+            <h2>Update Team</h2>
+            <form id="updateTeamForm" method="post" action="/Admin/EditTeam" onsubmit="return confirmUpdateTeam()">
+                <input type="hidden" id="modalTeamId" name="TeamId" />
+
+                <label for="modalTeamName">Team Name:</label>
+                <input type="text" id="modalTeamName" name="TeamName" required />
+
+                <label for="modalCreatedDate">Created Date:</label>
+                <input type="date" id="modalCreatedDate" name="CreatedDate" required readonly />
+
+                <label for="modalNumberOfMember">Number of Members:</label>
+                <input type="number" id="modalNumberOfMember" name="NumberOfMember" required min="0" placeholder="Enter number of members" />
+
+                <!-- Dropdown cho Department Name -->
+                <label for="modalDeptId">Department:</label>
+                <select id="modalDeptId" name="DeptId" required>
+                    <option value="">-- Select Department --</option>
+                    @foreach (var department in departments)
+                    {
+                        <option value="@department.DeptId">@department.DeptName</option>
+                    }
+                </select>
+
+                <button type="submit" class="button">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/js/admin/team.js"></script>
+</body>
+</html>

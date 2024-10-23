@@ -20,6 +20,11 @@ namespace TaskForge.Repository
             return _context.Departments.ToList();
         }
 
+        // Lấy tất cả DepartmentId từ bảng Departments
+        public IEnumerable<string> GetAllDepartmentIds()
+        {
+            return _context.Departments.Select(d => d.DeptId).ToList();
+        }
         // Lấy phòng ban theo ID
         public Department GetDepartmentById(string deptId)
         {

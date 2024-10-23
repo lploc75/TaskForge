@@ -17,7 +17,6 @@ namespace TaskForge.Controllers
         private readonly FeedbackService _feedbackService;
         private readonly TeamService _teamService;
         private readonly NotificationService _notificationService;
-
         public AdminController(EmployeeService employeeService, AdminService adminService, DepartmentService departmentService, CreditExchangeService creditExchangeService,
                                FeedbackService feedbackService, TeamService teamService, NotificationService notificationService)
         {
@@ -55,12 +54,6 @@ namespace TaskForge.Controllers
             return View(accounts);
         }
 
-        // UC-25: View Account List
-        public IActionResult Team()
-        {
-            var accounts = _adminService.GetAllTeams();
-            return View(accounts);
-        }
         // UC-28: CRUD Account
         [HttpPost]
         public IActionResult CreateAccount(string Username, string Password, string Email, string PhoneNumber)
@@ -72,8 +65,6 @@ namespace TaskForge.Controllers
             // Chuyển hướng về trang danh sách tài khoản sau khi tạo xong
             return RedirectToAction("ViewAccountList");
         }
-
-
 
         [HttpPost]
         public IActionResult EditAccount(string accountId, string Username, string Password, string Email, string PhoneNumber)
@@ -175,43 +166,70 @@ namespace TaskForge.Controllers
             return RedirectToAction("ViewFeedbackList");
         }
 
-        // UC-33: View Team List
-        public IActionResult ViewTeamList()
+        // View team list with department ids using ViewBag
+        public IActionResult Team()
         {
-            var teams = _teamService.GetAllTeams();
-            return View(teams);
+            // Lấy tất cả các team
+            var teams = _adminService.GetAllTeams();
+
+            // Lấy tất cả các department Id
+            var departments = _departmentService.GetAllDepartments();
+
+            // Truyền danh sách team vào ViewBag
+            ViewBag.Teams = teams;
+
+            // Truyền danh sách department Id vào ViewBag
+            ViewBag.Departments = departments;
+
+            return View();
         }
 
-        // UC-34: CRUD Team
+        // UC-29: CRUD Team
         [HttpPost]
-        public IActionResult CreateTeam(Team newTeam)
+        public IActionResult CreateTeam(string TeamName, DateOnly CreatedDate, int NumberOfMember, string DeptId)
         {
-            if (ModelState.IsValid)
-            {
-                _teamService.CreateTeam(newTeam);
-                return RedirectToAction("ViewTeamList");
-            }
-            return View(newTeam);
+            // Gọi service để tạo team mới
+            _teamService.CreateTeam(TeamName, CreatedDate, NumberOfMember, DeptId);
+            // Thêm thông báo thành công
+            TempData["SuccessMessage"] = "Team was created successfully!";
+            // Chuyển hướng về trang danh sách team sau khi tạo xong
+            return RedirectToAction("Team");
         }
 
         [HttpPost]
-        public IActionResult EditTeam(Team updatedTeam)
+        public IActionResult EditTeam(string teamId, string TeamName, DateOnly CreatedDate, int NumberOfMember, string DeptId)
         {
-            if (ModelState.IsValid)
-            {
-                _teamService.UpdateTeam(updatedTeam);
-                return RedirectToAction("ViewTeamList");
-            }
-            return View(updatedTeam);
+            // Gọi service để cập nhật team
+            _teamService.EditTeam(teamId, TeamName, CreatedDate, NumberOfMember, DeptId);
+            // Thêm thông báo thành công
+            TempData["SuccessMessage"] = "Team was updated successfully!";
+            // Chuyển hướng về trang danh sách team
+            return RedirectToAction("Team");
         }
+
 
         [HttpPost]
         public IActionResult DeleteTeam(string teamId)
         {
             _teamService.DeleteTeam(teamId);
-            return RedirectToAction("ViewTeamList");
+            // Thêm thông báo thành công
+            TempData["SuccessMessage"] = "Team was deleted successfully!";
+            return RedirectToAction("Team");
         }
+        // Hiển thị trang quản lý Team với bộ lọc
+        [HttpGet]
+        public IActionResult TeamFiltered(string deptId, int? numberOfTeam, DateOnly? createdDate)
+        {
+            // Lấy danh sách các team đã được lọc
+            var teams = _teamService.GetTeamsWithFilters(deptId, numberOfTeam, createdDate);
+            var departments = _departmentService.GetAllDepartments();
 
+            // Truyền dữ liệu vào ViewBag
+            ViewBag.Teams = teams;
+            ViewBag.Departments = departments;
+
+            return View("Team");
+        }
         // UC-35: Notify for User
         [HttpPost]
         public IActionResult NotifyUser(string userId, string message)

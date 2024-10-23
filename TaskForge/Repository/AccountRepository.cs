@@ -82,7 +82,6 @@ namespace TaskForge.Repository
             }
         }
 
-
         // Thêm tài khoản mới vào DB
         public void AddAccount(Account account)
         {

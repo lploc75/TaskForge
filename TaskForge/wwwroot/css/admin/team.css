@@ -1,0 +1,300 @@
+﻿/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa; /* Màu nền xanh nhạt */
+    color: #333;
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+    padding: 20px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+/* Button to create new team */
+.btn-create-team {
+    position: fixed; /* Cố định vị trí nút */
+    bottom: 15px; /* Cách đáy màn hình 20px */
+    right: 15px; /* Cách phải màn hình 20px */
+    z-index: 1000; /* Đảm bảo nút luôn nằm trên các thành phần khác */
+    background-color: #4CAF50; /* Màu nền xanh */
+    color: white; /* Màu chữ trắng */
+    border: none; /* Không có viền */
+    padding: 10px 20px; /* Khoảng cách trong nút */
+    border-radius: 5px; /* Tạo hình tròn cho nút */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Thay đổi con trỏ chuột khi hover */
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu mượt */
+}
+
+    .btn-create-team:hover {
+        background-color: #45a049;
+    }
+
+
+
+    .modal .create-button:hover {
+        background-color: #45a049;
+    }
+
+/* Team Table */
+.team-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    border-radius: 10px;
+}
+
+    .team-table th, .team-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .team-table th {
+        background-color: #36b9cc;
+        color: white;
+        font-weight: bold;
+    }
+
+    .team-table tr:hover {
+        background-color: #f4f4f4;
+    }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%; /* Căn giữa theo chiều dọc */
+    left: 50%; /* Căn giữa theo chiều ngang */
+    transform: translate(-50%, -50%); /* Điều chỉnh để modal nằm chính giữa */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    color: #333;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%; /* Chiều rộng modal */
+    max-width: 500px; /* Độ rộng tối đa của modal */
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    position: relative;
+}
+
+/* Close button */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+/* Form styling */
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content label {
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-content input {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.modal-content button {
+    padding: 10px;
+    background-color: #36b9cc;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .modal-content button:hover {
+        background-color: #2a9aa8;
+    }
+/* Nút trong form modal */
+.modal .create-button {
+    background-color: #4CAF50; /* Màu nền xanh */
+    color: white; /* Màu chữ trắng */
+    border: none; /* Không có viền */
+    padding: 10px 20px; /* Khoảng cách trong nút */
+    border-radius: 5px; /* Tạo hình tròn cho nút */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Thay đổi con trỏ chuột khi hover */
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu mượt */
+}
+/* Phần tạo kiểu chung cho dropdown */
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    appearance: none; /* Loại bỏ kiểu mặc định */
+    -webkit-appearance: none; /* Safari */
+    -moz-appearance: none; /* Firefox */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140"><polygon points="70,90 110,50 30,50" fill="gray"/></svg>'); /* Hình mũi tên */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Vị trí mũi tên bên phải */
+    background-size: 12px 12px; /* Kích thước mũi tên */
+}
+
+    /* Đảm bảo khi focus không mất mũi tên */
+    select:focus {
+        border-color: #36b9cc;
+        box-shadow: 0px 0px 5px rgba(54, 185, 204, 0.5);
+        outline: none;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140"><polygon points="70,90 110,50 30,50" fill="gray"/></svg>');
+    }
+
+/* Kiểu cho label */
+label {
+    display: block; /* Hiển thị label dưới dạng block */
+    margin-bottom: 5px; /* Khoảng cách dưới của label */
+    font-weight: bold; /* Tô đậm chữ */
+    font-size: 14px; /* Cỡ chữ */
+    color: #333; /* Màu chữ xám đậm */
+}
+
+
+/* Success Alert */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    position: relative;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+/* Container for the buttons (Update & Delete) */
+.button-container {
+    display: flex; /* Sử dụng flexbox để sắp xếp các phần tử nằm ngang */
+    justify-content: flex-start; /* Đảm bảo các nút nằm sát nhau */
+    gap: 10px; /* Tạo khoảng cách giữa các nút */
+    align-items: center; /* Đảm bảo các nút được căn giữa theo chiều dọc */
+}
+
+/* Update/Delete Button */
+.button {
+    background-color: #36b9cc;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    display: inline-block; /* Đảm bảo nút không chiếm toàn bộ chiều rộng */
+}
+
+    .button:hover {
+        background-color: #2a9aa8;
+    }
+
+/* Footer */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f5f7fa;
+    padding: 10px 20px;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+/* Style for the filter form */
+form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+    /* Style for each form group (label + input/select) */
+    form label {
+        margin-right: 10px; /* Khoảng cách giữa label và input */
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    form input,
+    form select {
+        padding: 10px;
+        margin-right: 20px; /* Khoảng cách giữa các input */
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 150px; /* Chiều rộng của input và select */
+    }
+
+        form input[type="date"] {
+            width: 180px; /* Chiều rộng riêng cho date picker */
+        }
+    .filterDeptId{
+    margin-top:20px;
+    }
+    .filter-button {
+        background-color: #4CAF50; /* Màu nền xanh cho nút */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .filter-button:hover {
+        background-color: #45a049;
+    }
