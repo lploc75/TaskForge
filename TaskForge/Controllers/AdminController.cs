@@ -70,10 +70,10 @@ namespace TaskForge.Controllers
 
 
         [HttpPost]
-        public IActionResult EditAccount(string accountId, string Username, string Email, string PhoneNumber)
+        public IActionResult EditAccount(string accountId, string Username, string Password, string Email, string PhoneNumber)
         {
             // Gọi service để cập nhật tài khoản
-            _adminService.EditAccount(accountId, Username, Email, PhoneNumber);
+            _adminService.EditAccount(accountId, Username, Password, Email, PhoneNumber);
             // Thêm thông báo thành công
             TempData["SuccessMessage"] = "Account was updated successfully!";
             // Chuyển hướng về trang danh sách tài khoản

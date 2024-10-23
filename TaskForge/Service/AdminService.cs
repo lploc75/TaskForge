@@ -49,7 +49,7 @@ namespace TaskForge.Service
 
 
         // Chỉnh sửa tài khoản
-        public void EditAccount(string accountId, string Username, string Email, string PhoneNumber)
+        public void EditAccount(string accountId, string Username, string Password, string Email, string PhoneNumber)
         {
             // Lấy account từ repository
             var account = _accountRepository.GetAccountById(accountId);
@@ -58,6 +58,7 @@ namespace TaskForge.Service
             {
                 // Cập nhật thông tin tài khoản
                 account.Username = Username;
+                account.Password = Password;
                 account.Email = Email;
                 account.PhoneNumber = PhoneNumber;
 
