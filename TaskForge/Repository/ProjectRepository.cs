@@ -27,8 +27,11 @@ namespace TaskForge.Repository
         // Lấy chi tiết dự án theo ID
         public Project GetProjectById(int projectId)
         {
-            return _context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
+            return _context.Projects
+                .Include(p => p.Departments)  // Bao gồm các phòng ban liên kết với dự án
+                .FirstOrDefault(p => p.ProjectId == projectId);
         }
+
 
         // Thêm dự án mới vào database
         public void AddProject(Project project)
@@ -37,11 +40,7 @@ namespace TaskForge.Repository
             _context.SaveChanges();
         }
 
-        // Cập nhật dự án với danh sách phòng ban
-        public void UpdateProjectDepartments(Project project)
-        {
-            _context.SaveChanges();
-        }
+
 
         // Lấy phòng ban theo ID
         public Department GetDepartmentById(string deptId)
@@ -66,12 +65,46 @@ namespace TaskForge.Repository
             _context.EmployeeProjects.Add(employeeProject);
             _context.SaveChanges();
         }
-        // Cập nhật dự án trong cơ sở dữ liệu
-        public void UpdateProject(Project project)
+        public void UpdateProject(Project project, List<string> departmentIds)
         {
+            // Lấy dự án từ CSDL theo ID
+            var existingProject = _context.Projects
+                .Include(p => p.Departments) // Bao gồm các phòng ban liên kết với dự án
+                .FirstOrDefault(p => p.ProjectId == project.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new KeyNotFoundException("Project not found.");
+            }
+
+            // Cập nhật thông tin cơ bản của dự án
+            existingProject.ProjectName = project.ProjectName;
+            existingProject.Description = project.Description;
+            existingProject.Deadline = project.Deadline;
+            existingProject.Status = project.Status;
+
+            // Cập nhật danh sách phòng ban liên kết với dự án
+            if (departmentIds != null && departmentIds.Any())
+            {
+                // Xóa các liên kết phòng ban cũ
+                existingProject.Departments.Clear();
+
+                // Thêm các phòng ban mới vào dự án
+                foreach (var deptId in departmentIds)
+                {
+                    var department = _context.Departments.FirstOrDefault(d => d.DeptId == deptId);
+                    if (department != null)
+                    {
+                        existingProject.Departments.Add(department);
+                    }
+                }
+            }
+
+            // Lưu các thay đổi vào CSDL
             _context.Projects.Update(project);
             _context.SaveChanges();
         }
+
 
         public void DeleteProject(int projectId)
         {

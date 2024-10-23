@@ -11,6 +11,14 @@
     <p><strong>Mô tả:</strong> @Model.Description</p>
     <p><strong>Trạng thái:</strong> @Model.Status</p>
     <p><strong>Hạn chót:</strong> @Model.Deadline?.ToString("yyyy-MM-dd")</p>
+    <!-- Display related departments -->
+    <p><strong>Phòng ban liên quan:</strong></p>
+    <ul>
+        @foreach (var department in Model.Departments)
+        {
+            <li>@department.DeptName</li>
+        }
+    </ul>
 </div>
 
 <!-- Error message alert -->

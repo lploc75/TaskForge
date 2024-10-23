@@ -76,10 +76,12 @@ namespace TaskForge.Controllers
             // Lấy các task thuộc dự án
             var tasks = _taskService.GetTasksByProjectId(id);
             ViewBag.Tasks = tasks;
-            ViewBag.Departments = _projectService.GetAllDepartments(); // Lấy danh sách phòng ban để tạo task mới
 
+            // Truyền danh sách phòng ban liên quan đến dự án cho View
+            ViewBag.Departments = _projectService.GetAllDepartments();
             return View(project);
         }
+
 
         [HttpPost]
         public IActionResult CreateProject(string ProjectName, string Description, DateTime Deadline, List<string> SelectedDepartments)
@@ -117,7 +119,7 @@ namespace TaskForge.Controllers
                     }
                 }
 
-                _projectService.UpdateProjectDepartments(project);
+                _projectService.UpdateProjectDepartments(project, SelectedDepartments);
 
                 _projectService.AddEmployeeToProject(accountId, project.ProjectId, "Manager");
 
@@ -177,7 +179,7 @@ namespace TaskForge.Controllers
         }
         // Sửa dự án
         [HttpPost]
-        public IActionResult EditProject(int ProjectId, string ProjectName, string Description, DateTime Deadline)
+        public IActionResult EditProject(int ProjectId, string ProjectName, string Description, DateTime Deadline, List<string> SelectedDepartments)
         {
             var project = _projectService.GetProjectById(ProjectId);
             if (project == null)
@@ -185,13 +187,15 @@ namespace TaskForge.Controllers
                 return NotFound("Project not found.");
             }
 
+            // Cập nhật thông tin dự án
             project.ProjectName = ProjectName;
             project.Description = Description;
             project.Deadline = Deadline;
 
-            _projectService.UpdateProject(project); // Cập nhật dự án
+            // Gọi service để cập nhật dự án và danh sách phòng ban
+            _projectService.UpdateProject(project, SelectedDepartments);
 
-            return RedirectToAction("ProjectManage"); // Tải lại trang
+            return RedirectToAction("ProjectManage"); // Tải lại trang quản lý dự án
         }
 
         public IActionResult DeleteProject(int projectId)
@@ -211,8 +215,5 @@ namespace TaskForge.Controllers
                 return View("Error");
             }
         }
-
-
-
     }
 }
