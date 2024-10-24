@@ -11,6 +11,14 @@
     <p><strong>Mô tả:</strong> @Model.Description</p>
     <p><strong>Trạng thái:</strong> @Model.Status</p>
     <p><strong>Hạn chót:</strong> @Model.Deadline?.ToString("yyyy-MM-dd")</p>
+    <!-- Display related departments -->
+    <p><strong>Phòng ban liên quan:</strong></p>
+    <ul>
+        @foreach (var department in Model.Departments)
+        {
+            <li>@department.DeptName</li>
+        }
+    </ul>
 </div>
 
 <!-- Error message alert -->
@@ -25,6 +33,7 @@
 <button class="btn-create-task" onclick="openCreateTaskModal()">+ Tạo Task Mới</button>
 
 <!-- Task list -->
+<!-- Task list -->
 <h2>Các Task thuộc dự án:</h2>
 <table class="task-table">
     <thead>
@@ -34,6 +43,7 @@
             <th>Trạng thái</th>
             <th>Ngày giao</th>
             <th>Hạn chót</th>
+            <th>Ưu tiên</th>
             <th>Hành động</th>
         </tr>
     </thead>
@@ -46,11 +56,81 @@
                 <td>@task.Status</td>
                 <td>@task.AssignmentDate?.ToString("yyyy-MM-dd")</td>
                 <td>@task.Deadline?.ToString("yyyy-MM-dd")</td>
-                <td><a class="action-link" href="@Url.Action("TaskDetails", "Task", new { id = task.TaskId })">Xem chi tiết</a></td>
+                <td>
+                    @{
+                        string priorityLabel = task.Priority switch
+                        {
+                            1 => "1 - Thấp",
+                            2 => "2 - Trung bình",
+                            3 => "3 - Cao",
+                            4 => "Rất cao",
+                            _ => "Không xác định"
+                        };
+                    }
+                    @priorityLabel
+                </td>
+                <td>
+                    <button class="btn btn-edit"
+                            onclick="openEditTaskModal('@task.TaskId', '@task.TaskName', '@task.Description', '@task.Priority', '@task.AssignmentDate?.ToString("yyyy-MM-dd")', '@task.Deadline?.ToString("yyyy-MM-dd")')">
+                        Sửa
+                    </button>
+                    <button class="btn btn-delete" onclick="openDeleteTaskModal('@task.TaskId', '@task.TaskName')">Xóa</button>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Modal chỉnh sửa task -->
+<div id="editTaskModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditTaskModal()">&times;</span>
+        <h2>Chỉnh sửa Task</h2>
+        <form asp-action="EditTask" method="post">
+            <input type="hidden" id="edit-task-id" name="TaskId">
+
+            <label for="edit-task-name">Tên Task</label>
+            <input type="text" id="edit-task-name" name="TaskName" required>
+
+            <label for="edit-description">Mô tả Task</label>
+            <textarea id="edit-description" name="Description" rows="3"></textarea>
+
+            <label for="edit-priority">Mức độ ưu tiên</label>
+            <select id="edit-priority" name="Priority" required>
+                <option value="1">1 - Thấp</option>
+                <option value="2">2 - Trung bình</option>
+                <option value="3">3 - Cao</option>
+                <option value="4">4 - Rất cao</option>
+            </select>
+
+            <label for="edit-assignment-date">Ngày giao</label>
+            <input type="date" id="edit-assignment-date" name="AssignmentDate" required>
+
+            <label for="edit-deadline">Hạn chót</label>
+            <input type="date" id="edit-deadline" name="Deadline" required>
+
+            <button type="submit">Cập nhật Task</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal xóa task -->
+<div id="deleteTaskModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteTaskModal()">&times;</span>
+        <h2>Xóa Task</h2>
+        <p>Bạn có chắc chắn muốn xóa Task "<span id="delete-task-name"></span>"?</p>
+        <form asp-action="DeleteTask" method="post">
+            <input type="hidden" id="delete-task-id" name="TaskId">
+            <button type="submit" class="btn btn-delete">Xóa</button>
+            <button type="button" class="btn btn-cancel" onclick="closeDeleteTaskModal()">Hủy</button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for modals -->
+
+
 
 <!-- Back to Project Management Page -->
 <a class="back-link" href="@Url.Action("ProjectManage", "Manager")">Quay lại trang quản lý dự án</a>
@@ -69,6 +149,17 @@
             <label for="description">Mô tả Task</label>
             <textarea id="description" name="description" rows="3" required></textarea>
 
+            <label for="priority">Mức độ ưu tiên</label>
+            <select id="priority" name="priority" required>
+                <option value="1">1 - Thấp</option>
+                <option value="2">2 - Trung bình</option>
+                <option value="3">3 - Cao</option>
+                <option value="4">4 - Rất cao</option>
+            </select>
+
+            <label for="assignmentDate">Ngày giao</label>
+            <input type="date" id="assignmentDate" name="assignmentDate" required />
+
             <label for="deadline">Hạn chót</label>
             <input type="date" id="deadline" name="deadline" required />
 
@@ -82,6 +173,7 @@
 
             <button type="submit" class="btn-submit">Tạo Task</button>
         </form>
+
     </div>
 </div>
 
@@ -94,8 +186,36 @@
     function closeCreateTaskModal() {
         document.getElementById('createTaskModal').style.display = 'none';
     }
-</script>
 
+    // Mở modal chỉnh sửa task
+    function openEditTaskModal(taskId, taskName, description, priority, assignmentDate, deadline) {
+        document.getElementById('edit-task-id').value = taskId;
+        document.getElementById('edit-task-name').value = taskName;
+        document.getElementById('edit-description').value = description;
+        document.getElementById('edit-priority').value = priority;
+        document.getElementById('edit-assignment-date').value = assignmentDate;
+        document.getElementById('edit-deadline').value = deadline;
+
+        document.getElementById('editTaskModal').style.display = 'flex';
+    }
+
+    // Đóng modal chỉnh sửa task
+    function closeEditTaskModal() {
+        document.getElementById('editTaskModal').style.display = 'none';
+    }
+
+    // Mở modal xác nhận xóa task
+    function openDeleteTaskModal(taskId, taskName) {
+        document.getElementById('delete-task-id').value = taskId;
+        document.getElementById('delete-task-name').innerText = taskName;
+        document.getElementById('deleteTaskModal').style.display = 'flex';
+    }
+
+    // Đóng modal xác nhận xóa task
+    function closeDeleteTaskModal() {
+        document.getElementById('deleteTaskModal').style.display = 'none';
+    }
+</script>
 <!-- CSS -->
 <style>
     body {

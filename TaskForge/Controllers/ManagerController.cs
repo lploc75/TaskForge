@@ -4,11 +4,14 @@ using TaskForge.Models;
 using TaskForge.Service;
 using System.Collections.Generic;
 using System.Diagnostics;
+using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskForge.Controllers
 {
     public class ManagerController : Controller
     {
+        private readonly TaskForgeContext _context;
         private readonly EmployeeService _employeeService;
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
@@ -73,10 +76,13 @@ namespace TaskForge.Controllers
             // Lấy các task thuộc dự án
             var tasks = _taskService.GetTasksByProjectId(id);
             ViewBag.Tasks = tasks;
-            ViewBag.Departments = _projectService.GetAllDepartments(); // Lấy danh sách phòng ban để tạo task mới
 
+            // Lọc các phòng ban liên quan đến dự án hiện tại
+            ViewBag.Departments = project.Departments;
             return View(project);
         }
+
+
 
         [HttpPost]
         public IActionResult CreateProject(string ProjectName, string Description, DateTime Deadline, List<string> SelectedDepartments)
@@ -114,7 +120,7 @@ namespace TaskForge.Controllers
                     }
                 }
 
-                _projectService.UpdateProjectDepartments(project);
+                _projectService.UpdateProjectDepartments(project, SelectedDepartments);
 
                 _projectService.AddEmployeeToProject(accountId, project.ProjectId, "Manager");
 
@@ -133,9 +139,10 @@ namespace TaskForge.Controllers
         }
 
 
+
         // Xử lý việc tạo Task cho dự án
         [HttpPost]
-        public IActionResult CreateTaskForProject(int projectId, string taskName, string description, DateTime deadline, List<string> departmentIds)
+        public IActionResult CreateTaskForProject(int projectId, string taskName, string description, DateTime deadline, List<string> departmentIds, int priority, DateTime assignmentDate)
         {
             if (ModelState.IsValid)
             {
@@ -147,6 +154,8 @@ namespace TaskForge.Controllers
                         TaskName = taskName,
                         Description = description,
                         Deadline = deadline,
+                        AssignmentDate = assignmentDate,
+                        Priority = priority, // Lưu ưu tiên dưới dạng số
                         ProjectId = projectId,
                         Status = "In Progress"
                     };
@@ -171,9 +180,10 @@ namespace TaskForge.Controllers
 
             return View("ProjectDetails");
         }
+
         // Sửa dự án
         [HttpPost]
-        public IActionResult EditProject(int ProjectId, string ProjectName, string Description, DateTime Deadline)
+        public IActionResult EditProject(int ProjectId, string ProjectName, string Description, DateTime Deadline, List<string> SelectedDepartments)
         {
             var project = _projectService.GetProjectById(ProjectId);
             if (project == null)
@@ -181,34 +191,73 @@ namespace TaskForge.Controllers
                 return NotFound("Project not found.");
             }
 
+            // Cập nhật thông tin dự án
             project.ProjectName = ProjectName;
             project.Description = Description;
             project.Deadline = Deadline;
 
-            _projectService.UpdateProject(project); // Cập nhật dự án
+            // Gọi service để cập nhật dự án và danh sách phòng ban
+            _projectService.UpdateProject(project, SelectedDepartments);
 
-            return RedirectToAction("ProjectManage"); // Tải lại trang
+            return RedirectToAction("ProjectManage"); // Tải lại trang quản lý dự án
         }
 
         public IActionResult DeleteProject(int projectId)
         {
             try
             {
-                var project = _projectService.GetProjectById(projectId);
-                if (project == null)
-                {
-                    return NotFound("Dự án không tồn tại.");
-                }
-
+                // Gọi service để xóa dự án và xử lý tất cả liên kết liên quan
                 _projectService.DeleteProject(projectId);
 
+                // Trả về kết quả thành công, chuyển hướng về trang quản lý dự án
                 return RedirectToAction("ProjectManage");
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "Có lỗi xảy ra khi xóa dự án: " + ex.Message;
+                // Nếu có lỗi xảy ra, trả về trang lỗi hoặc hiển thị thông báo lỗi ra giao diện
+                ViewBag.ErrorMessage = $"Error deleting project: {ex.Message}";
                 return View("Error");
             }
         }
+
+        [HttpPost]
+        public IActionResult EditTask(string TaskId, string TaskName, string Description, int Priority, DateTime AssignmentDate, DateTime Deadline)
+        {
+            var task = _taskService.GetTaskById(TaskId);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            // Cập nhật thông tin task
+            task.TaskName = TaskName;
+            task.Description = Description;
+            task.Priority = Priority;
+            task.AssignmentDate = AssignmentDate;
+            task.Deadline = Deadline;
+
+            _taskService.UpdateTask(task);
+
+            return RedirectToAction("ProjectDetails", new { id = task.ProjectId });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteTask(string TaskId)
+        {
+            var task = _taskService.GetTaskById(TaskId);  // Lấy task từ DB
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            // Lưu ProjectId của task trước khi xóa để chuyển hướng sau khi xóa
+            var projectId = task.ProjectId;
+
+            _taskService.DeleteTask(TaskId);  // Xóa task
+
+            // Chuyển hướng về trang chi tiết của dự án sau khi xóa task
+            return RedirectToAction("ProjectDetails", new { id = projectId });
+        }
+
     }
 }

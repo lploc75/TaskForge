@@ -27,7 +27,9 @@ namespace TaskForge.Repository
         // Lấy chi tiết dự án theo ID
         public Project GetProjectById(int projectId)
         {
-            return _context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
+            return _context.Projects
+                .Include(p => p.Departments)  // Bao gồm các phòng ban liên kết với dự án
+                .FirstOrDefault(p => p.ProjectId == projectId);
         }
 
         // Thêm dự án mới vào database
@@ -66,9 +68,42 @@ namespace TaskForge.Repository
             _context.EmployeeProjects.Add(employeeProject);
             _context.SaveChanges();
         }
-        // Cập nhật dự án trong cơ sở dữ liệu
-        public void UpdateProject(Project project)
+        public void UpdateProject(Project project, List<string> departmentIds)
         {
+            // Lấy dự án từ CSDL theo ID
+            var existingProject = _context.Projects
+                .Include(p => p.Departments) // Bao gồm các phòng ban liên kết với dự án
+                .FirstOrDefault(p => p.ProjectId == project.ProjectId);
+
+            if (existingProject == null)
+            {
+                throw new KeyNotFoundException("Project not found.");
+            }
+
+            // Cập nhật thông tin cơ bản của dự án
+            existingProject.ProjectName = project.ProjectName;
+            existingProject.Description = project.Description;
+            existingProject.Deadline = project.Deadline;
+            existingProject.Status = project.Status;
+
+            // Cập nhật danh sách phòng ban liên kết với dự án
+            if (departmentIds != null && departmentIds.Any())
+            {
+                // Xóa các liên kết phòng ban cũ
+                existingProject.Departments.Clear();
+
+                // Thêm các phòng ban mới vào dự án
+                foreach (var deptId in departmentIds)
+                {
+                    var department = _context.Departments.FirstOrDefault(d => d.DeptId == deptId);
+                    if (department != null)
+                    {
+                        existingProject.Departments.Add(department);
+                    }
+                }
+            }
+
+            // Lưu các thay đổi vào CSDL
             _context.Projects.Update(project);
             _context.SaveChanges();
         }
@@ -77,34 +112,72 @@ namespace TaskForge.Repository
         {
             // Tìm dự án theo ID, bao gồm các liên kết với các thực thể khác
             var project = _context.Projects
-                .Include(p => p.Departments)   // Bao gồm các phòng ban liên quan
-                .Include(p => p.Tasks)         // Bao gồm các task liên quan
-                .Include(p => p.EmployeeProjects)  // Bao gồm các liên kết với nhân viên
+                .Include(p => p.Tasks)                 // Bao gồm các Tasks liên quan
+                    .ThenInclude(t => t.Subtasks)       // Bao gồm các Subtasks liên quan
+                .Include(p => p.Tasks)                 // Bao gồm Tasks để xóa liên kết với TaskAssignment
+                    .ThenInclude(t => t.TaskAssignments)
+                .Include(p => p.Tasks)                 // Bao gồm Tasks để xóa liên kết với TaskEvaluation
+                    .ThenInclude(t => t.TaskEvaluations)
+                .Include(p => p.Departments)           // Bao gồm Departments liên kết với Project
+                .Include(p => p.EmployeeProjects)      // Bao gồm các liên kết với nhân viên
                 .FirstOrDefault(p => p.ProjectId == projectId);
 
             if (project != null)
             {
-                // 1. Xóa các liên kết với phòng ban
-                if (project.Departments != null && project.Departments.Any())
+                // 1. Xóa tất cả các Subtasks và liên kết của chúng
+                foreach (var task in project.Tasks)
                 {
-                    project.Departments.Clear(); // Xóa tất cả liên kết với các phòng ban
+                    // Xóa các Subtask và các liên kết của chúng
+                    if (task.Subtasks.Any())
+                    {
+                        _context.Subtasks.RemoveRange(task.Subtasks);
+
+                        var subtaskAssignments = _context.SubtaskAssignments
+                            .Where(sa => task.Subtasks.Select(s => s.SubtaskId).Contains(sa.SubtaskId))
+                            .ToList();
+                        _context.SubtaskAssignments.RemoveRange(subtaskAssignments);
+
+                        var subtaskEvaluations = _context.SubtaskEvaluations
+                            .Where(se => task.Subtasks.Select(s => s.SubtaskId).Contains(se.SubtaskId))
+                            .ToList();
+                        _context.SubtaskEvaluations.RemoveRange(subtaskEvaluations);
+                    }
+
+                    // Xóa các TaskEvaluations
+                    var taskEvaluations = _context.TaskEvaluations
+                        .Where(te => te.TaskId == task.TaskId)
+                        .ToList();
+                    _context.TaskEvaluations.RemoveRange(taskEvaluations);
+
+                    // Xóa các TaskAssignments
+                    var taskAssignments = _context.TaskAssignments
+                        .Where(ta => ta.TaskId == task.TaskId)
+                        .ToList();
+                    _context.TaskAssignments.RemoveRange(taskAssignments);
+
+                    // Xóa các liên kết giữa Task và Department trong bảng DepartmentTask
+                    var departmentTasks = _context.DepartmentTasks
+                        .Where(dt => dt.TaskId == task.TaskId)
+                        .ToList();
+                    _context.DepartmentTasks.RemoveRange(departmentTasks);
                 }
 
-                // 2. Xóa các tasks liên quan đến dự án
-                if (project.Tasks != null && project.Tasks.Any())
+                // 2. Xóa tất cả các Tasks liên quan
+                _context.Tasks.RemoveRange(project.Tasks);
+
+                // 3. Xóa các liên kết với phòng ban trong bảng DepartmentProject (nếu cần thiết)
+                project.Departments.Clear();
+
+                // 4. Xóa tất cả các EmployeeProjects liên quan
+                if (project.EmployeeProjects.Any())
                 {
-                    _context.Tasks.RemoveRange(project.Tasks);  // Xóa tất cả tasks liên quan
+                    _context.EmployeeProjects.RemoveRange(project.EmployeeProjects);
                 }
 
-                // 3. Xóa các liên kết với nhân viên
-                if (project.EmployeeProjects != null && project.EmployeeProjects.Any())
-                {
-                    _context.EmployeeProjects.RemoveRange(project.EmployeeProjects);  // Xóa tất cả các EmployeeProjects liên quan
-                }
-                // 4. Xóa dự án
+                // 5. Xóa dự án
                 _context.Projects.Remove(project);
 
-                // 5. Lưu các thay đổi vào cơ sở dữ liệu
+                // 6. Lưu các thay đổi vào cơ sở dữ liệu
                 _context.SaveChanges();
             }
         }

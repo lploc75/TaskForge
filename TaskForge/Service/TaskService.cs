@@ -18,13 +18,25 @@
             {
                 return _taskRepository.GetTasksByProjectId(projectId);
             }
-
+            
             // Tạo một task mới cho dự án
             public void CreateTask(TaskForge.Models.Task task, List<string> departmentIds)
             {
                 _taskRepository.CreateTask(task, departmentIds);
             }
+            public TaskForge.Models.Task GetTaskById(string taskId)
+            {
+            return _taskRepository.GetTaskById(taskId);
+            }
+            public void UpdateTask(TaskForge.Models.Task task)
+            {
+                _taskRepository.UpdateTask(task);
+            }
 
+            public void DeleteTask(string taskId)
+            {
+                _taskRepository.DeleteTask(taskId);
+            }
             public void AddPersonalTask(PersonalTask ptask)
             {
             _taskRepository.AddPersonalTask(ptask);
