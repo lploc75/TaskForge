@@ -1,0 +1,280 @@
+﻿@{
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var availableCredits = ViewData["AvailableCredits"] != null ? (int)ViewData["AvailableCredits"] : 0;
+    var cashEquivalent = ViewData["CashEquivalent"] != null ? (decimal)ViewData["CashEquivalent"] : 0m;
+}
+
+<!-- Header Section -->
+<div class="header-section">
+    <div class="header-overlay">
+        <div class="header-content">
+            <h1>CASH REDEMPTION</h1>
+        </div>
+    </div>
+</div>
+
+<!-- Main Exchange Section -->
+<div class="exchange-container">
+    <div class="exchange-info">
+        <h1 class="highlighted-text">READY TO REDEEM CASH?</h1>
+        <p>Convert your points to cash in just a couple of steps.</p>
+        <form method="post" action="/Staff/SubmitExchange">
+            <!-- First Section: Total Reward Points -->
+            <div class="total-reward-points">
+                <div class="reward-points-box">
+                    <input type="text" id="totalRewardPoints" value="@availableCredits" readonly style="color:#007bff; height: 100px;" />
+                    <span class="input-label">Total Reward Points</span>
+                </div>
+                <div class="equal-sign">
+                    <span>=</span>
+                </div>
+                <div class="cash-equivalent-box">
+                    <input type="text" id="cashEquivalent" value="@cashEquivalent" readonly style="color:#28a745; height: 100px;" />
+                    <span class="input-label">Equivalent Amount (USD)</span>
+                </div>
+            </div>
+
+            <!-- Info Message (Minimum Redeem Points) -->
+            <div class="info-message">
+                <i class="material-icons">info</i>
+                <span>Minimum 100 reward points redeem at a time</span>
+            </div>
+
+            <!-- Second Section: Redeem Points -->
+            <div class="redeem-points-section">
+                <div class="redeem-input-box">
+                    <input type="number" id="pointsToRedeem" name="pointsToRedeem" placeholder="Enter Points to Redeem" min="100" />
+                </div>
+                <div class="cash-conversion-box">
+                    <input type="text" id="pointsWorth" readonly />
+                </div>
+            </div>
+
+            <!-- Divider Line -->
+            <hr class="divider-line" />
+
+            <!-- Redeem Button -->
+            <div class="redeem-button">
+                <button type="submit" class="btn-redeem-points" id="redeemButton" disabled>REDEEM POINTS</button>
+            </div>
+        </form>
+    </div>
+    <div class="exchange-image">
+        <img src="~/imgs/exchange.png" alt="Reward Image">
+    </div>
+</div>
+
+
+<style>
+    /* Styling for the header section */
+    .header-section {
+        position: relative;
+        background-image: url('/imgs/background_exchange.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        margin: 0;
+    }
+
+    /* Overlay for the header section */
+    .header-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.65);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        margin-top: 50px;
+    }
+    .header-content h1 {
+        font-size: 36px;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    /* Main container for exchange section */
+    .exchange-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding: 20px;
+    }
+
+    .exchange-info {
+        width: 60%;
+        padding: 20px;
+    }
+
+    .exchange-image {
+        width: 35%;
+        text-align: right;
+    }
+
+        .exchange-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+    /* Custom styles for the highlighted text */
+    .highlighted-text {
+        font-family: Arial, sans-serif;
+        font-size: 37px;
+        font-weight: normal;
+        color: #d32f2f;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* Total Reward Points Section */
+    .total-reward-points {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .reward-points-box, .cash-equivalent-box {
+        position: relative;
+        width: 50%; /* Điều chỉnh để giảm khoảng cách */
+    }
+
+        .reward-points-box input, .cash-equivalent-box input {
+            width: 100%;
+            padding: 30px;
+            font-size: 1.5rem; /* Increase font size */
+            height: 100px;
+            line-height: normal;
+            border: 1px solid #ccc;
+        }
+
+    .input-label {
+        position: absolute;
+        top: 10px;
+        left: 30px;
+        font-size: 14px;
+        color: black;
+    }
+
+    /* Style for the equal sign circle */
+    .equal-sign {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px; /* Giảm kích thước của dấu = */
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        font-size: 24px;
+        color: #333;
+        margin: 0 -20px; /* Giảm khoảng cách giữa hai khung */
+        z-index: 1; /* Đảm bảo dấu bằng luôn nổi lên trên */
+        background-color: white; /* Đảm bảo dấu bằng có nền trắng, không bị ẩn bởi các khung khác */
+    }
+
+
+
+    /* Info Message */
+    .info-message {
+        background-color: #fff; /* Đổi nền thành màu trắng */
+        color: #ff9800; /* Chữ màu vàng cam */
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 2px solid #ff9800; /* Thêm viền màu vàng cam */
+        border-radius: 0px; /* Bo tròn các góc cho đẹp hơn */
+        display: flex;
+        align-items: center;
+    }
+
+        .info-message i {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #ff9800; /* Đảm bảo biểu tượng cũng có màu vàng cam */
+        }
+
+    /* Redeem Points Section */
+    .redeem-points-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .redeem-input-box, .cash-conversion-box {
+        width: 45%;
+    }
+
+        .redeem-input-box input, .cash-conversion-box input {
+            width: 100%;
+            padding: 8px;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+    /* Divider Line */
+    .divider-line {
+        margin: 30px 0;
+        border-top: 1px solid #ddd;
+    }
+
+    /* Redeem Button */
+    .redeem-button {
+        text-align: right;
+    }
+
+    .btn-redeem-points {
+        background-color: #1874CD;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-redeem-points:hover {
+            background-color: #45a049;
+        }
+
+    p {
+        margin-bottom: 20px; /* Tạo khoảng cách giữa văn bản và khung */
+    }
+
+    .exchange-image {
+        width: 35%;
+        text-align: right;
+        margin-top: 80px; /* Tăng giá trị margin-top để dời phần hình xuống */
+    }
+
+        .exchange-image img {
+            max-width: 100%;
+            height: auto;
+        }
+</style>
+<!-- JavaScript Section -->
+<script>
+    document.getElementById('pointsToRedeem').addEventListener('input', function () {
+        var points = this.value;  // Lấy giá trị từ ô nhập điểm
+        var redeemButton = document.getElementById('redeemButton');  // Lấy nút redeem
+
+        // Kiểm tra số điểm hợp lệ
+        if (points >= 100) {
+            redeemButton.disabled = false;  // Bật nút redeem nếu số điểm >= 100
+        } else {
+            redeemButton.disabled = true;  // Vô hiệu hóa nút redeem nếu số điểm < 100
+        }
+
+        // Tính giá trị tiền mặt từ điểm (giả sử mỗi điểm = 0.5 USD)
+        var cashEquivalent = (points * 0.5).toFixed(2);  // Tính toán giá trị quy đổi ra tiền mặt
+        document.getElementById('pointsWorth').value = cashEquivalent;  // Cập nhật giá trị hiển thị
+    });
+</script>

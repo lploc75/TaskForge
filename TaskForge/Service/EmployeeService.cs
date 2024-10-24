@@ -11,7 +11,10 @@ namespace TaskForge.Service
         {
             _employeeRepository = employeeRepository;
         }
-
+        public CreditExchange GetCreditExchangeById(int exchangeId)
+        {
+            return _employeeRepository.GetCreditExchangeById(exchangeId);
+        }
         public Employee GetEmployeeByAccountId(string accountId)
         {
             return _employeeRepository.GetEmployeeByAccountId(accountId);
@@ -93,6 +96,37 @@ namespace TaskForge.Service
             }
             return false;
         }
+        public StaffAndLeader GetStaffByAccountId(string accountId)
+        {
+            return _employeeRepository.GetStaffByAccountId(accountId); // Make sure to implement this method
+        }
+        public int RedeemCredits(string accountId, int pointsToRedeem)
+        {
+            var staff = _employeeRepository.GetStaffByAccountId(accountId);
 
+            if (staff == null || staff.CreditPoints < pointsToRedeem)
+            {
+                return 0; // Return 0 for failure
+            }
+
+            // Deduct credits
+            staff.CreditPoints -= pointsToRedeem;
+
+            // Calculate cash equivalent and save in the CreditExchange table
+            decimal cashEquivalent = pointsToRedeem * 0.5m;
+            var creditExchange = new CreditExchange
+            {
+                AccountId = accountId,
+                CreditPointsUsed = pointsToRedeem,
+                CashAmount = cashEquivalent,
+                ExchangeDate = DateTime.Now,
+                Status = "Completed"
+            };
+
+            _employeeRepository.UpdateStaff(staff);
+            _employeeRepository.RecordCreditExchange(creditExchange);
+
+            return creditExchange.ExchangeId; // Return the exchange_id
+        }
     }
 }

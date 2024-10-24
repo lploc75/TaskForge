@@ -400,6 +400,106 @@ namespace TaskForge.Controllers
             ViewBag.SubtaskId = subtaskId;
             return View();
         }
+        // Exchange Page Action
+        public IActionResult Exchange()
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            // Get available credit points for the logged-in user
+            StaffAndLeader staff = _employeeService.GetStaffByAccountId(accountId);
+            if (staff == null || staff.CreditPoints == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            int availableCredits = staff.CreditPoints ?? 0;
+            decimal cashEquivalent = availableCredits * 0.5m; // Assuming 1 credit = $0.50
+
+            // Truyền trực tiếp số điểm và số tiền qua ViewData
+            ViewData["AvailableCredits"] = availableCredits;
+            ViewData["CashEquivalent"] = cashEquivalent;
+
+            return View();
+        }
+
+        // Action to Redeem Credits
+        [HttpPost]
+        public IActionResult RedeemCredits(int pointsToRedeem)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            if (pointsToRedeem < 100)
+            {
+                ModelState.AddModelError("", "Minimum of 100 points must be redeemed at a time.");
+                return View("Exchange");
+            }
+
+            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem);
+
+            if (exchangeId != 0)
+            {
+                return RedirectToAction("ExchangeConfirmation", new { exchangeId });
+            }
+            else
+            {
+                ModelState.AddModelError("", "Failed to redeem credits.");
+                return View("Exchange");
+            }
+        }
+        [HttpPost]
+        public IActionResult SubmitExchange(int pointsToRedeem)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            if (pointsToRedeem < 100)
+            {
+                ModelState.AddModelError("", "Minimum of 100 points must be redeemed at a time.");
+                return View("Exchange");
+            }
+
+            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem);
+
+            if (exchangeId != 0)
+            {
+                return RedirectToAction("ExchangeConfirmation", new { exchangeId });
+            }
+            else
+            {
+                ModelState.AddModelError("", "Failed to redeem credits.");
+                return View("Exchange");
+            }
+        }
+        public IActionResult ExchangeConfirmation(int exchangeId)
+        {
+            var exchange = _employeeService.GetCreditExchangeById(exchangeId);
+
+            if (exchange == null || exchange.Account == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            // Truyền dữ liệu trực tiếp qua ViewData
+            ViewData["AvailableCredits"] = exchange.Account.CreditPoints ?? 0;
+            ViewData["CashEquivalent"] = exchange.CashAmount;
+            ViewData["ExchangeId"] = exchange.ExchangeId;
+
+            return View();
+        }
 
     }
 }

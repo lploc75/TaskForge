@@ -24,6 +24,26 @@ namespace TaskForge.Repository
                 .FirstOrDefault(e => e.AccountId == accountId);
         }
 
+        public StaffAndLeader GetStaffByAccountId(string accountId)
+        {
+            return _context.StaffAndLeaders.FirstOrDefault(s => s.AccountId == accountId);
+        }
+        public void RecordCreditExchange(CreditExchange creditExchange)
+        {
+            _context.CreditExchanges.Add(creditExchange);
+            _context.SaveChanges();
+        }
+        public void UpdateStaff(StaffAndLeader staff)
+        {
+            _context.StaffAndLeaders.Update(staff);
+            _context.SaveChanges();
+        }
+        public CreditExchange GetCreditExchangeById(int exchangeId)
+        {
+            return _context.CreditExchanges
+                .Include(e => e.Account) // Ensure the Account entity is included
+                .FirstOrDefault(e => e.ExchangeId == exchangeId);
+        }
         public List<Subtask> GetAssignedSubtasks(string accountId)
         {
             return _context.SubtaskAssignments
@@ -114,21 +134,21 @@ namespace TaskForge.Repository
             return false;
         }
 
-        public void UpdateSubtask(Models.Subtask subtask)
+        public void UpdateSubtask(Subtask subtask)
         {
             _context.Subtasks.Update(subtask);
             _context.SaveChanges();
         }
-        public void UpdatePtask(Models.PersonalTask ptask)
+        public void UpdatePtask(PersonalTask ptask)
         {
             _context.PersonalTasks.Update(ptask);
             _context.SaveChanges();
         }
-        public Models.Subtask GetSubtaskById(string id)
+        public Subtask GetSubtaskById(string id)
         {
-            return _context.Subtasks.Find(id); // Đảm bảo `_context.Subtasks` đúng với bảng `subtask`
+            return _context.Subtasks.Find(id);
         }
-        public Models.PersonalTask GetPtaskById(string id)
+        public PersonalTask GetPtaskById(string id)
         {
             return _context.PersonalTasks.Find(id);
         }
