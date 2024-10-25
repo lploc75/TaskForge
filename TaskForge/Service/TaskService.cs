@@ -38,6 +38,9 @@
         {
             _taskRepository.DeleteTask(taskId);
         }
-
+        public List<TaskForge.Models.Task> GetTasksByDepartment(string deptId)
+        {
+            return _taskRepository.GetTasksByDepartmentId(deptId);
+        }
     }
 }

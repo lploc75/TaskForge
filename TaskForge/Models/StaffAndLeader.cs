@@ -17,15 +17,11 @@ public partial class StaffAndLeader
 
     public int? NumberOfTeam { get; set; }
 
-    public virtual Account Account { get; set; } = null!;
+    public virtual Employee Account { get; set; } = null!;
 
     public virtual ICollection<CreditExchange> CreditExchanges { get; set; } = new List<CreditExchange>();
 
     public virtual ICollection<File> Files { get; set; } = new List<File>();
 
     public virtual ICollection<PersonalTask> PersonalTasks { get; set; } = new List<PersonalTask>();
-
-    public virtual ICollection<SubtaskAssignment> SubtaskAssignmentAssignedToNavigations { get; set; } = new List<SubtaskAssignment>();
-
-    public virtual ICollection<SubtaskAssignment> SubtaskAssignmentCreatedByNavigations { get; set; } = new List<SubtaskAssignment>();
 }

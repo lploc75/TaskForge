@@ -11,9 +11,9 @@ public partial class SubtaskAssignment
 
     public string AssignedTo { get; set; } = null!;
 
-    public virtual StaffAndLeader AssignedToNavigation { get; set; } = null!;
+    public virtual Employee AssignedToNavigation { get; set; } = null!;
 
-    public virtual StaffAndLeader CreatedByNavigation { get; set; } = null!;
+    public virtual Employee CreatedByNavigation { get; set; } = null!;
 
     public virtual Subtask Subtask { get; set; } = null!;
 }

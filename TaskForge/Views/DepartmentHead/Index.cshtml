@@ -1,6 +1,67 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = "_ManagerLayout";
 }
-<p>Department Head</p>
+
+<h2>Danh sách Task của Phòng Ban</h2>
+
+<!-- CSS cho style của Task list -->
+<style>
+    .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .task-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        /* Sử dụng flex để căn nội dung và nút */
+        display: flex;
+        justify-content: space-between; /* Giãn đều nội dung và nút về 2 bên */
+        align-items: center; /* Căn giữa theo chiều dọc */
+    }
+
+    .task-details {
+        max-width: 70%; /* Giới hạn chiều rộng của chi tiết task */
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        padding: 15px 10px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+@if (ViewBag.Tasks != null && ((List<TaskForge.Models.Task>)ViewBag.Tasks).Any())
+{
+    <div class="task-list">
+        @foreach (var task in (List<TaskForge.Models.Task>)ViewBag.Tasks)
+        {
+            <div class="task-section">
+                <div class="task-details">
+                    <h3>Task: @task.TaskName</h3>
+                    <p><strong>Mô tả:</strong> @task.Description</p>
+                    <p><strong>Deadline:</strong> @task.Deadline?.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Trạng thái:</strong> @task.Status</p>
+                </div>
+
+                <!-- Nút để mở trang chi tiết task (căn phải) -->
+                <a href="@Url.Action("TaskDetail", "DepartmentHead", new { taskId = task.TaskId })" class="btn btn-primary">Xem Chi tiết Task</a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Không có Task nào được giao cho phòng ban này.</p>
+}

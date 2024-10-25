@@ -57,12 +57,7 @@ namespace TaskForge.Repository
             {
                 try
                 {
-                    // Xóa các bản ghi liên quan trong bảng TaskAssignment
-                    var taskAssignments = _context.TaskAssignments.Where(ta => ta.TaskId == taskId).ToList();
-                    if (taskAssignments.Any())
-                    {
-                        _context.TaskAssignments.RemoveRange(taskAssignments);
-                    }
+                   
 
                     // Xóa các bản ghi liên quan trong bảng TaskEvaluation
                     var taskEvaluations = _context.TaskEvaluations.Where(te => te.TaskId == taskId).ToList();
@@ -190,6 +185,13 @@ namespace TaskForge.Repository
             {
                 throw new Exception($"Failed to assign task {taskId} to departments. Error: {ex.Message}");
             }
+        }
+        public List<TaskForge.Models.Task> GetTasksByDepartmentId(string deptId)
+        {
+            return _context.DepartmentTasks
+                           .Where(dt => dt.DeptId == deptId)
+                           .Select(dt => dt.Task)  // Lấy task từ DepartmentTask
+                           .ToList();
         }
 
 

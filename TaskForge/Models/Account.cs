@@ -18,6 +18,4 @@ public partial class Account
     public virtual Employee? Employee { get; set; }
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-
-    public virtual StaffAndLeader? StaffAndLeader { get; set; }
 }

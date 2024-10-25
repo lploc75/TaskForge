@@ -30,6 +30,10 @@ namespace TaskForge
             builder.Services.AddScoped<ProjectService>();
             builder.Services.AddScoped<TaskRepository>();
             builder.Services.AddScoped<TaskService>();
+            builder.Services.AddScoped<SubtaskRepository>();
+            builder.Services.AddScoped<SubtaskService>();
+            builder.Services.AddScoped<TeamRepository>();
+            builder.Services.AddScoped<TeamService>();
 
             builder.Services.AddHttpContextAccessor();
 

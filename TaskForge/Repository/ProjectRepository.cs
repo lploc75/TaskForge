@@ -112,8 +112,6 @@ namespace TaskForge.Repository
             var project = _context.Projects
                 .Include(p => p.Tasks)                 // Bao gồm các Tasks liên quan
                     .ThenInclude(t => t.Subtasks)       // Bao gồm các Subtasks liên quan
-                .Include(p => p.Tasks)                 // Bao gồm Tasks để xóa liên kết với TaskAssignment
-                    .ThenInclude(t => t.TaskAssignments)
                 .Include(p => p.Tasks)                 // Bao gồm Tasks để xóa liên kết với TaskEvaluation
                     .ThenInclude(t => t.TaskEvaluations)
                 .Include(p => p.Departments)           // Bao gồm Departments liên kết với Project
@@ -147,12 +145,7 @@ namespace TaskForge.Repository
                         .ToList();
                     _context.TaskEvaluations.RemoveRange(taskEvaluations);
 
-                    // Xóa các TaskAssignments
-                    var taskAssignments = _context.TaskAssignments
-                        .Where(ta => ta.TaskId == task.TaskId)
-                        .ToList();
-                    _context.TaskAssignments.RemoveRange(taskAssignments);
-
+     
                     // Xóa các liên kết giữa Task và Department trong bảng DepartmentTask
                     var departmentTasks = _context.DepartmentTasks
                         .Where(dt => dt.TaskId == task.TaskId)
