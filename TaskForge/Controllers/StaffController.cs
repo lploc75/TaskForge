@@ -15,20 +15,23 @@ namespace TaskForge.Controllers
         private readonly DropboxService _dropboxService;
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
-
+        private readonly NotificationService _notificationService;
         // Constructor duy nhất cho cả hai service
-        public StaffController(EmployeeService employeeService, DropboxService dropboxService, ProjectService projectService, TaskService taskService)
+        public StaffController(EmployeeService employeeService, DropboxService dropboxService, 
+            ProjectService projectService, TaskService taskService, NotificationService notificationService)
         {
             _employeeService = employeeService;
             _dropboxService = dropboxService;
             _projectService = projectService;
             _taskService = taskService;
+            _notificationService = notificationService;
         }
 
         public IActionResult Index()
         {
             string accountId = User.FindFirst("AccountId")?.Value;
-
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
             if (string.IsNullOrEmpty(accountId))
             {
                 return RedirectToAction("Error", "Home");
@@ -76,11 +79,12 @@ namespace TaskForge.Controllers
 
             return View(employee);
         }
-
         public IActionResult Task()
         {
             // Lấy 'AccountId' từ các claims của người dùng hiện tại đã đăng nhập
             string accountId = User.FindFirst("AccountId")?.Value;
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
 
             // Lấy danh sách các subtasks và personalTask được gán cho tài khoản dựa vào accountId,
             // nếu không tìm thấy subtasks nào, khởi tạo danh sách trống
@@ -97,6 +101,8 @@ namespace TaskForge.Controllers
         public IActionResult Project()
         {
             var accountId = User.FindFirstValue("AccountId");
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
             if (accountId == null)
             {
                 return RedirectToAction("Login", "Account");
@@ -119,6 +125,8 @@ namespace TaskForge.Controllers
         {
             // Lấy accountId từ thông tin xác thực của người dùng
             string accountId = User.FindFirst("AccountId")?.Value;
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
             if (string.IsNullOrEmpty(accountId))
             {
                 return Unauthorized(); // Nếu không có accountId, yêu cầu người dùng đăng nhập lại
@@ -182,7 +190,8 @@ namespace TaskForge.Controllers
         public IActionResult Setting()
         {
             string accountId = User.FindFirst("AccountId")?.Value;
-
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
             if (string.IsNullOrEmpty(accountId))
             {
                 return RedirectToAction("Error", "Home");
@@ -317,6 +326,9 @@ namespace TaskForge.Controllers
         // Phương thức tạo ID mới ngẫu nhiên cho PersonalTask
         public string GenerateRandomPtaskId()
         {
+            string accountId = User.FindFirst("AccountId")?.Value;
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
             // Tạo đối tượng Random
             Random random = new Random();
 
@@ -404,6 +416,8 @@ namespace TaskForge.Controllers
         public IActionResult Exchange()
         {
             string accountId = User.FindFirst("AccountId")?.Value;
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
 
             if (string.IsNullOrEmpty(accountId))
             {

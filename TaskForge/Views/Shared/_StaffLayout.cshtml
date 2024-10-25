@@ -6,16 +6,15 @@
     <title>@ViewData["Title"] - Staff Dashboard</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="~/css/staffLayout.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
         <ul>
             <li><a asp-controller="Staff" asp-action="Index"><i class="material-icons">home</i> Dashboard</a></li>
-            <li><a asp-controller="Staff" asp-action="Task"><i class="material-icons">task</i>Task</a></li>
-            <li><a asp-controller="Staff" asp-action="Project"><i class="material-icons">dashboard</i>Project</a></li>
-            <li><a asp-controller="Staff" asp-action="Setting"><i class="material-icons">settings</i>Setting</a></li>
+            <li><a asp-controller="Staff" asp-action="Task"><i class="material-icons">task</i> Task</a></li>
+            <li><a asp-controller="Staff" asp-action="Project"><i class="material-icons">dashboard</i> Project</a></li>
+            <li><a asp-controller="Staff" asp-action="Setting"><i class="material-icons">settings</i> Setting</a></li>
             <li><a asp-controller="Staff" asp-action="Exchange"><i class="material-icons">shopping_cart</i> Exchange</a></li>
             <li><a asp-controller="Account" asp-action="Login"><i class="material-icons">logout</i> Logout</a></li>
         </ul>
@@ -25,32 +24,30 @@
     <div class="navbar">
         <div class="navbar-title">Staff Dashboard</div>
 
-        <!-- Bell icon for notifications -->
+        <!-- Bell icon for notifications with dropdown -->
         <div class="icon-container">
-            <i class="fas fa-bell"></i>
-        </div>
-
-        <!-- Notification Dropdown -->
-        <div id="notificationDropdown" class="notification-dropdown">
-            <h3>Thông báo</h3>
-            <div class="tabs">
-                <span class="tab active" id="all-tab">Tất cả</span>
-                <span class="tab" id="unread-tab">Chưa đọc</span>
+            <i class="material-icons">notifications</i>
+            <!-- Notification Dropdown -->
+            <div id="notificationDropdown" class="notification-dropdown">
+                <h3>Thông báo</h3>
+                <ul class="notification-list">
+                    @if (ViewData["RecentNotifications"] != null)
+                    {
+                        foreach (var notification in (List<TaskForge.Models.Notification>)ViewData["RecentNotifications"])
+                        {
+                            <li class="notification-item @(notification.IsRead == false ? "unread" : "")">
+                                <div class="notification-content">
+                                    <span>@notification.Message</span><br>
+                                    <small>@notification.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                            </li>
+                        }
+                    }
+                </ul>
+                <div class="see-more">
+                    <a href="@Url.Action("Index", "Notification")" class="btn btn-primary">Xem thêm thông báo</a>
+                </div>
             </div>
-            <ul class="notification-list">
-                <li class="notification-item unread" onclick="markAsRead(this)">
-                    <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
-                    <span>23 giờ</span>
-                </li>
-                <li class="notification-item unread" onclick="markAsRead(this)">
-                    <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
-                    <span>1 ngày</span>
-                </li>
-                <li class="notification-item" onclick="markAsRead(this)">
-                    <img src="https://via.placeholder.com/30" alt="User" class="user-icon">
-                    <span>1 ngày</span>
-                </li>
-            </ul>
         </div>
 
         <div class="avatar">
@@ -62,6 +59,28 @@
     <div class="container" style="margin-left: 220px; padding-top: 60px;">
         @RenderBody()
     </div>
+
+    <!-- JavaScript for Notifications -->
+    <script>
+        // Kiểm tra xem sự kiện click có hoạt động
+        document.querySelector('.icon-container').addEventListener('click', function () {
+            console.log("Bell icon clicked"); // Kiểm tra xem có log trong console không
+            const dropdown = document.getElementById('notificationDropdown');
+
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Đóng dropdown khi nhấp bên ngoài
+        window.addEventListener('click', function (e) {
+            if (!e.target.closest('.icon-container') && !e.target.closest('.notification-dropdown')) {
+                document.getElementById('notificationDropdown').style.display = 'none';
+            }
+        });
+    </script>
 
 </body>
 </html>

@@ -40,6 +40,8 @@ namespace TaskForge
             builder.Services.AddScoped<CreditExchangeRepository>();
             builder.Services.AddScoped<FeedbackRepository>();
             builder.Services.AddScoped<TeamRepository>();
+            builder.Services.AddScoped<NotificationRepository>();
+
             builder.Services.AddHttpContextAccessor();
 
             // Thêm dịch vụ Session

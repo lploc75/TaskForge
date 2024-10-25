@@ -1,0 +1,100 @@
+﻿@model IPagedList<TaskForge.Models.Notification>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+
+@{
+    Layout = "_StaffLayout";
+}
+<!DOCTYPE html>
+<html lang="en">
+ <!-- Giữ 'en' để mặc định là tiếng Anh -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Notifications</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="~/css/notification/index.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <h2>Your Notifications</h2>
+
+        <!-- Search Form -->
+        <form method="get" action="@Url.Action("Index", "Notification")">
+            <div class="form-row">
+                <!-- Filter by Created Date Range -->
+                <div class="form-group col-md-3">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
+                </div>
+
+                <!-- Filter by Read Status -->
+                <div class="form-group col-md-3">
+                    <label for="isRead">Status</label>
+                    <select name="isRead" id="isRead" class="form-control">
+                        <option value="">All</option>
+                        <option value="true">Read</option>
+                        <option value="false">Unread</option>
+                    </select>
+                </div>
+
+                <!-- Submit and Clear buttons in one row -->
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Search</button>
+                    <a href="@Url.Action("Index", "Notification")" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Notifications table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Message</th>
+                    <th>Sent Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var notification in Model)
+                {
+                    <tr>
+                        <td>@notification.NotificationId</td>
+                        <td>@notification.Message</td>
+                        <td>@notification.CreatedDate?.ToString("MM/dd/yyyy HH:mm")</td>
+                        <td>@(notification.IsRead == true ? "Read" : "Unread")</td>
+                        <td>
+                            @if (notification.IsRead == false)
+                            {
+                                <form method="post" action="@Url.Action("MarkAsRead", "Notification")">
+                                    <input type="hidden" name="notificationId" value="@notification.NotificationId" />
+                                    <button type="submit" class="btn btn-sm btn-info">Mark as Read</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, startDate = Context.Request.Query["startDate"], endDate = Context.Request.Query["endDate"], isRead = Context.Request.Query["isRead"] }), new PagedListRenderOptions
+       {
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+</body>
+</html>

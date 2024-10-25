@@ -188,7 +188,14 @@ CREATE TABLE [File] (
 	FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id),
     FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id)
 );
-
+CREATE TABLE Notifications (
+    notification_id  INT PRIMARY KEY IDENTITY(1,1),
+    account_id VARCHAR(10),            -- Liên kết với người dùng
+    [message] NVARCHAR(500),           -- Nội dung thông báo
+    created_date  DATETIME,            -- Thời gian thông báo được tạo
+    is_read  BIT DEFAULT 0             -- Đánh dấu đã đọc hay chưa
+	FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id),
+);
 -- Dữ liệu cho bảng Account
 INSERT INTO Account (account_id, username, password, email, phone_number) VALUES
 ('ACC001', 'admin', '123', 'admin@example.com', '0123456789'),
@@ -319,3 +326,12 @@ INSERT INTO Comment (comment_id, content, date_submitted, subtask_id) VALUES
 -- Dữ liệu cho bảng DepartmentProject
 INSERT INTO DepartmentProject(project_id,dept_id) VALUES
 (1, 'DEP002');
+
+INSERT INTO Notifications (account_id, [message], created_date, is_read)
+VALUES 
+    ('ACC003', 'Thông báo 3 cho người dùng ACC003', '2024-01-01 15:00:00', 1), -- Đã đọc
+	('ACC003', 'Thông báo 3 cho người dùng ACC003', '2024-01-01 15:00:00', 0),
+	('ACC004', 'Thông báo 3 cho người dùng Leader ACC004', '2024-01-01 16:00:00', 1), -- Đã đọc
+	('ACC004', 'Thông báo 3 cho người dùng Leader ACC004', '2024-01-01 16:00:00', 0),
+	('ACC005', 'Thông báo 3 cho người dùng ACC006', '2024-01-01 20:00:00', 1), -- Đã đọc
+	('ACC005', 'Thông báo 3 cho người dùng ACC006', '2024-01-01 20:00:00', 0);

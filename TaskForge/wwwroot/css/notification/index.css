@@ -1,0 +1,83 @@
+﻿/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+    table th, table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+        background-color: #343a40;
+        color: white;
+        font-weight: bold;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    table tr:hover {
+        background-color: #f1f3f5;
+    }
+
+    table td {
+        font-size: 14px;
+        color: #555;
+    }
+
+/* Button đánh dấu */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 5px;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+}
+
+    .btn-info:hover {
+        background-color: #138496;
+    }

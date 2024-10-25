@@ -23,5 +23,7 @@ public partial class StaffAndLeader
 
     public virtual ICollection<File> Files { get; set; } = new List<File>();
 
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     public virtual ICollection<PersonalTask> PersonalTasks { get; set; } = new List<PersonalTask>();
 }

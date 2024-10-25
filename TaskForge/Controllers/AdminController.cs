@@ -217,21 +217,6 @@ namespace TaskForge.Controllers
 
             return View("Team");
         }
-        // UC-35: Notify for User
-        [HttpPost]
-        public IActionResult NotifyUser(string userId, string message)
-        {
-            var user = _adminService.GetAccountById(userId);
-            if (user == null)
-            {
-                return NotFound("User not found.");
-            }
-
-            // Ví dụ gửi email hoặc hiển thị thông báo
-            _notificationService.SendNotification(user.Email, message);
-
-            return RedirectToAction("Index");
-        }
         public IActionResult Credit(string accountId, string status, int? minCredits, int? maxCredits, decimal? minCash, decimal? maxCash, DateTime? startDate, DateTime? endDate, int? page)
         {
             // Lấy tất cả các CreditExchange từ Service
