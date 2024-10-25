@@ -14,11 +14,14 @@ namespace TaskForge.Repository
             _context = context;
         }
 
-        // Lấy danh sách tất cả các trao đổi tín dụng
+        // Lấy danh sách tất cả các trao đổi tín dụng, sắp xếp theo ngày mới nhất giảm dần
         public List<CreditExchange> GetAllCreditExchanges()
         {
-            return _context.CreditExchanges.ToList();
+            return _context.CreditExchanges
+                           .OrderByDescending(c => c.ExchangeDate) // Sắp xếp theo ngày giảm dần
+                           .ToList();
         }
+
 
         // Lấy thông tin chi tiết trao đổi tín dụng dựa trên ExchangeId
         public CreditExchange GetCreditExchangeById(int exchangeId)

@@ -114,8 +114,6 @@ namespace TaskForge.Repository
             var project = _context.Projects
                 .Include(p => p.Tasks)                 // Bao gồm các Tasks liên quan
                     .ThenInclude(t => t.Subtasks)       // Bao gồm các Subtasks liên quan
-                .Include(p => p.Tasks)                 // Bao gồm Tasks để xóa liên kết với TaskAssignment
-                    .ThenInclude(t => t.TaskAssignments)
                 .Include(p => p.Tasks)                 // Bao gồm Tasks để xóa liên kết với TaskEvaluation
                     .ThenInclude(t => t.TaskEvaluations)
                 .Include(p => p.Departments)           // Bao gồm Departments liên kết với Project
@@ -132,11 +130,6 @@ namespace TaskForge.Repository
                     {
                         _context.Subtasks.RemoveRange(task.Subtasks);
 
-                        var subtaskAssignments = _context.SubtaskAssignments
-                            .Where(sa => task.Subtasks.Select(s => s.SubtaskId).Contains(sa.SubtaskId))
-                            .ToList();
-                        _context.SubtaskAssignments.RemoveRange(subtaskAssignments);
-
                         var subtaskEvaluations = _context.SubtaskEvaluations
                             .Where(se => task.Subtasks.Select(s => s.SubtaskId).Contains(se.SubtaskId))
                             .ToList();
@@ -148,12 +141,6 @@ namespace TaskForge.Repository
                         .Where(te => te.TaskId == task.TaskId)
                         .ToList();
                     _context.TaskEvaluations.RemoveRange(taskEvaluations);
-
-                    // Xóa các TaskAssignments
-                    var taskAssignments = _context.TaskAssignments
-                        .Where(ta => ta.TaskId == task.TaskId)
-                        .ToList();
-                    _context.TaskAssignments.RemoveRange(taskAssignments);
 
                     // Xóa các liên kết giữa Task và Department trong bảng DepartmentTask
                     var departmentTasks = _context.DepartmentTasks
@@ -181,5 +168,6 @@ namespace TaskForge.Repository
                 _context.SaveChanges();
             }
         }
+
     }
 }

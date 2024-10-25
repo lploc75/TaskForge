@@ -31,15 +31,16 @@ namespace TaskForge.Service
             _creditExchangeRepository.CreateCreditExchange(creditExchange);
         }
 
-        // Cập nhật trạng thái trao đổi tín dụng (ví dụ: phê duyệt)
-        public void ApproveCreditExchange(int exchangeId)
+        // Cập nhật trạng thái trao đổi tín dụng (phê duyệt, từ chối, hoặc trạng thái khác)
+        public void UpdateCreditExchangeStatus(int exchangeId, string status)
         {
             var creditExchange = _creditExchangeRepository.GetCreditExchangeById(exchangeId);
             if (creditExchange != null)
             {
-                creditExchange.Status = "Approved";
+                creditExchange.Status = status;
                 _creditExchangeRepository.UpdateCreditExchange(creditExchange);
             }
         }
+
     }
 }

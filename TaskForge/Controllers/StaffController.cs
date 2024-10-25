@@ -427,9 +427,8 @@ namespace TaskForge.Controllers
             return View();
         }
 
-        // Action to Redeem Credits
         [HttpPost]
-        public IActionResult RedeemCredits(int pointsToRedeem)
+        public IActionResult SubmitExchange(int pointsToRedeem, int availableCredits)
         {
             string accountId = User.FindFirst("AccountId")?.Value;
 
@@ -438,37 +437,14 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Error", "Home");
             }
 
-            if (pointsToRedeem < 100)
+            if (pointsToRedeem < 100 || pointsToRedeem > availableCredits)
             {
-                ModelState.AddModelError("", "Minimum of 100 points must be redeemed at a time.");
-                return View("Exchange");
-            }
+                TempData["Message"] = "Số điểm bạn nhập không hợp lệ.";
 
-            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem);
+                // Truyền trực tiếp số điểm và số tiền qua ViewData
+                ViewData["AvailableCredits"] = availableCredits;
+                ViewData["CashEquivalent"] = availableCredits * 0.5m;  // Ví dụ mỗi điểm = 0.5 USD
 
-            if (exchangeId != 0)
-            {
-                return RedirectToAction("ExchangeConfirmation", new { exchangeId });
-            }
-            else
-            {
-                ModelState.AddModelError("", "Failed to redeem credits.");
-                return View("Exchange");
-            }
-        }
-        [HttpPost]
-        public IActionResult SubmitExchange(int pointsToRedeem)
-        {
-            string accountId = User.FindFirst("AccountId")?.Value;
-
-            if (string.IsNullOrEmpty(accountId))
-            {
-                return RedirectToAction("Error", "Home");
-            }
-
-            if (pointsToRedeem < 100)
-            {
-                ModelState.AddModelError("", "Minimum of 100 points must be redeemed at a time.");
                 return View("Exchange");
             }
 

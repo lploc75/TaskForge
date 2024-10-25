@@ -1,4 +1,5 @@
-﻿CREATE TABLE Account (
+﻿-- erd1-6
+CREATE TABLE Account (
     account_id VARCHAR(10) PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -44,7 +45,7 @@ CREATE TABLE Project (
     project_name VARCHAR(100),
     description TEXT,
     status VARCHAR(50),
-    deadline DATETIME,
+    deadline DATETIME
 );
 CREATE TABLE DepartmentProject(
 	project_id INT,
@@ -75,7 +76,7 @@ CREATE TABLE StaffAndLeader (
     total_teamwork DECIMAL(5,2),
     credit_points INT,
     number_of_team INT,
-    FOREIGN KEY (account_id) REFERENCES Account(account_id),
+    FOREIGN KEY (account_id) REFERENCES Employee(account_id),
 );
 CREATE TABLE CreditExchange(
     exchange_id INT PRIMARY KEY IDENTITY(1,1),
@@ -118,15 +119,6 @@ CREATE TABLE PersonalTask (
 	description TEXT,
     FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id)
 );
-CREATE TABLE TaskAssignment(
-    task_id VARCHAR(10),
-	created_by VARCHAR(10),
-    assigned_to VARCHAR(10),
-    PRIMARY KEY(task_id, created_by, assigned_to), 
-	FOREIGN KEY (task_id) REFERENCES Task(task_id),
-    FOREIGN KEY (created_by) REFERENCES Employee(account_id),
-    FOREIGN KEY (assigned_to) REFERENCES Employee(account_id),
-);
 CREATE TABLE TaskEvaluation (
     evaluation_id VARCHAR(10) PRIMARY KEY,
     evaluation_date DATETIME,
@@ -155,8 +147,8 @@ CREATE TABLE SubtaskAssignment(
     assigned_to VARCHAR(10),
     PRIMARY KEY(subtask_id, created_by, assigned_to), 
 	FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id),
-    FOREIGN KEY (created_by) REFERENCES StaffAndLeader(account_id),
-    FOREIGN KEY (assigned_to) REFERENCES StaffAndLeader(account_id),
+    FOREIGN KEY (created_by) REFERENCES Employee(account_id),
+    FOREIGN KEY (assigned_to) REFERENCES Employee(account_id),
 );
 CREATE TABLE SubtaskEvaluation (
     evaluation_id VARCHAR(10) PRIMARY KEY,
@@ -281,12 +273,6 @@ INSERT INTO Subtask (subtask_id, subtask_name, description, status, priority, di
 ('SUBTASK003', 'Prepare Camera, documents', 'Camera must be abc.', 'In Progress', 2, 1, '2024-10-02 10:15:00', '2024-10-06 17:00:00', NULL, 'TASK001', 'TEAM001'),
 ('SUBTASK004', 'Buy drinks.', 'only water.', 'Not Start', 3, 1, '2024-10-03 14:00:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001'),
 ('SUBTASK005', 'Mail for every one who will attend.', 'Find other mails in my chat.', 'Pending', 1, 2, '2024-10-04 16:45:00', '2024-10-07 17:00:00', NULL, 'TASK001', 'TEAM001');
-
--- Chèn dữ liệu vào TaskAssignment
-INSERT INTO TaskAssignment (task_id, created_by, assigned_to) VALUES
-('TASK001', 'ACC006', 'ACC004'),
-('TASK002', 'ACC006', 'ACC004');
-
 -- Dữ liệu cho bảng PersonalTask
 INSERT INTO PersonalTask (ptask_id, account_id, ptask_name ,status, priority, assignment_date, deadline, description) VALUES
 ('PT001', 'ACC003', 'Review team' ,'Not Started', 1, '2024-10-10 08:30:00', '2024-10-15 08:30:00', 'Review team performance reports.'),
@@ -298,11 +284,11 @@ INSERT INTO PersonalTask (ptask_id, account_id, ptask_name ,status, priority, as
 
 -- Chèn dữ liệu vào SubtaskAssignment
 INSERT INTO SubtaskAssignment (subtask_id, created_by, assigned_to) VALUES
-('SUBTASK001', 'ACC004', 'ACC003'),
-('SUBTASK002', 'ACC004', 'ACC005'),
-('SUBTASK003', 'ACC004', 'ACC003'),
-('SUBTASK004', 'ACC004', 'ACC003'),
-('SUBTASK005', 'ACC004', 'ACC003');
+('SUBTASK001', 'ACC006', 'ACC003'),
+('SUBTASK002', 'ACC006', 'ACC005'),
+('SUBTASK003', 'ACC006', 'ACC003'),
+('SUBTASK004', 'ACC006', 'ACC003'),
+('SUBTASK005', 'ACC006', 'ACC003');
 
 -- Dữ liệu cho bảng SubtaskEvaluation
 INSERT INTO SubtaskEvaluation (evaluation_id, evaluation_date, comment, subtask_id, teamwork_rating, timeliness_rating, kpi_rating) VALUES

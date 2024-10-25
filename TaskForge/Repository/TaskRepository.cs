@@ -58,13 +58,6 @@ namespace TaskForge.Repository
             {
                 try
                 {
-                    // Xóa các bản ghi liên quan trong bảng TaskAssignment
-                    var taskAssignments = _context.TaskAssignments.Where(ta => ta.TaskId == taskId).ToList();
-                    if (taskAssignments.Any())
-                    {
-                        _context.TaskAssignments.RemoveRange(taskAssignments);
-                    }
-
                     // Xóa các bản ghi liên quan trong bảng TaskEvaluation
                     var taskEvaluations = _context.TaskEvaluations.Where(te => te.TaskId == taskId).ToList();
                     if (taskEvaluations.Any())
@@ -83,13 +76,6 @@ namespace TaskForge.Repository
                     var subtasks = _context.Subtasks.Where(st => st.TaskId == taskId).ToList();
                     foreach (var subtask in subtasks)
                     {
-                        // Xóa tất cả các bản ghi liên quan trong bảng SubtaskAssignment
-                        var subtaskAssignments = _context.SubtaskAssignments.Where(sa => sa.SubtaskId == subtask.SubtaskId).ToList();
-                        if (subtaskAssignments.Any())
-                        {
-                            _context.SubtaskAssignments.RemoveRange(subtaskAssignments);
-                        }
-
                         // Xóa tất cả các bản ghi liên quan trong bảng SubtaskEvaluation
                         var subtaskEvaluations = _context.SubtaskEvaluations.Where(se => se.SubtaskId == subtask.SubtaskId).ToList();
                         if (subtaskEvaluations.Any())

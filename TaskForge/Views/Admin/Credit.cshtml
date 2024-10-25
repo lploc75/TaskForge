@@ -1,0 +1,168 @@
+﻿@model IPagedList<TaskForge.Models.CreditExchange>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@{
+    Layout = "_AdminLayout";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách các giao dịch CreditExchange</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Danh sách các giao dịch CreditExchange</h2>
+         <!-- Form tìm kiếm -->
+        <form method="get" action="@Url.Action("Credit", "Admin")">
+            <div class="form-row">
+                <!-- Lọc theo AccountId -->
+                <div class="form-group col-md-3">
+                    <label for="accountId">Tìm theo Account ID</label> <!-- Tên của ô lọc -->
+                    <input type="text" id="accountId" name="accountId" class="form-control" placeholder="Nhập Account ID" value="@Context.Request.Query["accountId"]" />
+                </div>
+
+                <!-- Lọc theo khoảng Credit Points -->
+                <div class="form-group col-md-3">
+                    <label for="minCredits">Tín dụng tối thiểu</label> <!-- Tên của ô lọc -->
+                    <input type="number" id="minCredits" name="minCredits" class="form-control" placeholder="Nhập tín dụng tối thiểu" value="@Context.Request.Query["minCredits"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="maxCredits">Tín dụng tối đa</label> <!-- Tên của ô lọc -->
+                    <input type="number" id="maxCredits" name="maxCredits" class="form-control" placeholder="Nhập tín dụng tối đa" value="@Context.Request.Query["maxCredits"]" />
+                </div>
+
+                <!-- Lọc theo khoảng Cash Amount -->
+                <div class="form-group col-md-3">
+                    <label for="minCash">Tiền mặt tối thiểu</label> <!-- Tên của ô lọc -->
+                    <input type="number" id="minCash" name="minCash" class="form-control" placeholder="Nhập số tiền tối thiểu" value="@Context.Request.Query["minCash"]" step="0.01" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="maxCash">Tiền mặt tối đa</label> <!-- Tên của ô lọc -->
+                    <input type="number" id="maxCash" name="maxCash" class="form-control" placeholder="Nhập số tiền tối đa" value="@Context.Request.Query["maxCash"]" step="0.01" />
+                </div>
+
+                <!-- Lọc theo khoảng ngày ExchangeDate -->
+                <div class="form-group col-md-3">
+                    <label for="startDate">Ngày bắt đầu</label> <!-- Tên của ô lọc -->
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="endDate">Ngày kết thúc</label> <!-- Tên của ô lọc -->
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
+                </div>
+
+                <!-- Lọc theo Status -->
+                <div class="form-group col-md-3">
+                    <label for="status">Trạng thái</label> <!-- Tên của ô lọc -->
+                    <select name="status" id="status" class="form-control">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <!-- Nút tìm kiếm -->
+                <div class="form-group col-md-2">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </div>
+
+                <!-- Nút Clear -->
+                <div class="form-group col-md-2">
+                    <a href="@Url.Action("Credit", "Admin")" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+        <!-- Hiển thị bảng danh sách các giao dịch -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Exchange ID</th>
+                    <th>Account ID</th>
+                    <th>Exchange Date</th>
+                    <th>Credit Points Used</th>
+                    <th>Cash Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var exchange in Model)
+                {
+                    <tr>
+                        <td>@exchange.ExchangeId</td>
+                        <td>@exchange.AccountId</td>
+                        <td>@exchange.ExchangeDate.ToString("yyyy-MM-dd")</td>
+                        <td>@exchange.CreditPointsUsed</td>
+                        <td>@exchange.CashAmount</td>
+                        <td>@exchange.Status</td>
+                        <td>
+                            @if (exchange.Status == "Pending")
+                            {
+                                <!-- Nút phê duyệt -->
+                                <form method="post" action="/Admin/UpdateExchangeStatus" style="display:inline;">
+                                    <input type="hidden" name="exchangeId" value="@exchange.ExchangeId" />
+                                    <input type="hidden" name="status" value="Approved" />
+                                    <button type="submit" class="btn btn-success">Approve</button>
+                                </form>
+
+                                <!-- Nút từ chối -->
+                                <form method="post" action="/Admin/UpdateExchangeStatus" style="display:inline;">
+                                    <input type="hidden" name="exchangeId" value="@exchange.ExchangeId" />
+                                    <input type="hidden" name="status" value="Rejected" />
+                                    <button type="submit" class="btn btn-danger">Reject</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span>@exchange.Status</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("Credit", new { page, accountId = Context.Request.Query["accountId"], status = Context.Request.Query["status"], minCredits = Context.Request.Query["minCredits"], maxCredits = Context.Request.Query["maxCredits"], minCash = Context.Request.Query["minCash"], maxCash = Context.Request.Query["maxCash"], startDate = Context.Request.Query["startDate"], endDate = Context.Request.Query["endDate"] }), new PagedListRenderOptions
+            {
+                DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                MaximumPageNumbersToDisplay = 5
+            })
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            // Tìm thông báo thành công và lỗi
+            var successMessage = document.getElementById("successMessage");
+            var errorMessage = document.getElementById("errorMessage");
+
+            // Nếu thông báo thành công tồn tại, ẩn nó sau 5 giây
+            if (successMessage && successMessage.textContent.trim() !== "") {
+                setTimeout(function () {
+                    successMessage.style.display = 'none'; // Ẩn thông báo
+                }, 5000); // 5000ms = 5 giây
+            }
+
+            // Nếu thông báo lỗi tồn tại, ẩn nó sau 5 giây
+            if (errorMessage && errorMessage.textContent.trim() !== "") {
+                setTimeout(function () {
+                    errorMessage.style.display = 'none'; // Ẩn thông báo
+                }, 5000); // 5000ms = 5 giây
+            }
+        };
+    </script>
+
+</body>
+</html>

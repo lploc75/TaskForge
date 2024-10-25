@@ -18,7 +18,14 @@
     <div class="exchange-info">
         <h1 class="highlighted-text">READY TO REDEEM CASH?</h1>
         <p>Convert your points to cash in just a couple of steps.</p>
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success" id="successMessage">
+                @TempData["Message"]
+            </div>
+        }
         <form method="post" action="/Staff/SubmitExchange">
+            <input type="hidden" name="availableCredits" value="@availableCredits" /> <!-- Thêm hidden input này -->
             <!-- First Section: Total Reward Points -->
             <div class="total-reward-points">
                 <div class="reward-points-box">
@@ -55,9 +62,10 @@
 
             <!-- Redeem Button -->
             <div class="redeem-button">
-                <button type="submit" class="btn-redeem-points" id="redeemButton" disabled>REDEEM POINTS</button>
+                <button type="submit" class="btn-redeem-points" id="redeemButton">REDEEM POINTS</button>
             </div>
         </form>
+
     </div>
     <div class="exchange-image">
         <img src="~/imgs/exchange.png" alt="Reward Image">
@@ -264,17 +272,10 @@
 <script>
     document.getElementById('pointsToRedeem').addEventListener('input', function () {
         var points = this.value;  // Lấy giá trị từ ô nhập điểm
-        var redeemButton = document.getElementById('redeemButton');  // Lấy nút redeem
-
-        // Kiểm tra số điểm hợp lệ
-        if (points >= 100) {
-            redeemButton.disabled = false;  // Bật nút redeem nếu số điểm >= 100
-        } else {
-            redeemButton.disabled = true;  // Vô hiệu hóa nút redeem nếu số điểm < 100
-        }
 
         // Tính giá trị tiền mặt từ điểm (giả sử mỗi điểm = 0.5 USD)
         var cashEquivalent = (points * 0.5).toFixed(2);  // Tính toán giá trị quy đổi ra tiền mặt
         document.getElementById('pointsWorth').value = cashEquivalent;  // Cập nhật giá trị hiển thị
     });
 </script>
+
