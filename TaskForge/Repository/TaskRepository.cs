@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaskForge.Models;
 using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskForge.Repository
 {
@@ -18,14 +19,20 @@ namespace TaskForge.Repository
         // Lấy tất cả các task theo ProjectId
         public List<TaskForge.Models.Task> GetTasksByProjectId(int projectId)
         {
+            // Bao gồm cả bảng trung gian DepartmentTask và Department khi truy vấn các task
             return _context.Tasks
                 .Where(t => t.ProjectId == projectId)
+                .Include(t => t.DepartmentTasks) // Bao gồm bảng trung gian
+                    .ThenInclude(dt => dt.Dept)  // Bao gồm bảng Department từ bảng trung gian
                 .ToList();
         }
-        // Lấy Task theo Id
+        // Lấy Task theo Id, bao gồm thông tin phòng ban
         public TaskForge.Models.Task GetTaskById(string taskId)
         {
-            return _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+            return _context.Tasks
+                .Include(t => t.DepartmentTasks)  // Bao gồm bảng DepartmentTask
+                    .ThenInclude(dt => dt.Dept)   // Bao gồm bảng Department
+                .FirstOrDefault(t => t.TaskId == taskId);
         }
         // Cập nhật Task
         public void UpdateTask(TaskForge.Models.Task task)
@@ -123,7 +130,6 @@ namespace TaskForge.Repository
                 }
             }
         }
-
 
         // Thêm một task mới vào dự án
         public void CreateTask(TaskForge.Models.Task task, List<string> departmentIds)
