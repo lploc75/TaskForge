@@ -50,6 +50,29 @@ namespace TaskForge.Repository
                 throw new KeyNotFoundException("Task not found");
             }
         }
+        public void RemoveSubtaskAssignment(string subtaskId)
+        {
+            // Tìm và xóa bản ghi SubtaskAssignment dựa trên subtaskId
+            var assignment = _context.SubtaskAssignments
+                .FirstOrDefault(sa => sa.SubtaskId == subtaskId);
+
+            if (assignment != null)
+            {
+                _context.SubtaskAssignments.Remove(assignment);
+            }
+
+            // Tìm và cập nhật trạng thái của Subtask thành "Not Assign"
+            var subtask = _context.Subtasks
+                .FirstOrDefault(s => s.SubtaskId == subtaskId);
+
+            if (subtask != null)
+            {
+                subtask.Status = "Not Assign";
+            }
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            _context.SaveChanges();
+        }
 
         // Xóa Task
         public void DeleteTask(string taskId)
@@ -206,41 +229,14 @@ namespace TaskForge.Repository
             _context.PersonalTasks.Add(ptask);
             _context.SaveChanges();
         }
-        // Lấy danh sách Subtask đã lọc từ cơ sở dữ liệu cho người dùng
-        public async Task<List<Subtask>> GetFilteredSubtasksForUserAsync(string accountId, string status, string priority, string difficulty, DateTime? deadline)
+        public List<Subtask> GetAllSubtasks()
         {
-            // Join giữa Subtask và SubtaskAssignment để lấy các subtask được giao cho người dùng cụ thể
-            var query = from subtask in _context.Subtasks
-                        join assignment in _context.SubtaskAssignments
-                        on subtask.SubtaskId equals assignment.SubtaskId
-                        where assignment.AssignedTo == accountId
-                        select subtask;
-
-            // Các điều kiện lọc
-            if (!string.IsNullOrEmpty(status))
-            {
-                query = query.Where(t => t.Status == status);
-            }
-
-            if (!string.IsNullOrEmpty(priority))
-            {
-                query = query.Where(t => t.Priority == int.Parse(priority));
-            }
-
-            if (!string.IsNullOrEmpty(difficulty))
-            {
-                query = query.Where(t => t.Difficulty == int.Parse(difficulty));
-            }
-
-            if (deadline.HasValue)
-            {
-                query = query.Where(t => t.Deadline <= deadline);
-            }
-
-            return await query.ToListAsync();
+            return _context.Subtasks.OrderByDescending(s => s.AssignmentDate).ToList();
         }
-
-
+        public List<PersonalTask> GetAllPersonalTasks()
+        {
+            return _context.PersonalTasks.OrderByDescending(s => s.AssignmentDate).ToList();
+        }
         // Lấy danh sách PersonalTask đã lọc từ cơ sở dữ liệu cho người dùng
         public async Task<List<PersonalTask>> GetFilteredPersonalTasksForUserAsync(string accountId, string status, string priority, DateTime? deadline)
         {
@@ -263,6 +259,49 @@ namespace TaskForge.Repository
 
             return await query.ToListAsync();
         }
+        public List<Subtask> GetSubtasksByTeam(string teamId)
+        {
+            return _context.Set<Subtask>()
+                           .Where(s => s.TeamId == teamId)
+                           .Include(s => s.SubtaskAssignments)
+                           .ToList();
+        }
+        public void AssignSubtask(string subtaskId, string assignedTo, string createdBy)
+        {
+            var subtask = _context.Set<Subtask>().Find(subtaskId);
 
+            if (subtask != null && subtask.Status == "Not Assign")
+            {
+                var assignment = new SubtaskAssignment
+                {
+                    SubtaskId = subtaskId,
+                    CreatedBy = createdBy,
+                    AssignedTo = assignedTo
+                };
+                _context.Set<SubtaskAssignment>().Add(assignment);
+
+                subtask.Status = "Not Start";
+                _context.SaveChanges();
+            }
+        }
+
+        public void UnassignSubtask(string subtaskId)
+        {
+            var assignment = _context.Set<SubtaskAssignment>()
+                                     .FirstOrDefault(sa => sa.SubtaskId == subtaskId);
+
+            if (assignment != null)
+            {
+                _context.Set<SubtaskAssignment>().Remove(assignment);
+
+                var subtask = _context.Set<Subtask>().Find(subtaskId);
+                if (subtask != null)
+                {
+                    subtask.Status = "Not Assign";
+                }
+
+                _context.SaveChanges();
+            }
+        }
     }
 }

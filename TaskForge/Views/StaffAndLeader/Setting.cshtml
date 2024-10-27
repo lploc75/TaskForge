@@ -1,8 +1,8 @@
-﻿@*
-*@
+﻿
 @{
     ViewData["Title"] = "Settings";
-    Layout = "_StaffLayout";
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -121,7 +121,7 @@
 
             @if (Model != null && Model.Account != null)
             {
-                <form method="post" action="/Staff/UpdateProfile">
+                <form method="post" action="/StaffAndLeader/UpdateProfile">
                     <input type="hidden" name="AccountId" value="@Model.AccountId" />
 
                     <!-- Hidden fields to preserve required Account fields -->

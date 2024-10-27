@@ -1,5 +1,6 @@
 ﻿@{
-    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
     var availableCredits = ViewData["AvailableCredits"] != null ? (int)ViewData["AvailableCredits"] : 0;
     var cashEquivalent = ViewData["CashEquivalent"] != null ? (decimal)ViewData["CashEquivalent"] : 0m;
 }
@@ -24,7 +25,7 @@
                 @TempData["Message"]
             </div>
         }
-        <form method="post" action="/Staff/SubmitExchange">
+        <form method="post" action="/StaffAndLeader/SubmitExchange">
             <input type="hidden" name="availableCredits" value="@availableCredits" /> <!-- Thêm hidden input này -->
             <!-- First Section: Total Reward Points -->
             <div class="total-reward-points">

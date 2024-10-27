@@ -1,0 +1,92 @@
+﻿@model IPagedList<TaskForge.Models.Employee>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@{
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Nhân viên</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="~/css/staff/taskFilter.css" rel="stylesheet" />
+    <style>
+        .btn-primary {
+            background-color: #36b9cc; /* Màu xanh dương tùy chỉnh */
+            border-color: #36b9cc;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a9aa8; /* Darker blue on hover */
+            border-color: #2a9aa8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Danh sách Nhân viên</h2>
+
+        <!-- Form tìm kiếm -->
+        <form method="get" action="@Url.Action("LeaderViewStaffList", "StaffAndLeader")">
+            <div class="form-row">
+                <!-- Lọc theo Account ID -->
+                <div class="form-group col-md-3">
+                    <label for="accountId">Tìm theo Account ID</label>
+                    <input type="text" id="accountId" name="accountId" class="form-control" placeholder="Nhập Account ID" value="@ViewBag.AccountId" />
+                </div>
+
+                <!-- Lọc theo Full Name -->
+                <div class="form-group col-md-3">
+                    <label for="fullname">Tên Nhân viên</label>
+                    <input type="text" id="fullname" name="fullname" class="form-control" placeholder="Nhập Tên Nhân viên" value="@ViewBag.Fullname" />
+                </div>
+
+                <!-- Nút tìm kiếm -->
+                <div class="form-group col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                    <a href="@Url.Action("LeaderViewStaffList", "StaffAndLeader")" class="btn btn-secondary ml-2">Clear</a>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Hiển thị bảng danh sách các nhân viên -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Account ID</th>
+                    <th>Full Name</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var staff in Model)
+                {
+                    <tr>
+                        <td>@staff.AccountId</td>
+                        <td>@staff.Fullname</td>
+                        <td>@staff.Role</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("LeaderViewStaffList", new { page, accountId = ViewBag.AccountId, fullname = ViewBag.Fullname }), new PagedListRenderOptions
+       {
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+</body>
+</html>

@@ -1,11 +1,11 @@
-﻿function checkIfSubmit(event, title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description) {
+﻿function checkIfSubmit(event, title, subtaskId, assignedDate, deadline, submissionDate, priority, difficulty, status, description, taskId, teamId) {
     // Kiểm tra nếu phần tử được click là nút submit
     if (event.target.tagName === 'BUTTON' && event.target.type === 'submit') {
         return; // Không làm gì nếu là nút submit
     }
 
     // Nếu không phải nút submit, mở modal
-    openSubtaskModal(title, assigner, assignedDate, deadline, submissionDate, priority, difficulty, status, description);
+    openSubtaskModal(title, subtaskId, assignedDate, deadline, submissionDate, priority, difficulty, status, description, taskId, teamId);
 }
 function checkIfPTaskSubmit(event, title, assignedDate, deadline, priority, status, description) {
     // Kiểm tra nếu phần tử được click là nút submit
@@ -17,24 +17,26 @@ function checkIfPTaskSubmit(event, title, assignedDate, deadline, priority, stat
     openPersonalTaskModal(title, assignedDate, deadline, priority, status, description);
 }
 
-    function openSubtaskModal(title, assigner, assignedDate, deadline ,submissionDate, priority, difficulty, status, description) {
-            const reward = difficulty * 10; // Tính phần thưởng dựa trên độ khó
-    // Gán các giá trị cho modal
+function openSubtaskModal(title, subtaskId, assignedDate, deadline, submissionDate, priority, difficulty, status, description, taskId, teamId) {
+    const reward = difficulty * 10;
+
     document.getElementById('modalTitle').innerText = title;
-    document.getElementById('modalAssigner').innerText = `Assigner: ${assigner}`;
+    document.getElementById('modalSubtaskId').innerText = `Subtask ID: ${subtaskId}`;
+    document.getElementById('modalTaskId').innerText = `Task ID: ${taskId}`;
+    document.getElementById('modalTeamId').innerText = `Team ID: ${teamId}`;
     document.getElementById('modalAssignedDate').innerText = `Assigned Date: ${assignedDate}`;
     document.getElementById('modalDueDate').innerText = `Deadline: ${deadline}`;
     document.getElementById('modalSubmissionDate').innerText = `Submission Date: ${submissionDate}`;
     document.getElementById('modalReward').innerText = `Reward: ${reward} Credits`;
-    document.getElementById('modalContent').innerHTML = `
-    <p>Priority: ${priority}</p>
-    <p>Difficulty: ${difficulty}</p>
-    <p>Status: ${status}</p>
-    <p>Description: ${description}</p>
-    `;
-    // Hiển thị modal
+
+    document.getElementById('modalPriority').innerText = priority;
+    document.getElementById('modalDifficulty').innerText = difficulty;
+    document.getElementById('modalStatus').innerText = status;
+    document.getElementById('modalDescription').innerText = description;
+
     document.getElementById('taskModal').style.display = 'flex';
 }
+
 
 // Open modal for Personal Task
 function openPersonalTaskModal(title, assignedDate, deadline, priority, status, description) {
@@ -118,6 +120,10 @@ function confirmAcceptTask() {
 // Hàm xác nhận khi accept task
 function confirmDeletePersonalTask() {
     return confirm("Are you sure you want to delete this task?'");
+}
+// Hàm xác nhận khi reject task
+function confirmRejectTask() {
+    return confirm("Are you sure you want to reject this task?");
 }
 // Chờ cho trang load xong
 window.onload = function () {

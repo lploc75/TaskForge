@@ -12,11 +12,13 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <ul>
-            <li><a asp-controller="Leader" asp-action="Index"><i class="material-icons">home</i> Dashboard</a></li>
-            <li><a asp-controller="Leader" asp-action="Task"><i class="material-icons">task</i>Task</a></li>
-            <li><a asp-controller="Leader" asp-action="Project"><i class="material-icons">dashboard</i>Project</a></li>
-            <li><a asp-controller="Leader" asp-action="Setting"><i class="material-icons">settings</i>Setting</a></li>
-            <li><a href="#"><i class="material-icons">shopping_cart</i> Exchange</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="Index"><i class="material-icons">home</i> Dashboard</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="Task"><i class="material-icons">task</i> Task</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="LeaderAssignTask"><i class="material-icons">assignment</i> Assign Task</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="LeaderViewStaffList"><i class="material-icons">group</i> Staff List</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="Project"><i class="material-icons">dashboard</i> Project</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="Setting"><i class="material-icons">settings</i> Setting</a></li>
+            <li><a asp-controller="StaffAndLeader" asp-action="Exchange"><i class="material-icons">shopping_cart</i> Exchange</a></li>
             <li><a asp-controller="Account" asp-action="Login"><i class="material-icons">logout</i> Logout</a></li>
         </ul>
     </div>

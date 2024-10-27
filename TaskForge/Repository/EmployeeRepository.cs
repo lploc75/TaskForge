@@ -153,5 +153,40 @@ namespace TaskForge.Repository
             return _context.PersonalTasks.Find(id);
         }
 
+        public List<Employee> GetStaffByTeam(string teamId)
+        {
+            return _context.Set<Employee>()
+                           .Where(e => e.Teams.Any(t => t.TeamId == teamId) && e.Role == "Staff")
+                           .ToList();
+        }
+        // Phương thức lấy team_id dựa trên account_id của nhân viên
+        public string GetTeamIdByAccountId(string accountId)
+        {
+            var team = _context.Set<Employee>()
+                               .Where(e => e.AccountId == accountId)
+                               .SelectMany(e => e.Teams)
+                               .FirstOrDefault();
+
+            return team?.TeamId; // Trả về team_id nếu tìm thấy, ngược lại là null
+        }
+        public string GetDepartmentHeadBySubtaskId(string subtaskId)
+        {
+            // Truy vấn để lấy thông tin của Department Head (created_by)
+            var createdBy = (from s in _context.Subtasks
+                             join dt in _context.DepartmentTasks on s.TaskId equals dt.TaskId
+                             join e in _context.Employees on dt.DeptId equals e.DeptId
+                             where s.SubtaskId == subtaskId && e.Role == "Department Head"
+                             select e.AccountId).FirstOrDefault();
+
+            return createdBy;
+        }
+
+        public List<Employee> GetStaffByTeamId(string teamId)
+        {
+            // Lấy danh sách nhân viên có cùng teamId và role là "Staff"
+            return _context.Employees
+                .Where(e => e.Teams.Any(t => t.TeamId == teamId) && e.Role == "Staff")
+                .ToList();
+        }
     }
 }

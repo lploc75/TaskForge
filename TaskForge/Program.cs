@@ -90,7 +90,7 @@ namespace TaskForge
             // Thiết lập route mặc định cho ứng dụng
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Staff}/{action=Index}/{id?}");
+                pattern: "{controller=Account}/{action=Login}/{id?}");
 
             app.Run();
         }

@@ -1,0 +1,50 @@
+﻿/* Đảm bảo phần container chiếm toàn bộ chiều rộng */
+.container, .main-content {
+    width: 100%;
+    padding: 0 20px; /* Giữ lại một ít padding hai bên nếu cần */
+    margin: 0 auto; /* Căn giữa nội dung nếu cần */
+}
+.search-buttons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Styling for Search Button */
+#search-button {
+    background-color: #36b9cc; /* Light blue for search */
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    #search-button:hover {
+        background-color: #2a9aa8; /* Darker blue on hover */
+    }
+
+/* Styling for Clear Button */
+#clear-button {
+    background-color: #6c757d; /* Gray color for clear button */
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    #clear-button:hover {
+        background-color: #5a6268; /* Darker gray on hover */
+    }
+
+.table-striped th {
+    background-color: #36b9cc;
+    color: #ffffff;
+    font-weight: bold;
+}

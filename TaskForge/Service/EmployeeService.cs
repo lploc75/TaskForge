@@ -128,5 +128,18 @@ namespace TaskForge.Service
 
             return creditExchange.ExchangeId; // Return the exchange_id
         }
+        public string GetTeamIdByAccountId(string accountId)
+        {
+            return _employeeRepository.GetTeamIdByAccountId(accountId);
+        }
+        public string GetDepartmentHeadBySubtaskId(string subtaskId)
+        {
+            return _employeeRepository.GetDepartmentHeadBySubtaskId(subtaskId);
+        }
+        public List<Employee> GetStaffByTeamId(string teamId)
+        {
+            // Gọi phương thức trong Repository để lấy danh sách nhân viên cùng teamId
+            return _employeeRepository.GetStaffByTeamId(teamId);
+        }
     }
 }

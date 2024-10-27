@@ -1,0 +1,123 @@
+﻿@model IPagedList<TaskForge.Models.PersonalTask>
+
+@{
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+}
+
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Task List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="~/css/staff/taskFilter.css" rel="stylesheet" />
+</head>
+<body>
+    <h2>Personal Task List</h2>
+
+    <div class="container">
+
+        <!-- Search Form -->
+        <form method="get" action="@Url.Action("PersonalTaskFilter", "StaffAndLeader")">
+            <div class="form-row">
+                <!-- Status -->
+                <div class="form-group col-md-3">
+                    <label for="status">Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">All</option>
+                        <option value="Completed">Completed</option>
+                        <option value="In Progress">In Progress</option>
+                    </select>
+                </div>
+
+                <!-- Priority -->
+                <div class="form-group col-md-3">
+                    <label for="priority">Priority</label>
+                    <input type="number" name="priority" min="1" max="4" class="form-control" placeholder="Priority from 1 to 4" value="@Context.Request.Query["priority"]" />
+                </div>
+
+                <!-- Assignment Date -->
+                <div class="form-group col-md-3">
+                    <label for="assignmentDateMin">Assignment Date From</label>
+                    <input type="date" name="assignmentDateMin" class="form-control" value="@Context.Request.Query["assignmentDateMin"]" />
+                    <input type="date" name="assignmentDateMax" class="form-control" value="@Context.Request.Query["assignmentDateMax"]" placeholder="To" />
+                </div>
+
+                <!-- Deadline -->
+                <div class="form-group col-md-3">
+                    <label for="deadlineMin">Deadline From</label>
+                    <input type="date" name="deadlineMin" class="form-control" value="@Context.Request.Query["deadlineMin"]" />
+                    <input type="date" name="deadlineMax" class="form-control" value="@Context.Request.Query["deadlineMax"]" placeholder="To" />
+                </div>
+
+                <!-- Search and Clear Buttons with custom CSS -->
+                <div class="form-group col-md-4 search-buttons">
+                    <button type="submit" class="btn" id="search-button">Search</button>
+                    <a href="@Url.Action("PersonalTaskFilter", "StaffAndLeader")" class="btn" id="clear-button">Clear</a>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Display Personal Task List -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Personal Task ID</th>
+                    <th>Personal Task Name</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Assignment Date</th>
+                    <th>Deadline</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ptask in Model)
+                {
+                    <tr>
+                        <td>@ptask.PtaskId</td>
+                        <td>@ptask.PtaskName</td>
+                        <td>@ptask.Status</td>
+                        <td>@ptask.Priority</td>
+                        <td>@ptask.AssignmentDate?.ToString("yyyy-MM-dd")</td>
+                        <td>@ptask.Deadline?.ToString("yyyy-MM-dd")</td>
+                        <td>@ptask.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("PersonalTaskFilter", new
+                {
+                    page,
+                    status = Context.Request.Query["status"],
+                    priority = Context.Request.Query["priority"],
+                    assignmentDateMin = Context.Request.Query["assignmentDateMin"],
+                    assignmentDateMax = Context.Request.Query["assignmentDateMax"],
+                    deadlineMin = Context.Request.Query["deadlineMin"],
+                    deadlineMax = Context.Request.Query["deadlineMax"]
+                }), new PagedListRenderOptions
+       {
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

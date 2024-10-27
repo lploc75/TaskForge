@@ -1,0 +1,172 @@
+﻿@model IPagedList<TaskForge.Models.Subtask>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@{
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Subtasks</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="~/css/staff/taskFilter.css" rel="stylesheet" />
+    <style>
+        .btn-primary {
+            background-color: #36b9cc; /* Màu xanh dương tùy chỉnh */
+            border-color: #36b9cc;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a9aa8; /* Darker blue on hover */
+            border-color: #2a9aa8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Assign Subtasks</h2>
+        <!-- Form tìm kiếm -->
+        <form method="get" action="@Url.Action("LeaderAssignTask", "StaffAndLeader")">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="subtaskId">Tìm theo Subtask ID</label>
+                    <input type="text" id="subtaskId" name="subtaskId" class="form-control" placeholder="Nhập Subtask ID" value="@Context.Request.Query["subtaskId"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="subtaskName">Tên Subtask</label>
+                    <input type="text" id="subtaskName" name="subtaskName" class="form-control" placeholder="Nhập tên Subtask" value="@Context.Request.Query["subtaskName"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="status">Trạng thái</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Not Assign">Not Assign</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="priority">Độ ưu tiên</label>
+                    <input type="number" id="priority" name="priority" class="form-control" placeholder="Nhập độ ưu tiên" value="@Context.Request.Query["priority"]" min="1" max="4" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="difficulty">Độ khó</label>
+                    <input type="number" id="difficulty" name="difficulty" class="form-control" placeholder="Nhập độ khó" value="@Context.Request.Query["difficulty"]" min="1" max="4" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="startDate">Ngày bắt đầu</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="endDate">Ngày kết thúc</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
+                </div>
+                <!-- Nút tìm kiếm -->
+                <div class="form-group col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                    <a href="@Url.Action("LeaderAssignTask", "StaffAndLeader")" class="btn btn-secondary ml-2">Clear</a>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Hiển thị bảng danh sách các Subtasks -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Subtask ID</th>
+                    <th>Subtask Name</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Difficulty</th>
+                    <th>Assignment Date</th>
+                    <th>Deadline</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var subtask in Model)
+                {
+                    <tr>
+                        <td>@subtask.SubtaskId</td>
+                        <td>@subtask.SubtaskName</td>
+                        <td>@subtask.Status</td>
+                        <td>@subtask.Priority</td>
+                        <td>@subtask.Difficulty</td>
+                        <td>@subtask.AssignmentDate?.ToString("yyyy-MM-dd")</td>
+                        <td>@subtask.Deadline?.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            @if (subtask.SubtaskAssignments?.FirstOrDefault()?.AssignedToNavigation != null)
+                            {
+                                @subtask.SubtaskAssignments.FirstOrDefault().AssignedToNavigation.Fullname
+                            }
+                            else
+                            {
+                                <span>Unassigned</span>
+                            }
+                        </td>
+                        <td>
+                            @if (subtask.Status == "Not Assign")
+                            {
+                                <!-- Form để gán nhân viên -->
+                                <form asp-action="AssignSubtask" method="post" style="display:inline;" onsubmit="return confirmAssignTask()">
+                                    <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                    <input type="text" name="assignedTo" id="assignedTo" class="form-control" 
+                                    style="width:auto; display:inline-block;" placeholder="Enter Staff ID" />
+                                    <button type="submit" class="btn btn-primary">Assign</button>
+                                </form>
+                            }
+                            else if(subtask.Status == "Not Start") 
+                            {
+                                <!-- Form để bỏ gán nhân viên -->
+                                <form asp-action="UnassignSubtask" method="post" style="display:inline;" onsubmit="return confirmUnassignTask()">
+                                    <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                    <button type="submit" class="btn btn-danger">Unassign</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("LeaderAssignTask", new
+                {
+                    page,
+                    subtaskId = Context.Request.Query["subtaskId"],
+                    subtaskName = Context.Request.Query["subtaskName"],
+                    status = Context.Request.Query["status"],
+                    priority = Context.Request.Query["priority"],
+                    difficulty = Context.Request.Query["difficulty"],
+                    startDate = Context.Request.Query["startDate"],
+                    endDate = Context.Request.Query["endDate"]
+                }), new PagedListRenderOptions
+       {
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+    <script>
+        function confirmAssignTask() {
+            return confirm("Are you sure you want to assign this task?");
+        }
+
+        function confirmUnassignTask() {
+            return confirm("Are you sure you want to unassign this task?");
+        }
+    </script>
+</body>
+</html>

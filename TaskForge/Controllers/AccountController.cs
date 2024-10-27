@@ -112,14 +112,24 @@ namespace TaskForge.Controllers
                 };
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+                
+                // Lưu layout vào session dựa trên role
+                if (role == "Leader")
+                {
+                    HttpContext.Session.SetString("Layout", "_LeaderLayout");
+                }
+                else if (role == "Staff")
+                {
+                    HttpContext.Session.SetString("Layout", "_StaffLayout");
+                }
 
                 // Chuyển hướng dựa trên Role
                 return role switch
                 {
-                    "Staff" => RedirectToAction("Index", "Staff"),
+                    "Staff" => RedirectToAction("Index", "StaffAndLeader"),
                     "Admin" => RedirectToAction("Index", "Admin"),
                     "Manager" => RedirectToAction("Index", "Manager"),
-                    "Leader" => RedirectToAction("Index", "Leader"),
+                    "Leader" => RedirectToAction("Index", "StaffAndLeader"),
                     "Department Head" => RedirectToAction("Index", "DepartmentHead"),
                     _ => RedirectToAction("Index", "Home") // Mặc định về trang chủ nếu không khớp role
                 };
@@ -135,6 +145,7 @@ namespace TaskForge.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("Layout"); // Xóa layout trong session
             return RedirectToAction("Login", "Account");
         }
         [HttpPost]

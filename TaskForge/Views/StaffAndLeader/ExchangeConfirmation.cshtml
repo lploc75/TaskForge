@@ -1,5 +1,6 @@
 ﻿@{
-    Layout = "_StaffLayout";
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
     var cashEquivalent = ViewData["CashEquivalent"] != null ? (decimal)ViewData["CashEquivalent"] : 0m;
     var exchangeId = ViewData["ExchangeId"] != null ? (int)ViewData["ExchangeId"] : 0;
 }

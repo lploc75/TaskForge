@@ -1,0 +1,156 @@
+﻿@model IPagedList<TaskForge.Models.Subtask>
+
+@{
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+}
+
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subtask List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="~/css/staff/taskFilter.css" rel="stylesheet" />
+</head>
+<body>
+    <h2>Subtask List</h2>
+
+    <div class="container">
+
+        <!-- Search Form -->
+        <form method="get" action="@Url.Action("TaskFilter", "StaffAndLeader")">
+            <div class="form-row">
+                <!-- Status -->
+                <div class="form-group col-md-3">
+                    <label for="status">Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">All</option>
+                        <option value="Completed">Completed</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Not Start">Not Start</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+
+                <!-- Priority and Difficulty -->
+                <div class="form-group col-md-3">
+                    <label for="priority">Priority</label>
+                    <input type="number" name="priority" min="1" max="4" class="form-control" placeholder="Priority from 1 to 4" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="difficulty">Difficulty</label>
+                    <input type="number" name="difficulty" min="1" max="4" class="form-control" placeholder="Difficulty from 1 to 4" />
+                </div>
+
+                <!-- Submission -->
+                <div class="form-group col-md-3">
+                    <label for="submission">Submission</label>
+                    <select name="submission" id="submission" class="form-control">
+                        <option value="">All</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <!-- Task ID and Team ID -->
+                <div class="form-group col-md-3">
+                    <label for="taskId">Task ID</label>
+                    <input type="text" name="taskId" class="form-control" placeholder="Enter Task ID" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="teamId">Team ID</label>
+                    <input type="text" name="teamId" class="form-control" placeholder="Enter Team ID" />
+                </div>
+
+                <!-- Assignment Date and Deadline -->
+                <div class="form-group col-md-3">
+                    <label for="assignmentDate">Assignment Date From</label>
+                    <input type="date" name="assignmentDateMin" class="form-control" />
+                    <input type="date" name="assignmentDateMax" class="form-control mt-1" placeholder="To" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="deadline">Deadline From</label>
+                    <input type="date" name="deadlineMin" class="form-control" />
+                    <input type="date" name="deadlineMax" class="form-control mt-1" placeholder="To" />
+                </div>
+
+                <!-- Search and Clear Buttons with custom CSS -->
+                <div class="form-group col-md-4 search-buttons">
+                    <button type="submit" class="btn" id="search-button">Search</button>
+                    <a href="@Url.Action("PersonalTaskFilter", "StaffAndLeader")" class="btn" id="clear-button">Clear</a>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Display Subtask List -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Subtask ID</th>
+                    <th>Team ID</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Difficulty</th>
+                    <th>Assignment Date</th>
+                    <th>Deadline</th>
+                    <th>Submission</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var subtask in Model)
+                {
+                    <tr>
+                        <td>@subtask.SubtaskId</td>
+                        <td>@subtask.TeamId</td>
+                        <td>@subtask.Status</td>
+                        <td>@subtask.Priority</td>
+                        <td>@subtask.Difficulty</td>
+                        <td>@subtask.AssignmentDate?.ToString("yyyy-MM-dd")</td>
+                        <td>@subtask.Deadline?.ToString("yyyy-MM-dd")</td>
+                        <td>@(subtask.SubmissionDate.HasValue ? "Yes" : "No")</td>
+                        <td>@subtask.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("TaskFilter", new
+                {
+                    page,
+                    status = Context.Request.Query["status"],
+                    priority = Context.Request.Query["priority"],
+                    difficulty = Context.Request.Query["difficulty"],
+                    assignmentDateMin = Context.Request.Query["assignmentDateMin"],
+                    assignmentDateMax = Context.Request.Query["assignmentDateMax"],
+                    deadlineMin = Context.Request.Query["deadlineMin"],
+                    deadlineMax = Context.Request.Query["deadlineMax"],
+                    submission = Context.Request.Query["submission"],
+                    taskId = Context.Request.Query["taskId"],
+                    teamId = Context.Request.Query["teamId"]
+                }), new PagedListRenderOptions
+       {
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

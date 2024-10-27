@@ -1,7 +1,8 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Task";
-    Layout = "_StaffLayout";
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+
     var subtasks = ViewBag.Subtasks as List<TaskForge.Models.Subtask>;
     var personalTasks = ViewBag.PersonalTasks as List<TaskForge.Models.PersonalTask>;
 }
@@ -34,59 +35,15 @@
                 <i class="fas fa-plus"></i> Create Personal Task
             </button>
         </div>
-
+        <p class="filtered-tasks-message">
+            Completed task displayed on this page is limited to 10 tasks. To view more, please click the "Filter" button.
+        </p>
         <div class="FilteredTasks">
-            <!-- Filter Form -->
-            <form asp-action="FilteredTasks" method="get">
-                <div class="form-group">
-                    <label for="taskType">Task Type</label>
-                    <select id="taskType" name="taskType" class="form-control" onchange="toggleDifficultyField()">
-                        <option value="all">All</option>
-                        <option value="personal">Personal Task</option>
-                        <option value="subtask">Subtask</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select id="status" name="status" class="form-control">
-                        <option value="">All</option>
-                        <option value="Completed">Completed</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Not Start">Not Start</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="priority">Priority</label>
-                    <select id="priority" name="priority" class="form-control">
-                        <option value="">All</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </select>
-                </div>
-
-                <!-- Difficulty Field -->
-                <div class="form-group" id="difficultyField">
-                    <label for="difficulty">Difficulty</label>
-                    <select id="difficulty" name="difficulty" class="form-control">
-                        <option value="">All</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="deadline">Deadline</label>
-                    <input type="date" id="deadline" name="deadline" class="form-control" />
-                </div>
-
-                <button type="submit" class="btn btn-primary">Filter</button>
+            <form method="get" action="/StaffAndLeader/TaskFilter">
+                <button type="submit" class="btn btn-primary">Filter Tasks</button>
+            </form>
+            <form method="get" action="/StaffAndLeader/PersonalTaskFilter">
+                <button type="submit" class="btn btn-primary">Filter Personal Tasks</button>
             </form>
         </div>
 
@@ -99,22 +56,23 @@
             <div class="task-list" id="inProgressTaskList" style="display: block;">
                 @foreach (var subtask in subtasks.Where(s => s.Status == "In Progress"))
                 {
-                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', '@subtask.SubtaskId','@subtask.AssignmentDate',
                     '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
-                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description', '@subtask.TaskId',
+                    '@subtask.TeamId')">
                         <div class="task-info">
                             <span class="task-title">@subtask.SubtaskName</span>
                             <span class="task-status">(@subtask.Status)</span>
                         </div>
                         <div class="button-container">
                             <!-- Form để Submit Task -->
-                            <form method="post" action="/Staff/UpdateSubtaskStatus" onsubmit="return confirmSubmitTask()">
+                            <form method="post" action="/StaffAndLeader/UpdateSubtaskStatus" onsubmit="return confirmSubmitTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="Pending" />
                                 <button type="submit" class="button">Submit Task</button>
                             </form>
                             <!-- Form để Upload File -->
-                            <form method="get" action="/Staff/UploadFile">
+                            <form method="get" action="/StaffAndLeader/UploadFile">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <button type="submit" class="button">Upload File</button>
                             </form>
@@ -144,12 +102,12 @@
                             <button class="button" onclick="openUpdatePersonalTaskModal('@personalTask.PtaskId', 
                             '@personalTask.PtaskName', '@personalTask.AssignmentDate', '@personalTask.Deadline', 
                             '@personalTask.Priority', '@personalTask.Description');">Update</button>
-                            <form method="post" action="/Staff/UpdatePersonalTaskStatus" onsubmit="return confirmUnsubmitTask()">
+                            <form method="post" action="/StaffAndLeader/UpdatePersonalTaskStatus" onsubmit="return confirmUnsubmitTask()">
                                 <input type="hidden" name="PtaskId" value="@personalTask.PtaskId" />
                                 <input type="hidden" name="status" value="@personalTask.Status" />
                                 <button type="submit" class="button">Change status</button>
                             </form>
-                            <form method="post" action="/Staff/DeletePersonalTask" onsubmit="return confirmDeletePersonalTask()">
+                            <form method="post" action="/StaffAndLeader/DeletePersonalTask" onsubmit="return confirmDeletePersonalTask()">
                                 <input type="hidden" name="PtaskId" value="@personalTask.PtaskId" />
                                 <button type="submit" class="button">Delete</button>
                             </form>
@@ -168,18 +126,23 @@
             <div class="task-list" id="notStartedTaskList" style="display: none;">
                 @foreach (var subtask in subtasks.Where(s => s.Status == "Not Start"))
                 {
-                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', '@subtask.SubtaskId','@subtask.AssignmentDate',
                     '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
-                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description', '@subtask.TaskId',
+                    '@subtask.TeamId')">
                         <div class="task-info">
                             <span class="task-title">@subtask.SubtaskName</span>
                             <span class="task-status">(@subtask.Status)</span>
                         </div>
                         <div class="button-container">
-                            <form method="post" action="/Staff/UpdateSubtaskStatus" onsubmit="return confirmAcceptTask()">
+                            <form method="post" action="/StaffAndLeader/UpdateSubtaskStatus" onsubmit="return confirmAcceptTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="In Progress" />
                                 <button type="submit" class="button">Accept Task</button>
+                            </form>
+                            <form method="post" action="/StaffAndLeader/RejectSubtask" onsubmit="return confirmRejectTask()">
+                                <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                <button type="submit" class="button reject-button">Reject Task</button>
                             </form>
                         </div>
                     </div>
@@ -196,15 +159,16 @@
             <div class="task-list" id="pendingTaskList" style="display: none;">
                 @foreach (var subtask in subtasks.Where(s => s.Status == "Pending"))
                 {
-                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', '@subtask.SubtaskId','@subtask.AssignmentDate',
                     '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
-                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description', '@subtask.TaskId',
+                    '@subtask.TeamId')">
                         <div class="task-info">
                             <span class="task-title">@subtask.SubtaskName</span>
                             <span class="task-status">(@subtask.Status)</span>
                         </div>
                         <div class="button-container">
-                            <form method="post" action="/Staff/UpdateSubtaskStatus" onsubmit="return confirmUnsubmitTask()">
+                            <form method="post" action="/StaffAndLeader/UpdateSubtaskStatus" onsubmit="return confirmUnsubmitTask()">
                                 <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                 <input type="hidden" name="status" value="In Progress" />
                                 <button type="submit" class="button">Unsubmit</button>
@@ -222,11 +186,12 @@
                 <span class="arrow-icon">&#9662;</span>
             </div>
             <div class="task-list" id="completedTaskList" style="display: none;">
-                @foreach (var subtask in subtasks.Where(s => s.Status == "Completed"))
+                @foreach (var subtask in subtasks.Where(s => s.Status == "Completed").Take(10))
                 {
-                    <div class="task-item" onclick="openModal('@subtask.SubtaskName', 'Assigned By','@subtask.AssignmentDate',
+                    <div class="task-item" onclick="checkIfSubmit(event, '@subtask.SubtaskName', '@subtask.SubtaskId','@subtask.AssignmentDate',
                     '@subtask.Deadline', '@(subtask.SubmissionDate.HasValue ? subtask.SubmissionDate : "Not yet")',
-                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description')">
+                    '@subtask.Priority', '@subtask.Difficulty', '@subtask.Status','@subtask.Description', '@subtask.TaskId',
+                    '@subtask.TeamId')">
                         <span class="task-title">@subtask.SubtaskName</span>
                         <span class="task-status">@subtask.Status</span>
                     </div>
@@ -235,19 +200,27 @@
         </div>
     </div>
 
-    <!-- Modal for Task Details -->
+    <!-- Modal for Subtask Details -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <button class="close-button" onclick="closeModal('taskModal')">&times;</button>
             <h3 id="modalTitle">Task Details</h3>
-            <p id="modalAssigner">Assigner: </p>
+            <p id="modalSubtaskId">Subtask ID: </p>
+            <p id="modalTaskId">Task ID: </p>
+            <p id="modalTeamId">Team ID: </p>
             <p id="modalAssignedDate">Assigned Date: </p>
             <p id="modalDueDate">Deadline: </p>
-            <p id="modalSubmissionDate">Submission Date: </p> <!-- Thêm phần này để hiển thị Submission Date -->
+            <p id="modalSubmissionDate">Submission Date: </p>
             <p id="modalReward">Reward: </p>
-            <p id="modalContent">Task description and details go here.</p>
+            <div id="modalContent">
+                <p>Priority: <span id="modalPriority"></span></p>
+                <p>Difficulty: <span id="modalDifficulty"></span></p>
+                <p>Status: <span id="modalStatus"></span></p>
+                <p>Description: <span id="modalDescription"></span></p>
+            </div>
         </div>
     </div>
+
     <!-- Modal for Personal Task Details -->
     <div class="modal" id="personalTaskModal">
         <div class="modal-content">
@@ -265,7 +238,7 @@
             <button class="close-button" onclick="closeModal('createPersonalTaskModal')">&times;</button>
             <h3>Create New Personal Task</h3>
 
-            <form id="createPersonalTaskForm" method="post" action="/Staff/CreatePersonalTask" onsubmit="return confirmCreateTask()">
+            <form id="createPersonalTaskForm" method="post" action="/StaffAndLeader/CreatePersonalTask" onsubmit="return confirmCreateTask()">
                 <div class="form-group">
                     <label for="taskTitle">Task Title</label>
                     <input type="text" id="taskTitle" name="PtaskName" class="form-control" required />
@@ -310,7 +283,7 @@
             <button class="close-button" onclick="closeModal('updatePersonalTaskModal')">&times;</button>
             <h3>Update Personal Task</h3>
 
-            <form id="updatePersonalTaskForm" method="post" action="/Staff/UpdatePersonalTask" onsubmit="return confirmUpdateTask()">
+            <form id="updatePersonalTaskForm" method="post" action="/StaffAndLeader/UpdatePersonalTask" onsubmit="return confirmUpdateTask()">
                 <input type="hidden" id="PtaskId" name="PtaskId" />
 
                 <div class="form-group">
@@ -350,7 +323,6 @@
             </form>
         </div>
     </div>
-
 
   <script src="~/js/staff/task.js"></script>
 </body>

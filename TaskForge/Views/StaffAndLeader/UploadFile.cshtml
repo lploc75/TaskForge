@@ -2,7 +2,8 @@
 
 @{
     ViewData["Title"] = "Upload File";
-    Layout = "_StaffLayout";
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
     var subtaskId = ViewBag.SubtaskId;
 }
 
@@ -22,7 +23,7 @@
         <h2>Upload File for Subtask @ViewBag.SubtaskId</h2>
 
         <!-- Form upload file -->
-        <form asp-controller="Staff" asp-action="UploadFile" method="post"
+        <form asp-controller="StaffAndLeader" asp-action="UploadFile" method="post"
               enctype="multipart/form-data" onsubmit="return confirmUploadFile()">
             <input type="hidden" name="subtaskId" value="@ViewBag.SubtaskId" />
 

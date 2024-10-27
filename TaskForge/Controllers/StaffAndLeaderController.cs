@@ -5,11 +5,12 @@ using TaskForge.Models;
 using System.Collections.Generic;
 using TaskForge.Repository;
 using System.Security.Claims;
+using X.PagedList.Extensions;
 
 namespace TaskForge.Controllers
 {
-    [Authorize(Roles = "Staff")]
-    public class StaffController : Controller
+    [Authorize(Roles = "Staff, Leader")]  // Cho phép các vai trò Staff và Leader
+    public class StaffandLeaderController : Controller
     {
         private readonly EmployeeService _employeeService;
         private readonly DropboxService _dropboxService;
@@ -17,7 +18,7 @@ namespace TaskForge.Controllers
         private readonly TaskService _taskService;
         private readonly NotificationService _notificationService;
         // Constructor duy nhất cho cả hai service
-        public StaffController(EmployeeService employeeService, DropboxService dropboxService, 
+        public StaffandLeaderController(EmployeeService employeeService, DropboxService dropboxService, 
             ProjectService projectService, TaskService taskService, NotificationService notificationService)
         {
             _employeeService = employeeService;
@@ -79,6 +80,121 @@ namespace TaskForge.Controllers
 
             return View(employee);
         }
+        public IActionResult LeaderViewStaffList(string accountId, string fullname, int? page)
+        {
+            // Lấy accountId của leader đang đăng nhập
+            string leaderAccountId = User.FindFirst("AccountId")?.Value;
+
+            // Lấy teamId của leader từ accountId
+            string teamId = _employeeService.GetTeamIdByAccountId(leaderAccountId);
+
+            // Lấy danh sách nhân viên có cùng teamId
+            var staffs = _employeeService.GetStaffByTeamId(teamId).AsQueryable();
+
+            // Lọc theo accountId nếu có
+            if (!string.IsNullOrEmpty(accountId))
+            {
+                staffs = staffs.Where(s => s.AccountId.Contains(accountId));
+            }
+
+            // Lọc theo fullname nếu có
+            if (!string.IsNullOrEmpty(fullname))
+            {
+                staffs = staffs.Where(s => s.Fullname.Contains(fullname));
+            }
+
+            // Thiết lập phân trang, mỗi trang có 10 phần tử
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+
+            // Áp dụng phân trang
+            var pagedStaffs = staffs.ToPagedList(pageNumber, pageSize);
+
+            // Lưu giá trị lọc vào ViewBag để hiển thị lại trong form tìm kiếm
+            ViewBag.AccountId = accountId;
+            ViewBag.Fullname = fullname;
+
+            // Truyền danh sách nhân viên đã phân trang vào Model
+            return View(pagedStaffs);
+        }
+
+
+        public IActionResult LeaderAssignTask(string subtaskId, string subtaskName, string status, int? priority, int? difficulty, DateTime? startDate, DateTime? endDate, int? page)
+        {
+            // Lấy accountId của leader đang đăng nhập
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            // Lấy teamId của leader từ accountId
+            string teamId = _employeeService.GetTeamIdByAccountId(accountId);
+
+            // Lấy danh sách subtask thuộc team của leader
+            var subtasks = _taskService.GetSubtasksByTeam(teamId);
+
+            // Lọc theo Subtask ID nếu có
+            if (!string.IsNullOrEmpty(subtaskId))
+            {
+                subtasks = subtasks.Where(s => s.SubtaskId.Contains(subtaskId)).ToList();
+            }
+
+            // Lọc theo Subtask Name nếu có
+            if (!string.IsNullOrEmpty(subtaskName))
+            {
+                subtasks = subtasks.Where(s => s.SubtaskName.Contains(subtaskName)).ToList();
+            }
+
+            // Lọc theo trạng thái nếu có
+            if (!string.IsNullOrEmpty(status))
+            {
+                subtasks = subtasks.Where(s => s.Status == status).ToList();
+            }
+
+            // Lọc theo Priority nếu có
+            if (priority.HasValue)
+            {
+                subtasks = subtasks.Where(s => s.Priority == priority).ToList();
+            }
+
+            // Lọc theo Difficulty nếu có
+            if (difficulty.HasValue)
+            {
+                subtasks = subtasks.Where(s => s.Difficulty == difficulty).ToList();
+            }
+
+            // Lọc theo khoảng ngày AssignmentDate
+            if (startDate.HasValue)
+            {
+                subtasks = subtasks.Where(s => s.AssignmentDate >= startDate).ToList();
+            }
+            if (endDate.HasValue)
+            {
+                subtasks = subtasks.Where(s => s.Deadline <= endDate).ToList();
+            }
+
+            // Thiết lập phân trang, mỗi trang có 10 phần tử
+            int pageSize = 10;
+            int pageNumber = (page ?? 1); // Nếu không có số trang, mặc định là 1
+
+            // Áp dụng phân trang sau khi đã lọc
+            var pagedSubtasks = subtasks.ToPagedList(pageNumber, pageSize);
+
+            // Trả về View với danh sách đã phân trang
+            return View(pagedSubtasks);
+        }
+        [HttpPost]
+        public IActionResult AssignSubtask(string subtaskId, string assignedTo)
+        {
+            string created_by = _employeeService.GetDepartmentHeadBySubtaskId(subtaskId);
+            _taskService.AssignSubtask(subtaskId, assignedTo, created_by);
+            return RedirectToAction("LeaderAssignTask");
+        }
+
+        [HttpPost]
+        public IActionResult UnassignSubtask(string subtaskId)
+        {
+            _taskService.UnassignSubtask(subtaskId);
+            return RedirectToAction("LeaderAssignTask");
+        }
+
         public IActionResult Task()
         {
             // Lấy 'AccountId' từ các claims của người dùng hiện tại đã đăng nhập
@@ -120,39 +236,81 @@ namespace TaskForge.Controllers
 
             return View();
         }
-        [HttpGet]
-        public async Task<IActionResult> FilteredTasks(string taskType, string status, string priority, string difficulty, DateTime? deadline)
+        public IActionResult TaskFilter(string status, int? priority, int? difficulty, DateTime? assignmentDateMin, DateTime? assignmentDateMax, DateTime? deadlineMin, DateTime? deadlineMax, string submission, string taskId, string teamId, int? page)
         {
-            // Lấy accountId từ thông tin xác thực của người dùng
             string accountId = User.FindFirst("AccountId")?.Value;
             var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
             ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
-            if (string.IsNullOrEmpty(accountId))
-            {
-                return Unauthorized(); // Nếu không có accountId, yêu cầu người dùng đăng nhập lại
-            }
 
-            // Khởi tạo các danh sách trống để lưu kết quả
-            var filteredSubtasks = new List<Subtask>();
-            var filteredPersonalTasks = new List<PersonalTask>();
+            var subtasks = _taskService.GetAllSubtasks();
 
-            // Lấy Subtasks nếu taskType là 'all' hoặc 'subtask'
-            if (taskType == "all" || taskType == "subtask")
-            {
-                filteredSubtasks = await _taskService.GetFilteredSubtasksForUserAsync(accountId, status, priority, difficulty, deadline);
-            }
+            // Lọc theo các tiêu chí
+            if (!string.IsNullOrEmpty(status))
+                subtasks = subtasks.Where(s => s.Status == status).ToList();
 
-            // Lấy Personal Tasks nếu taskType là 'all' hoặc 'personal'
-            if (taskType == "all" || taskType == "personal")
-            {
-                filteredPersonalTasks = await _taskService.GetFilteredPersonalTasksForUserAsync(accountId, status, priority, deadline);
-            }
+            if (priority.HasValue)
+                subtasks = subtasks.Where(s => s.Priority == priority).ToList();
 
-            // Lưu các kết quả lọc vào ViewBag
-            ViewBag.Subtasks = filteredSubtasks;
-            ViewBag.PersonalTasks = filteredPersonalTasks;
+            if (difficulty.HasValue)
+                subtasks = subtasks.Where(s => s.Difficulty == difficulty).ToList();
 
-            return View("FilteredTasks"); // Trả về view "FilteredTasks"
+            if (assignmentDateMin.HasValue)
+                subtasks = subtasks.Where(s => s.AssignmentDate >= assignmentDateMin).ToList();
+
+            if (assignmentDateMax.HasValue)
+                subtasks = subtasks.Where(s => s.AssignmentDate <= assignmentDateMax).ToList();
+
+            if (deadlineMin.HasValue)
+                subtasks = subtasks.Where(s => s.Deadline >= deadlineMin).ToList();
+
+            if (deadlineMax.HasValue)
+                subtasks = subtasks.Where(s => s.Deadline <= deadlineMax).ToList();
+
+            if (!string.IsNullOrEmpty(submission))
+                subtasks = subtasks.Where(s => s.SubmissionDate.HasValue == (submission == "Yes")).ToList();
+
+            if (!string.IsNullOrEmpty(taskId))
+                subtasks = subtasks.Where(s => s.TaskId.Contains(taskId)).ToList();
+
+            if (!string.IsNullOrEmpty(teamId))
+                subtasks = subtasks.Where(s => s.TeamId.Contains(teamId)).ToList();
+            
+            // Thiết lập phân trang
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+
+            var pagedSubtasks = subtasks.ToPagedList(pageNumber, pageSize);
+            return View(pagedSubtasks);
+        }
+        public IActionResult PersonalTaskFilter(string status, int? priority, DateTime? assignmentDateMin, DateTime? assignmentDateMax, DateTime? deadlineMin, DateTime? deadlineMax, int? page)
+        {
+            var personalTasks = _taskService.GetAllPersonalTasks();
+
+            // Lọc theo các tiêu chí
+            if (!string.IsNullOrEmpty(status))
+                personalTasks = personalTasks.Where(p => p.Status == status).ToList();
+
+            if (priority.HasValue)
+                personalTasks = personalTasks.Where(p => p.Priority == priority).ToList();
+
+            if (assignmentDateMin.HasValue)
+                personalTasks = personalTasks.Where(p => p.AssignmentDate >= assignmentDateMin).ToList();
+
+            if (assignmentDateMax.HasValue)
+                personalTasks = personalTasks.Where(p => p.AssignmentDate <= assignmentDateMax).ToList();
+
+            if (deadlineMin.HasValue)
+                personalTasks = personalTasks.Where(p => p.Deadline >= deadlineMin).ToList();
+
+            if (deadlineMax.HasValue)
+                personalTasks = personalTasks.Where(p => p.Deadline <= deadlineMax).ToList();
+
+            // Thiết lập phân trang
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+
+            var pagedPersonalTasks = personalTasks.ToPagedList(pageNumber, pageSize);
+            return View(pagedPersonalTasks);
         }
 
         [HttpPost]
@@ -217,6 +375,12 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Task");
             }
             return RedirectToAction("Error", "Home");
+        }
+        [HttpPost]
+        public IActionResult RejectSubtask(string subtaskId)
+        {
+            _taskService.RejectSubtaskAssignment(subtaskId);
+            return RedirectToAction("Task"); // Redirect to the appropriate view
         }
         [HttpPost]
         public IActionResult UpdatePersonalTaskStatus(string PtaskId, string status)
