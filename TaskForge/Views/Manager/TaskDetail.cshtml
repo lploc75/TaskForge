@@ -1,0 +1,201 @@
+﻿@model TaskForge.Models.Task
+@{
+    Layout = "_ManagerLayout";
+    var task = ViewBag.Task as TaskForge.Models.Task;
+    var subtasks = ViewBag.Subtasks as List<TaskForge.Models.Subtask>;
+}
+
+<div id="task-detail-page">
+    <h1>Chi tiết Task</h1>
+    <p><strong>Tên:</strong> @task?.TaskName</p>
+    <p><strong>Mô tả:</strong> @task?.Description</p>
+    <p><strong>Trạng thái:</strong> @task?.Status</p>
+    <p><strong>Ưu tiên:</strong> @task?.Priority</p>
+    <p><strong>Ngày giao:</strong> @task?.AssignmentDate?.ToString("yyyy-MM-dd HH:mm:ss")</p>
+    <p><strong>Hạn chót:</strong> @task?.Deadline?.ToString("yyyy-MM-dd HH:mm:ss")</p>
+
+    <h2>Danh sách Subtasks và Teams đảm nhận:</h2>
+    <ul>
+        @foreach (var subtask in ViewBag.Subtasks as List<TaskForge.Models.Subtask>)
+        {
+            // Ép kiểu `employees` từ ViewBag và tạo danh sách tên
+            var employees = ViewBag.SubtaskEmployeeMap.ContainsKey(subtask.SubtaskId)
+            ? (List<TaskForge.Models.Employee>)ViewBag.SubtaskEmployeeMap[subtask.SubtaskId]
+            : new List<TaskForge.Models.Employee>();
+
+            // Lấy danh sách tên nhân viên từ `employees`
+            var employeeNames = string.Join(", ", employees.Select(e => e.Fullname));
+
+            <li>
+                <strong>Subtask:</strong> @subtask.SubtaskName
+                <button onclick="openSubtaskModal('@subtask.SubtaskId',
+                                                '@subtask.SubtaskName',
+                                                '@subtask.Description',
+                                                '@subtask.Status',
+                                                '@subtask.Priority',
+                                                '@subtask.Difficulty',
+                                                '@subtask.AssignmentDate',
+                                                '@subtask.Deadline',
+                                                '@(subtask.Team?.TeamName ?? "Chưa có team")',
+                                                '@employeeNames')">
+                    Xem Chi tiết
+                </button>
+            </li>
+        }
+    </ul>
+
+
+    <!-- Modal xem chi tiết Subtask -->
+    <div id="subtaskModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeSubtaskModal()">&times;</span>
+            <h2>Chi tiết Subtask</h2>
+            <p><strong>Tên:</strong> <span id="modal-subtask-name"></span></p>
+            <p><strong>Mô tả:</strong> <span id="modal-subtask-description"></span></p>
+            <p><strong>Trạng thái:</strong> <span id="modal-subtask-status"></span></p>
+            <p><strong>Ưu tiên:</strong> <span id="modal-subtask-priority"></span></p>
+            <p><strong>Độ khó:</strong> <span id="modal-subtask-difficulty"></span></p>
+            <p><strong>Ngày giao:</strong> <span id="modal-subtask-assignment-date"></span></p>
+            <p><strong>Hạn chót:</strong> <span id="modal-subtask-deadline"></span></p>
+            <p><strong>Team đảm nhận:</strong> <span id="modal-subtask-team"></span></p>
+            <p><strong>Nhân viên đảm nhận:</strong> <span id="modal-subtask-employees"></span></p>
+            <button onclick="closeSubtaskModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openSubtaskModal(subtaskId, name, description, status, priority, difficulty, assignmentDate, deadline, team, employees) {
+        document.getElementById('modal-subtask-name').innerText = name;
+        document.getElementById('modal-subtask-description').innerText = description;
+        document.getElementById('modal-subtask-status').innerText = status;
+        document.getElementById('modal-subtask-priority').innerText = priority;
+        document.getElementById('modal-subtask-difficulty').innerText = difficulty;
+        document.getElementById('modal-subtask-assignment-date').innerText = assignmentDate;
+        document.getElementById('modal-subtask-deadline').innerText = deadline;
+        document.getElementById('modal-subtask-team').innerText = team;
+        document.getElementById('modal-subtask-employees').innerText = employees;
+
+        document.getElementById('subtaskModal').style.display = 'block';
+    }
+
+    function closeSubtaskModal() {
+        document.getElementById('subtaskModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        var modal = document.getElementById("subtaskModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+<style>
+    /* Task detail styles */
+    #task-detail-page {
+        font-family: Arial, sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        padding: 20px;
+    }
+
+        #task-detail-page h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        #task-detail-page p {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+
+            #task-detail-page p strong {
+                color: #333;
+            }
+
+        #task-detail-page h2 {
+            font-size: 22px;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        #task-detail-page ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+            #task-detail-page ul li {
+                background-color: #fff;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 10px;
+                box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+                font-size: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+        #task-detail-page button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            #task-detail-page button:hover {
+                background-color: #0056b3;
+            }
+
+    /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .modal-content p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        color: #333;
+        cursor: pointer;
+    }
+</style>

@@ -16,18 +16,38 @@ namespace TaskForge.Repository
             _context = context;
         }
 
+        //// Lấy tất cả các task theo ProjectId
+        //public List<TaskForge.Models.Task> GetTasksByProjectId(int projectId)
+        //{
+        //    return _context.Tasks
+        //        .Where(t => t.ProjectId == projectId)
+        //        .ToList();
+        //}
+        //// Lấy Task theo Id
+        //public TaskForge.Models.Task GetTaskById(string taskId)
+        //{
+        //    return _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+        //}
+
         // Lấy tất cả các task theo ProjectId
         public List<TaskForge.Models.Task> GetTasksByProjectId(int projectId)
         {
+            // Bao gồm cả bảng trung gian DepartmentTask và Department khi truy vấn các task
             return _context.Tasks
                 .Where(t => t.ProjectId == projectId)
+                .Include(t => t.DepartmentTasks) // Bao gồm bảng trung gian
+                    .ThenInclude(dt => dt.Dept)  // Bao gồm bảng Department từ bảng trung gian
                 .ToList();
         }
-        // Lấy Task theo Id
+        // Lấy Task theo Id, bao gồm thông tin phòng ban
         public TaskForge.Models.Task GetTaskById(string taskId)
         {
-            return _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+            return _context.Tasks
+                .Include(t => t.DepartmentTasks)  // Bao gồm bảng DepartmentTask
+                    .ThenInclude(dt => dt.Dept)   // Bao gồm bảng Department
+                .FirstOrDefault(t => t.TaskId == taskId);
         }
+
         // Cập nhật Task
         public void UpdateTask(TaskForge.Models.Task task)
         {
@@ -81,6 +101,8 @@ namespace TaskForge.Repository
             {
                 try
                 {
+
+
                     // Xóa các bản ghi liên quan trong bảng TaskEvaluation
                     var taskEvaluations = _context.TaskEvaluations.Where(te => te.TaskId == taskId).ToList();
                     if (taskEvaluations.Any())
@@ -99,6 +121,13 @@ namespace TaskForge.Repository
                     var subtasks = _context.Subtasks.Where(st => st.TaskId == taskId).ToList();
                     foreach (var subtask in subtasks)
                     {
+                        // Xóa tất cả các bản ghi liên quan trong bảng SubtaskAssignment
+                        var subtaskAssignments = _context.SubtaskAssignments.Where(sa => sa.SubtaskId == subtask.SubtaskId).ToList();
+                        if (subtaskAssignments.Any())
+                        {
+                            _context.SubtaskAssignments.RemoveRange(subtaskAssignments);
+                        }
+
                         // Xóa tất cả các bản ghi liên quan trong bảng SubtaskEvaluation
                         var subtaskEvaluations = _context.SubtaskEvaluations.Where(se => se.SubtaskId == subtask.SubtaskId).ToList();
                         if (subtaskEvaluations.Any())
@@ -165,6 +194,7 @@ namespace TaskForge.Repository
                 }
             }
         }
+
         // Lấy Personal Task theo Id
         public PersonalTask GetPersonalTaskById(string PtaskId)
         {
@@ -189,6 +219,7 @@ namespace TaskForge.Repository
 
         }
 
+        // Gán task cho các phòng ban
         public void AssignTaskToDepartments(string taskId, List<string> departmentIds)
         {
             foreach (var departmentId in departmentIds)
@@ -221,6 +252,13 @@ namespace TaskForge.Repository
             {
                 throw new Exception($"Failed to assign task {taskId} to departments. Error: {ex.Message}");
             }
+        }
+        public List<TaskForge.Models.Task> GetTasksByDepartmentId(string deptId)
+        {
+            return _context.DepartmentTasks
+                           .Where(dt => dt.DeptId == deptId)
+                           .Select(dt => dt.Task)  // Lấy task từ DepartmentTask
+                           .ToList();
         }
 
         // Thêm dự án mới vào database

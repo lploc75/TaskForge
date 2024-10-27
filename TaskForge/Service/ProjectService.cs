@@ -18,6 +18,15 @@ namespace TaskForge.Service
         {
             return _projectRepository.GetProjectsByStatusAndAccount(status, accountId);
         }
+        // Lấy danh sách dự án mà nhân viên có vai trò là "Manager"
+        public List<Project> GetAllProjectsByManagerAccountId(string accountId)
+        {
+            return _projectRepository.GetAllProjectsByAccount(accountId);
+        }
+        public List<string> GetDepartmentsWithAssignedTasks(int projectId)
+        {
+            return _projectRepository.GetDepartmentsWithAssignedTasks(projectId);
+        }
 
         // Lấy chi tiết dự án theo ID
         public Project GetProjectById(int projectId)

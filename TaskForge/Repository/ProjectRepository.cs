@@ -29,6 +29,7 @@ namespace TaskForge.Repository
         {
             return _context.Projects
                 .Include(p => p.Departments)  // Bao gồm các phòng ban liên kết với dự án
+                .Include(p => p.Tasks) // Bao gồm nhiệm vụ của dự án
                 .FirstOrDefault(p => p.ProjectId == projectId);
         }
 
@@ -37,6 +38,17 @@ namespace TaskForge.Repository
         {
             _context.Projects.Add(project);
             _context.SaveChanges();
+        }
+
+        // Lấy tất cả dự án mà nhân viên có vai trò là "Manager"
+        public List<Project> GetAllProjectsByAccount(string accountId)
+        {
+            return _context.EmployeeProjects
+                .Where(ep => ep.AccountId == accountId)
+                .Include(ep => ep.Project)                  // Bao gồm thông tin Project
+                .ThenInclude(p => p.Departments)            // Bao gồm danh sách Departments liên kết với Project
+                .Select(ep => ep.Project)                   // Chỉ lấy Project từ mỗi EmployeeProject
+                .ToList();
         }
 
         // Cập nhật dự án với danh sách phòng ban
@@ -108,6 +120,7 @@ namespace TaskForge.Repository
             _context.SaveChanges();
         }
 
+
         public void DeleteProject(int projectId)
         {
             // Tìm dự án theo ID, bao gồm các liên kết với các thực thể khác
@@ -130,6 +143,11 @@ namespace TaskForge.Repository
                     {
                         _context.Subtasks.RemoveRange(task.Subtasks);
 
+                        var subtaskAssignments = _context.SubtaskAssignments
+                            .Where(sa => task.Subtasks.Select(s => s.SubtaskId).Contains(sa.SubtaskId))
+                            .ToList();
+                        _context.SubtaskAssignments.RemoveRange(subtaskAssignments);
+
                         var subtaskEvaluations = _context.SubtaskEvaluations
                             .Where(se => task.Subtasks.Select(s => s.SubtaskId).Contains(se.SubtaskId))
                             .ToList();
@@ -141,6 +159,7 @@ namespace TaskForge.Repository
                         .Where(te => te.TaskId == task.TaskId)
                         .ToList();
                     _context.TaskEvaluations.RemoveRange(taskEvaluations);
+
 
                     // Xóa các liên kết giữa Task và Department trong bảng DepartmentTask
                     var departmentTasks = _context.DepartmentTasks
@@ -168,6 +187,13 @@ namespace TaskForge.Repository
                 _context.SaveChanges();
             }
         }
-
+        public List<string> GetDepartmentsWithAssignedTasks(int projectId)
+        {
+            return _context.Tasks
+                .Where(t => t.ProjectId == projectId)
+                .SelectMany(t => t.DepartmentTasks.Select(dt => dt.DeptId))
+                .Distinct()
+                .ToList();
+        }
     }
 }

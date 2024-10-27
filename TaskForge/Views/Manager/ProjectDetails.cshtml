@@ -1,96 +1,124 @@
 ﻿@model TaskForge.Models.Project
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 
 @{
     Layout = "_ManagerLayout";
 }
 
-<h1 class="page-title">Chi tiết dự án: @Model.ProjectName</h1>
-
-<!-- Project description and details -->
-<div class="project-details">
-    <p><strong>Mô tả:</strong> @Model.Description</p>
-    <p><strong>Trạng thái:</strong> @Model.Status</p>
-    <p><strong>Hạn chót:</strong> @Model.Deadline?.ToString("yyyy-MM-dd")</p>
-    <!-- Display related departments -->
-    <p><strong>Phòng ban liên quan:</strong></p>
-    <ul>
-        @foreach (var department in Model.Departments)
-        {
-            <li>@department.DeptName</li>
-        }
-    </ul>
-</div>
-
-<!-- Error message alert -->
-@if (ViewBag.ErrorMessage != null)
-{
-    <div class="alert alert-danger">
-        <strong>Error:</strong> @ViewBag.ErrorMessage
-    </div>
-}
-
 <!-- Button to create new task -->
 <button class="btn-create-task" onclick="openCreateTaskModal()">+ Tạo Task Mới</button>
 
-<!-- Task list -->
+<!-- Form lọc task -->
+<form class="filters" method="get" action="@Url.Action("ProjectDetails", "Manager")">
+    <input type="hidden" name="id" value="@ViewBag.ProjectId" />
+
+    <!-- Lọc theo trạng thái -->
+    <div class="form-group">
+        <label for="status">Trạng thái</label>
+        <select name="status" id="status" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
+
+    <!-- Lọc theo độ ưu tiên -->
+    <div class="form-group">
+        <label for="priority">Độ ưu tiên</label>
+        <select name="priority" id="priority" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="1">1 - Thấp</option>
+            <option value="2">2 - Trung bình</option>
+            <option value="3">3 - Cao</option>
+            <option value="4">4 - Rất cao</option>
+        </select>
+    </div>
+
+    <!-- Lọc theo phòng ban -->
+    <div class="form-group">
+        <label for="department">Phòng ban</label>
+        <select name="department" id="department" class="form-control">
+            <option value="">Tất cả</option>
+            @foreach (var department in ViewBag.Departments)
+            {
+                <option value="@department.DeptId">@department.DeptName</option>
+            }
+        </select>
+    </div>
+
+    <!-- Lọc theo ngày bắt đầu và ngày kết thúc -->
+    <div class="form-group">
+        <label for="startDate">Ngày bắt đầu</label>
+        <input type="date" id="startDate" name="startDate" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="endDate">Ngày kết thúc</label>
+        <input type="date" id="endDate" name="endDate" class="form-control" />
+    </div>
+
+    <!-- Nút lọc -->
+    <button class="btn-filter" type="submit">Lọc</button>
+</form>
+
+
 <!-- Task list -->
 <h2>Các Task thuộc dự án:</h2>
-<table class="task-table">
-    <thead>
-        <tr>
-            <th>Tên Task</th>
-            <th>Mô tả</th>
-            <th>Trạng thái</th>
-            <th>Ngày giao</th>
-            <th>Hạn chót</th>
-            <th>Ưu tiên</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var task in ViewBag.Tasks)
-        {
-            <tr>
-                <td>@task.TaskName</td>
-                <td>@task.Description</td>
-                <td>@task.Status</td>
-                <td>@task.AssignmentDate?.ToString("yyyy-MM-dd")</td>
-                <td>@task.Deadline?.ToString("yyyy-MM-dd")</td>
-                <td>
-                    @{
-                        string priorityLabel = task.Priority switch
-                        {
-                            1 => "1 - Thấp",
-                            2 => "2 - Trung bình",
-                            3 => "3 - Cao",
-                            4 => "Rất cao",
-                            _ => "Không xác định"
-                        };
-                    }
-                    @priorityLabel
-                </td>
-                <td>
-                    <button class="btn btn-edit"
-                            onclick="openEditTaskModal('@task.TaskId', '@task.TaskName', '@task.Description', '@task.Priority', '@task.AssignmentDate?.ToString("yyyy-MM-dd")', '@task.Deadline?.ToString("yyyy-MM-dd")')">
-                        Sửa
-                    </button>
-                    <button class="btn btn-delete" onclick="openDeleteTaskModal('@task.TaskId', '@task.TaskName')">Xóa</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="task-list">
+    @foreach (var task in ViewBag.Tasks)
+    {
+        <div class="task-item">
+            <h3>@task.TaskName</h3>
+            <p>@task.Description</p>
+            <p><strong>Trạng thái:</strong> @task.Status</p>
+            <p><strong>Ngày giao:</strong> @task.AssignmentDate?.ToString("yyyy-MM-dd")</p>
+            <p><strong>Hạn chót:</strong> @task.Deadline?.ToString("yyyy-MM-dd")</p>
 
-<!-- Modal chỉnh sửa task -->
+            @* Sửa lỗi ưu tiên bằng cách chuyển switch ra ngoài *@
+            @{
+                string priorityLabel = task.Priority switch
+                {
+                    1 => "1 - Thấp",
+                    2 => "2 - Trung bình",
+                    3 => "3 - Cao",
+                    4 => "4 - Rất cao",
+                    _ => "Không xác định"
+                };
+            }
+            <p><strong>Ưu tiên:</strong> @priorityLabel</p>
+        @* Department list *@
+        @{
+            var departmentNames = "";
+            foreach (var departmentTask in task.DepartmentTasks)
+            {
+                if (!string.IsNullOrEmpty(departmentNames))
+                {
+                    departmentNames += ", ";
+                }
+                departmentNames += departmentTask.Dept.DeptName;
+            }
+        }
+        <p><strong>Phòng ban liên quan:</strong> @departmentNames</p>
+
+            <div class="task-item-buttons">
+                <button class="btn btn-view" onclick="location.href='@Url.Action("TaskDetail", "Manager", new { taskId = task.TaskId })'">Xem Chi tiết</button>
+                <button class="btn btn-edit" onclick="openEditTaskModal('@task.TaskId')">Sửa</button>
+                <button class="btn btn-delete" onclick="openDeleteTaskModal('@task.TaskId', '@task.TaskName')">Xóa</button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal to edit task -->
 <div id="editTaskModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close" onclick="closeEditTaskModal()">&times;</span>
-        <h2>Chỉnh sửa Task</h2>
+        <h2>Sửa Task</h2>
         <form asp-action="EditTask" method="post">
-            <input type="hidden" id="edit-task-id" name="TaskId">
-
+            <input type="hidden" id="edit-task-id" name="TaskId" />
             <label for="edit-task-name">Tên Task</label>
-            <input type="text" id="edit-task-name" name="TaskName" required>
+            <input type="text" id="edit-task-name" name="TaskName" required />
 
             <label for="edit-description">Mô tả Task</label>
             <textarea id="edit-description" name="Description" rows="3"></textarea>
@@ -104,39 +132,31 @@
             </select>
 
             <label for="edit-assignment-date">Ngày giao</label>
-            <input type="date" id="edit-assignment-date" name="AssignmentDate" required>
+            <input type="date" id="edit-assignment-date" name="AssignmentDate" required />
 
             <label for="edit-deadline">Hạn chót</label>
-            <input type="date" id="edit-deadline" name="Deadline" required>
+            <input type="date" id="edit-deadline" name="Deadline" required />
 
-            <button type="submit">Cập nhật Task</button>
+            <button type="submit" class="btn-submit">Cập nhật Task</button>
         </form>
     </div>
 </div>
 
-<!-- Modal xóa task -->
+<!-- Modal to delete task -->
 <div id="deleteTaskModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close" onclick="closeDeleteTaskModal()">&times;</span>
         <h2>Xóa Task</h2>
         <p>Bạn có chắc chắn muốn xóa Task "<span id="delete-task-name"></span>"?</p>
         <form asp-action="DeleteTask" method="post">
-            <input type="hidden" id="delete-task-id" name="TaskId">
-            <button type="submit" class="btn btn-delete">Xóa</button>
-            <button type="button" class="btn btn-cancel" onclick="closeDeleteTaskModal()">Hủy</button>
+            <input type="hidden" id="delete-task-id" name="TaskId" />
+            <button type="submit" class="btn btn-danger">Xóa</button>
+            <button type="button" onclick="closeDeleteTaskModal()">Hủy</button>
         </form>
     </div>
 </div>
-
-<!-- JavaScript for modals -->
-
-
-
-<!-- Back to Project Management Page -->
-<a class="back-link" href="@Url.Action("ProjectManage", "Manager")">Quay lại trang quản lý dự án</a>
-
-<!-- Modal to create new task -->
-<div id="createTaskModal" class="modal">
+<!-- Modal for creating a new task -->
+<div id="createTaskModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close" onclick="closeCreateTaskModal()">&times;</span>
         <h2>Tạo Task Mới</h2>
@@ -144,13 +164,13 @@
             <input type="hidden" name="ProjectId" value="@Model.ProjectId" />
 
             <label for="taskName">Tên Task</label>
-            <input type="text" id="taskName" name="taskName" required />
+            <input type="text" id="taskName" name="TaskName" required />
 
             <label for="description">Mô tả Task</label>
-            <textarea id="description" name="description" rows="3" required></textarea>
+            <textarea id="description" name="Description" rows="3" required></textarea>
 
             <label for="priority">Mức độ ưu tiên</label>
-            <select id="priority" name="priority" required>
+            <select id="priority" name="Priority" required>
                 <option value="1">1 - Thấp</option>
                 <option value="2">2 - Trung bình</option>
                 <option value="3">3 - Cao</option>
@@ -158,13 +178,14 @@
             </select>
 
             <label for="assignmentDate">Ngày giao</label>
-            <input type="date" id="assignmentDate" name="assignmentDate" required />
+            <input type="date" id="assignmentDate" name="AssignmentDate" required />
 
             <label for="deadline">Hạn chót</label>
-            <input type="date" id="deadline" name="deadline" required />
+            <input type="date" id="deadline" name="Deadline" required />
 
+            <!-- Optional: Department selection -->
             <label for="departments">Chọn phòng ban</label>
-            <select id="departments" name="departmentIds" multiple required>
+            <select id="departments" name="DepartmentIds" multiple>
                 @foreach (var department in ViewBag.Departments)
                 {
                     <option value="@department.DeptId">@department.DeptName</option>
@@ -173,126 +194,272 @@
 
             <button type="submit" class="btn-submit">Tạo Task</button>
         </form>
-
     </div>
 </div>
+<!-- Phân trang với các tham số lọc -->
+<div class="pagination justify-content-center">
+    @Html.PagedListPager((IPagedList)ViewBag.Tasks, page => Url.Action("ProjectDetails", new
+        {
+            id = ViewBag.ProjectId,
+            page,
+            status = Context.Request.Query["status"],
+            startDate = Context.Request.Query["startDate"],
+            endDate = Context.Request.Query["endDate"]
+        }), new PagedListRenderOptions
+{
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+    MaximumPageNumbersToDisplay = 5
+})
+</div>
 
-<!-- JavaScript for modal -->
+
+
+<!-- JavaScript for modal handling -->
 <script>
+   
+
+    function closeDetailTaskModal() {
+        document.getElementById('detailTaskModal').style.display = 'none';
+    }
+
+    function openEditTaskModal(taskId) {
+        // Load task details into modal inputs for editing
+        document.getElementById('edit-task-id').value = taskId;
+        document.getElementById('editTaskModal').style.display = 'block';
+    }
     function openCreateTaskModal() {
-        document.getElementById('createTaskModal').style.display = 'flex';
+        document.getElementById('createTaskModal').style.display = 'block';
     }
 
     function closeCreateTaskModal() {
         document.getElementById('createTaskModal').style.display = 'none';
     }
-
-    // Mở modal chỉnh sửa task
-    function openEditTaskModal(taskId, taskName, description, priority, assignmentDate, deadline) {
-        document.getElementById('edit-task-id').value = taskId;
-        document.getElementById('edit-task-name').value = taskName;
-        document.getElementById('edit-description').value = description;
-        document.getElementById('edit-priority').value = priority;
-        document.getElementById('edit-assignment-date').value = assignmentDate;
-        document.getElementById('edit-deadline').value = deadline;
-
-        document.getElementById('editTaskModal').style.display = 'flex';
-    }
-
-    // Đóng modal chỉnh sửa task
     function closeEditTaskModal() {
         document.getElementById('editTaskModal').style.display = 'none';
     }
 
-    // Mở modal xác nhận xóa task
     function openDeleteTaskModal(taskId, taskName) {
         document.getElementById('delete-task-id').value = taskId;
         document.getElementById('delete-task-name').innerText = taskName;
-        document.getElementById('deleteTaskModal').style.display = 'flex';
+        document.getElementById('deleteTaskModal').style.display = 'block';
     }
 
-    // Đóng modal xác nhận xóa task
     function closeDeleteTaskModal() {
         document.getElementById('deleteTaskModal').style.display = 'none';
     }
 </script>
-<!-- CSS -->
+
+
+
 <style>
+    /* General styles */
     body {
         font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+        padding: 20px;
+        margin: 0;
     }
 
-    .page-title {
-        font-size: 24px;
+    h2 {
+        font-size: 20px;
+        color: #555;
+    }
+
+    /* Task list container */
+    .task-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    /* Task item styles */
+    .task-item {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        max-width: 100%;
+    }
+
+        .task-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .task-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .task-item strong {
+            color: #333;
+        }
+
+    /* Button container */
+    .task-item-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-view, .btn-edit, .btn-delete {
+        border: none;
+    }
+
+    /* Uniform button styling */
+    .task-item-buttons .btn {
+        font-size: 16px;
         font-weight: bold;
+        border-radius: 5px;
+        padding: 12px 0;
+        width: 100%;
+        text-align: center;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Specific button colors */
+    .btn-view {
+        background-color: #17a2b8;
+    }
+
+        .btn-view:hover {
+            background-color: #138496;
+        }
+
+    .btn-edit {
+        background-color: #ffc107;
         color: #333;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-delete {
+        background-color: #dc3545;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+    /* Filter form styling */
+    .filters {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Ba cột hàng trên */
+        grid-template-rows: auto auto; /* Hai hàng */
+        gap: 15px;
+        align-items: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
         margin-bottom: 20px;
     }
 
-    .project-details p {
-        margin: 5px 0;
-        font-size: 16px;
-    }
-
-    .alert {
-        padding: 15px;
-        margin-top: 20px;
-        background-color: #f44336;
-        color: white;
-    }
-
-    .btn-create-task {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-        margin: 20px 0;
-    }
-
-    .task-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-    }
-
-        .task-table th, .task-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        /* Hàng đầu tiên với 3 trường */
+        .filters .form-group:nth-child(1),
+        .filters .form-group:nth-child(2),
+        .filters .form-group:nth-child(3) {
+            grid-column: span 1;
         }
 
-        .task-table th {
-            background-color: #f2f2f2;
+        /* Hàng thứ hai với 2 trường chiếm 2 cột */
+        .filters .form-group:nth-child(4),
+        .filters .form-group:nth-child(5) {
+            grid-column: span 1;
+        }
+
+        /* Button Lọc nằm cạnh trường cuối cùng */
+        .filters .btn-filter {
+            grid-column: 3 / 4;
+            align-self: end;
+            justify-self: start;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
             font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .task-table tr:hover {
-            background-color: #f1f1f1;
+            .filters .btn-filter:hover {
+                background-color: #218838;
+            }
+
+        /* Style cho các nhãn và trường */
+        .filters .form-group label {
+            font-weight: bold;
+            color: #555;
         }
 
-    .action-link {
-        color: #007bff;
-        text-decoration: none;
-    }
-
-        .action-link:hover {
-            text-decoration: underline;
+        .filters input, .filters select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 5px;
         }
 
-    .back-link {
-        display: inline-block;
+    /* Pagination styling */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
         margin-top: 20px;
-        color: #007bff;
-        text-decoration: none;
     }
 
-        .back-link:hover {
-            text-decoration: underline;
+    .pagination {
+        display: flex;
+        list-style-type: none;
+        gap: 5px;
+    }
+
+        .pagination li {
+            margin: 0;
         }
 
-    /* Modal styles */
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+            .pagination a:hover {
+                background-color: #f0f0f0;
+            }
+
+        .pagination .active span {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination .disabled span {
+            color: #999;
+        }
+
+    /* Modal styling */
     .modal {
         display: none;
         position: fixed;
@@ -310,36 +477,73 @@
         background-color: white;
         padding: 20px;
         border-radius: 8px;
-        width: 400px;
+        width: 90%;
+        max-width: 500px;
         position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .modal-content p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
 
     .close {
         position: absolute;
         top: 10px;
         right: 15px;
         font-size: 24px;
+        color: #333;
         cursor: pointer;
     }
 
-    .modal input, .modal textarea, .modal select {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+    .modal-content label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+        color: #333;
+        font-size: 14px;
     }
 
-    .btn-submit {
-        background-color: #28a745;
-        color: white;
-        border: none;
+    .modal input[type="text"], .modal input[type="date"], .modal textarea, .modal select {
+        width: 100%;
         padding: 10px;
-        cursor: pointer;
-        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+        margin-bottom: 15px;
     }
 
-        .btn-submit:hover {
-            background-color: #218838;
+    .modal textarea {
+        resize: vertical;
+    }
+
+    /* CSS cho nút Tạo Task */
+    .btn-create-task {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+        .btn-create-task:hover {
+            background-color: #0056b3;
         }
 </style>

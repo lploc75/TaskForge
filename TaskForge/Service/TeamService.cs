@@ -70,7 +70,14 @@ namespace TaskForge.Service
         {
             _teamRepository.DeleteTeam(teamId);
         }
-
+        public List<Team> GetTeamsByDepartment(string deptId)
+        {
+            return _teamRepository.GetTeamsByDepartment(deptId);
+        }
+        public List<Team> GetTeamsByTaskSubtasks(string taskId)
+        {
+            return _teamRepository.GetTeamsByTaskSubtasks(taskId);
+        }
         // Phương thức lấy danh sách team với các bộ lọc
         public List<Team> GetTeamsWithFilters(string deptId, int? numberOfTeam, DateOnly? createdDate)
         {

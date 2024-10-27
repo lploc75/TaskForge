@@ -41,6 +41,8 @@ namespace TaskForge
             builder.Services.AddScoped<FeedbackRepository>();
             builder.Services.AddScoped<TeamRepository>();
             builder.Services.AddScoped<NotificationRepository>();
+            builder.Services.AddScoped<SubtaskService>();
+            builder.Services.AddScoped<SubtaskRepository>();
 
             builder.Services.AddHttpContextAccessor();
 

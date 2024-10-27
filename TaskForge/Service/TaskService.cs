@@ -98,5 +98,9 @@
         {
             _taskRepository.UnassignSubtask(subtaskId);
         }
+        public List<TaskForge.Models.Task> GetTasksByDepartment(string deptId)
+        {
+            return _taskRepository.GetTasksByDepartmentId(deptId);
+        }
     }
 }
