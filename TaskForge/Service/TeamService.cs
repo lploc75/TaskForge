@@ -17,5 +17,10 @@ namespace TaskForge.Service
         {
             return _teamRepository.GetTeamsByDepartment(deptId);
         }
+        public List<Team> GetTeamsByTaskSubtasks(string taskId)
+        {
+            return _teamRepository.GetTeamsByTaskSubtasks(taskId);
+        }
+
     }
 }

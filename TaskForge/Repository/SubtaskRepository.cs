@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using TaskForge.DBContext;
 using TaskForge.Models;
@@ -17,6 +18,8 @@ namespace TaskForge.Repository
         public List<Subtask> GetSubtasksByTaskId(string taskId)
         {
             return _context.Subtasks
+                           .Include(st => st.Task) // Bao gồm Task để chắc chắn không có vấn đề với liên kết
+                           .Include(st => st.Team) // Bao gồm Team của từng Subtask
                            .Where(st => st.TaskId == taskId)
                            .ToList();
         }
@@ -67,5 +70,14 @@ namespace TaskForge.Repository
                 _context.SaveChanges();
             }
         }
+        public List<Employee> GetEmployeesBySubtaskId(string subtaskId)
+        {
+            return _context.SubtaskAssignments
+                           .Where(sa => sa.SubtaskId == subtaskId)
+                           .Select(sa => sa.AssignedToNavigation)
+                           .ToList();
+        }
+
+
     }
 }

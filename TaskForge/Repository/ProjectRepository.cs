@@ -16,19 +16,13 @@ namespace TaskForge.Repository
         }
 
         // Lấy danh sách dự án mà nhân viên có vai trò là "Manager"
-        public List<Project> GetProjectsByStatusAndAccount(string status, string accountId)
-        {
-            return _context.EmployeeProjects
-                .Where(ep => ep.AccountId == accountId && ep.Project.Status == status)
-                .Select(ep => ep.Project)
-                .ToList();
-        }
 
         // Lấy chi tiết dự án theo ID
         public Project GetProjectById(int projectId)
         {
             return _context.Projects
                 .Include(p => p.Departments)  // Bao gồm các phòng ban liên kết với dự án
+                .Include(p => p.Tasks) // Bao gồm nhiệm vụ của dự án
                 .FirstOrDefault(p => p.ProjectId == projectId);
         }
 
@@ -38,6 +32,18 @@ namespace TaskForge.Repository
         {
             _context.Projects.Add(project);
             _context.SaveChanges();
+        }
+
+
+        // Lấy tất cả dự án mà nhân viên có vai trò là "Manager"
+        public List<Project> GetAllProjectsByAccount(string accountId)
+        {
+            return _context.EmployeeProjects
+                .Where(ep => ep.AccountId == accountId)
+                .Include(ep => ep.Project)                  // Bao gồm thông tin Project
+                .ThenInclude(p => p.Departments)            // Bao gồm danh sách Departments liên kết với Project
+                .Select(ep => ep.Project)                   // Chỉ lấy Project từ mỗi EmployeeProject
+                .ToList();
         }
 
 
@@ -171,6 +177,14 @@ namespace TaskForge.Repository
                 // 6. Lưu các thay đổi vào cơ sở dữ liệu
                 _context.SaveChanges();
             }
+        }
+        public List<string> GetDepartmentsWithAssignedTasks(int projectId)
+        {
+            return _context.Tasks
+                .Where(t => t.ProjectId == projectId)
+                .SelectMany(t => t.DepartmentTasks.Select(dt => dt.DeptId))
+                .Distinct()
+                .ToList();
         }
 
     }

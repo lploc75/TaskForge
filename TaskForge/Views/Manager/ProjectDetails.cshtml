@@ -1,216 +1,92 @@
-﻿<!-- Button to create new task -->
-<button class="btn-create-task" onclick="openCreateTaskModal()">+ Tạo Task Mới</button>
+﻿@model TaskForge.Models.Project
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+
 @{
     Layout = "_ManagerLayout";
 }
-<style>
-    /* General styles */
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f6f8;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-    }
 
-    h2 {
-        font-size: 20px;
-        color: #555;
-    }
+<!-- Button to create new task -->
+<button class="btn-create-task" onclick="openCreateTaskModal()">+ Tạo Task Mới</button>
 
-    /* Button styles */
-    .btn-create-task, .btn, .btn-submit, .btn-danger {
-        padding: 8px 16px;
-        font-size: 14px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+<!-- Form lọc task -->
+<form class="filters" method="get" action="@Url.Action("ProjectDetails", "Manager")">
+    <input type="hidden" name="id" value="@ViewBag.ProjectId" />
 
-    .btn-create-task {
-        background-color: #007bff;
-        color: white;
-        margin-bottom: 20px;
-    }
+    <!-- Lọc theo trạng thái -->
+    <div class="form-group">
+        <label for="status">Trạng thái</label>
+        <select name="status" id="status" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
 
-        .btn-create-task:hover {
-            background-color: #0056b3;
-        }
+    <!-- Lọc theo độ ưu tiên -->
+    <div class="form-group">
+        <label for="priority">Độ ưu tiên</label>
+        <select name="priority" id="priority" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="1">1 - Thấp</option>
+            <option value="2">2 - Trung bình</option>
+            <option value="3">3 - Cao</option>
+            <option value="4">4 - Rất cao</option>
+        </select>
+    </div>
 
-    .btn-view {
-        background-color: #17a2b8;
-        color: white;
-    }
+    <!-- Lọc theo phòng ban -->
+    <div class="form-group">
+        <label for="department">Phòng ban</label>
+        <select name="department" id="department" class="form-control">
+            <option value="">Tất cả</option>
+            @foreach (var department in ViewBag.Departments)
+            {
+                <option value="@department.DeptId">@department.DeptName</option>
+            }
+        </select>
+    </div>
 
-        .btn-view:hover {
-            background-color: #138496;
-        }
+    <!-- Lọc theo ngày bắt đầu và ngày kết thúc -->
+    <div class="form-group">
+        <label for="startDate">Ngày bắt đầu</label>
+        <input type="date" id="startDate" name="startDate" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="endDate">Ngày kết thúc</label>
+        <input type="date" id="endDate" name="endDate" class="form-control" />
+    </div>
 
-    .btn-edit {
-        background-color: #ffc107;
-        color: white;
-        margin-right: 5px;
-    }
+    <!-- Nút lọc -->
+    <button class="btn-filter" type="submit">Lọc</button>
+</form>
 
-        .btn-edit:hover {
-            background-color: #e0a800;
-        }
 
-    .btn-delete {
-        background-color: #dc3545;
-        color: white;
-    }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-        }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        width: 100%;
-    }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-    .btn-submit {
-        background-color: #28a745;
-        color: white;
-        width: 100%;
-    }
-
-        .btn-submit:hover {
-            background-color: #218838;
-        }
-
-    /* Task item styles */
-    .task-item {
-        background-color: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin-bottom: 15px;
-    }
-
-        .task-item h3 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #007bff;
-        }
-
-        .task-item p {
-            margin: 5px 0;
-            color: #666;
-        }
-
-        .task-item strong {
-            color: #333;
-        }
-
-    /* Modal styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal-content {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 500px;
-        position: relative;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-        .modal-content h2 {
-            margin-top: 0;
-            font-size: 22px;
-            color: #333;
-        }
-
-        .modal-content p {
-            color: #666;
-            font-size: 14px;
-            margin: 5px 0;
-        }
-
-    .close {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 24px;
-        color: #333;
-        cursor: pointer;
-    }
-
-    .modal-content label {
-        display: block;
-        margin: 10px 0 5px;
-        font-weight: bold;
-        color: #333;
-        font-size: 14px;
-    }
-
-    .modal input[type="text"], .modal input[type="date"], .modal textarea, .modal select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
-
-    .modal textarea {
-        resize: vertical;
-    }
-
-    #task-departments {
-        list-style-type: disc;
-        padding-left: 20px;
-    }
-
-        #task-departments li {
-            font-size: 14px;
-            color: #555;
-        }
-
-</style>
 <!-- Task list -->
 <h2>Các Task thuộc dự án:</h2>
-@foreach (var task in ViewBag.Tasks)
-{
-    <div class="task-item">
-        <h3>@task.TaskName</h3>
-        <p>@task.Description</p>
-        <p><strong>Trạng thái:</strong> @task.Status</p>
-        <p><strong>Ngày giao:</strong> @task.AssignmentDate?.ToString("yyyy-MM-dd")</p>
-        <p><strong>Hạn chót:</strong> @task.Deadline?.ToString("yyyy-MM-dd")</p>
+<div class="task-list">
+    @foreach (var task in ViewBag.Tasks)
+    {
+        <div class="task-item">
+            <h3>@task.TaskName</h3>
+            <p>@task.Description</p>
+            <p><strong>Trạng thái:</strong> @task.Status</p>
+            <p><strong>Ngày giao:</strong> @task.AssignmentDate?.ToString("yyyy-MM-dd")</p>
+            <p><strong>Hạn chót:</strong> @task.Deadline?.ToString("yyyy-MM-dd")</p>
 
-        @* Sửa lỗi ưu tiên bằng cách chuyển switch ra ngoài *@
-        @{
-            string priorityLabel = task.Priority switch
-            {
-                1 => "1 - Thấp",
-                2 => "2 - Trung bình",
-                3 => "3 - Cao",
-                4 => "4 - Rất cao",
-                _ => "Không xác định"
-            };
-        }
-        <p><strong>Ưu tiên:</strong> @priorityLabel</p>
-
+            @* Sửa lỗi ưu tiên bằng cách chuyển switch ra ngoài *@
+            @{
+                string priorityLabel = task.Priority switch
+                {
+                    1 => "1 - Thấp",
+                    2 => "2 - Trung bình",
+                    3 => "3 - Cao",
+                    4 => "4 - Rất cao",
+                    _ => "Không xác định"
+                };
+            }
+            <p><strong>Ưu tiên:</strong> @priorityLabel</p>
         @* Department list *@
         @{
             var departmentNames = "";
@@ -225,42 +101,13 @@
         }
         <p><strong>Phòng ban liên quan:</strong> @departmentNames</p>
 
-        <!-- Nút mở modal với dữ liệu dự án từ ViewBag -->
-        <button class="btn btn-view"
-                data-task-id="@task.TaskId"
-                data-task-name="@task.TaskName"
-                data-task-description="@task.Description"
-                data-task-status="@task.Status"
-                data-task-assignment-date="@task.AssignmentDate?.ToString("yyyy-MM-dd")"
-                data-task-deadline="@task.Deadline?.ToString("yyyy-MM-dd")"
-                data-task-priority="@task.Priority"
-                data-task-departments="@departmentNames"
-                data-project-name="@ViewBag.ProjectName"
-                data-project-description="@ViewBag.ProjectDescription"
-                onclick="openDetailTaskModal(this)">
-            Xem Chi tiết
-        </button>
-        <button class="btn btn-edit" onclick="openEditTaskModal('@task.TaskId')">Sửa</button>
-        <button class="btn btn-delete" onclick="openDeleteTaskModal('@task.TaskId', '@task.TaskName')">Xóa</button>
-    </div>
-}
-
-<!-- Modal for task details -->
-<div id="detailTaskModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" onclick="closeDetailTaskModal()">&times;</span>
-        <h2>Chi tiết Task</h2>
-        <p><strong>Tên Task:</strong> <span id="task-name"></span></p>
-        <p><strong>Mô tả:</strong> <span id="task-description"></span></p>
-        <p><strong>Trạng thái:</strong> <span id="task-status"></span></p>
-        <p><strong>Ngày giao:</strong> <span id="task-assignment-date"></span></p>
-        <p><strong>Hạn chót:</strong> <span id="task-deadline"></span></p>
-        <p><strong>Ưu tiên:</strong> <span id="task-priority"></span></p>
-        <p><strong>Phòng ban liên quan:</strong> <span id="task-departments"></span></p>
-
-
-        <button onclick="closeDetailTaskModal()">Đóng</button>
-    </div>
+            <div class="task-item-buttons">
+                <button class="btn btn-view" onclick="location.href='@Url.Action("TaskDetail", "Manager", new { taskId = task.TaskId })'">Xem Chi tiết</button>
+                <button class="btn btn-edit" onclick="openEditTaskModal('@task.TaskId')">Sửa</button>
+                <button class="btn btn-delete" onclick="openDeleteTaskModal('@task.TaskId', '@task.TaskName')">Xóa</button>
+            </div>
+        </div>
+    }
 </div>
 
 <!-- Modal to edit task -->
@@ -349,32 +196,31 @@
         </form>
     </div>
 </div>
+<!-- Phân trang với các tham số lọc -->
+<div class="pagination justify-content-center">
+    @Html.PagedListPager((IPagedList)ViewBag.Tasks, page => Url.Action("ProjectDetails", new
+        {
+            id = ViewBag.ProjectId,
+            page,
+            status = Context.Request.Query["status"],
+            startDate = Context.Request.Query["startDate"],
+            endDate = Context.Request.Query["endDate"]
+        }), new PagedListRenderOptions
+{
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+    MaximumPageNumbersToDisplay = 5
+})
+</div>
+
+
+
 <!-- JavaScript for modal handling -->
 <script>
-    function openDetailTaskModal(button) {
-        // Lấy dữ liệu từ các thuộc tính data-* của button
-        const taskName = button.getAttribute('data-task-name');
-        const taskDescription = button.getAttribute('data-task-description');
-        const taskStatus = button.getAttribute('data-task-status');
-        const taskAssignmentDate = button.getAttribute('data-task-assignment-date');
-        const taskDeadline = button.getAttribute('data-task-deadline');
-        const taskPriority = button.getAttribute('data-task-priority');
-        const taskDepartments = button.getAttribute('data-task-departments');
-
-
-        // Đưa dữ liệu vào các phần tử trong modal
-        document.getElementById('task-name').innerText = taskName;
-        document.getElementById('task-description').innerText = taskDescription;
-        document.getElementById('task-status').innerText = taskStatus;
-        document.getElementById('task-assignment-date').innerText = taskAssignmentDate;
-        document.getElementById('task-deadline').innerText = taskDeadline;
-        document.getElementById('task-priority').innerText = taskPriority;
-        document.getElementById('task-departments').innerText = taskDepartments;
-
-
-        // Hiển thị modal
-        document.getElementById('detailTaskModal').style.display = 'block';
-    }
+   
 
     function closeDetailTaskModal() {
         document.getElementById('detailTaskModal').style.display = 'none';
@@ -406,3 +252,298 @@
         document.getElementById('deleteTaskModal').style.display = 'none';
     }
 </script>
+
+
+
+<style>
+    /* General styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+        padding: 20px;
+        margin: 0;
+    }
+
+    h2 {
+        font-size: 20px;
+        color: #555;
+    }
+
+    /* Task list container */
+    .task-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    /* Task item styles */
+    .task-item {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        max-width: 100%;
+    }
+
+        .task-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .task-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .task-item strong {
+            color: #333;
+        }
+
+    /* Button container */
+    .task-item-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-view, .btn-edit, .btn-delete {
+        border: none;
+    }
+
+    /* Uniform button styling */
+    .task-item-buttons .btn {
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 12px 0;
+        width: 100%;
+        text-align: center;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Specific button colors */
+    .btn-view {
+        background-color: #17a2b8;
+    }
+
+        .btn-view:hover {
+            background-color: #138496;
+        }
+
+    .btn-edit {
+        background-color: #ffc107;
+        color: #333;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-delete {
+        background-color: #dc3545;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+    /* Filter form styling */
+    .filters {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Ba cột hàng trên */
+        grid-template-rows: auto auto; /* Hai hàng */
+        gap: 15px;
+        align-items: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+        /* Hàng đầu tiên với 3 trường */
+        .filters .form-group:nth-child(1),
+        .filters .form-group:nth-child(2),
+        .filters .form-group:nth-child(3) {
+            grid-column: span 1;
+        }
+
+        /* Hàng thứ hai với 2 trường chiếm 2 cột */
+        .filters .form-group:nth-child(4),
+        .filters .form-group:nth-child(5) {
+            grid-column: span 1;
+        }
+
+        /* Button Lọc nằm cạnh trường cuối cùng */
+        .filters .btn-filter {
+            grid-column: 3 / 4;
+            align-self: end;
+            justify-self: start;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .filters .btn-filter:hover {
+                background-color: #218838;
+            }
+
+        /* Style cho các nhãn và trường */
+        .filters .form-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .filters input, .filters select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+    /* Pagination styling */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination {
+        display: flex;
+        list-style-type: none;
+        gap: 5px;
+    }
+
+        .pagination li {
+            margin: 0;
+        }
+
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+            .pagination a:hover {
+                background-color: #f0f0f0;
+            }
+
+        .pagination .active span {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination .disabled span {
+            color: #999;
+        }
+
+    /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .modal-content p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .modal-content label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .modal input[type="text"], .modal input[type="date"], .modal textarea, .modal select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .modal textarea {
+        resize: vertical;
+    }
+
+    /* CSS cho nút Tạo Task */
+    .btn-create-task {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+        .btn-create-task:hover {
+            background-color: #0056b3;
+        }
+</style>

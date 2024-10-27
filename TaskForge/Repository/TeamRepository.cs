@@ -18,5 +18,12 @@ namespace TaskForge.Repository
         {
             return _context.Teams.Where(t => t.DeptId == deptId).ToList();
         }
+        public List<Team> GetTeamsByTaskSubtasks(string taskId)
+        {
+            return _context.Teams
+                           .Where(t => t.Subtasks.Any(st => st.TaskId == taskId))
+                           .ToList();
+        }
+
     }
 }

@@ -37,5 +37,9 @@ namespace TaskForge.Service
         {
             _subtaskRepository.DeleteSubtask(subtaskId);
         }
+        public List<Employee> GetEmployeesBySubtaskId(string subtaskId)
+        {
+            return _subtaskRepository.GetEmployeesBySubtaskId(subtaskId);
+        }
     }
 }

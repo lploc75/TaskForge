@@ -693,6 +693,7 @@ public partial class TaskForgeContext : DbContext
             entity.Property(e => e.NumberOfMember).HasColumnName("number_of_member");
             entity.Property(e => e.TeamName)
                 .HasMaxLength(100)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("team_name");
 

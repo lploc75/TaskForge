@@ -1,4 +1,7 @@
-﻿@{
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IEnumerable<TaskForge.Models.Project>
+@{
     Layout = "_ManagerLayout";
 }
 <!DOCTYPE html>
@@ -8,369 +11,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng Kanban Quản lý dự án</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-            padding: 20px;
-        }
-
-        /* Kanban Board Styling */
-        .kanban-board {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-            .header h1 {
-                font-size: 24px;
-                color: #333;
-            }
-
-        .search-input {
-            width: 300px;
-            padding: 12px;
-            border: 1px solid #007bff;
-            border-radius: 5px;
-        }
-
-        /* Kanban Sections */
-        .kanban-section {
-            margin-bottom: 40px;
-            padding: 15px;
-            background-color: #ffffffc1;
-            border-radius: 10px;
-        }
-
-            .kanban-section h2 {
-                font-size: 20px;
-                color: #333;
-                margin-bottom: 15px;
-            }
-
-        .kanban-row {
-            display: flex;
-            justify-content: left;
-            gap: 50px;
-        }
-
-        /* Kanban Cards */
-        .task-card {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            width: 30%;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-            .task-card:hover {
-                transform: scale(1.05);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            }
-
-            .task-card h3 {
-                font-size: 18px;
-                color: #007bff;
-                margin-bottom: 10px;
-            }
-
-            .task-card p {
-                font-size: 14px;
-                color: #666;
-                margin-bottom: 10px;
-            }
-
-        .progress-bar {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            height: 8px;
-            margin-bottom: 10px;
-        }
-
-        .progress {
-            height: 100%;
-            border-radius: 5px;
-        }
-
-        .progress-completed {
-            background-color: #4CAF50;
-        }
-
-        .progress-ongoing {
-            background-color: #007bff;
-        }
-
-        .progress-cancelled {
-            background-color: #FF5722;
-        }
-
-        /* Button Styles */
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .btn-edit {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-            .btn-edit:hover {
-                background-color: #138496;
-            }
-
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-        }
-
-            .btn-delete:hover {
-                background-color: #c82333;
-            }
-
-        .create-project-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            transition: background-color 0.3s;
-        }
-
-            .create-project-btn:hover {
-                background-color: #388e3c;
-            }
-
-        /* Modal Styling */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            width: 40%;
-            position: relative;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 20px;
-            color: #999;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-            .close:hover {
-                color: #555;
-            }
-
-        .modal-content h2 {
-            margin-bottom: 20px;
-        }
-
-        .modal-content label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .modal-content input, .modal-content textarea, .modal-content select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .modal-content button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-            .modal-content button:hover {
-                background-color: #0056b3;
-            }
-
-    </style>
 </head>
 <body>
-    <div class="kanban-board">
-        <div class="header">
-            <h1>Bảng Kanban - Quản lý dự án</h1>
-            <div class="actions">
-                <input type="text" class="search-input" placeholder="Tìm kiếm...">
-            </div>
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert @(TempData["MessageType"]?.ToString() == "success" ? "alert-success" : "alert-error")">
+            @TempData["Message"]
         </div>
+    }
 
-        <!-- Section 1: Đang Tiến Hành -->
-        <div class="kanban-section">
-            <h2>Đang tiến hành</h2>
-            <div class="kanban-row">
-                @try
+    <header class="kanban-header">
+        <h1>Quản lý dự án</h1>
+        <form method="get" action="@Url.Action("ProjectManage", "Manager")">
+            <input type="text" name="searchTerm" class="search-input" placeholder="Tìm kiếm dự án..." value="@ViewBag.SearchTerm" />
+            <button type="submit">Tìm kiếm</button>
+        </form>
+    </header>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <form method="get" action="@Url.Action("ProjectManage", "Manager")">
+        <!-- Status Filter -->
+        <label for="status">Status:</label>
+<select id="status" name="status">
+    <option value="">All</option>
+    <option value="In Progress" >In Progress</option>
+    <option value="Completed" >Completed</option>
+    <option value="Cancelled" >Cancelled</option>
+</select>
+
+
+        <!-- Deadline Filter -->
+        <label for="deadline">Deadline:</label>
+        <input type="date" id="deadline" name="deadline" value="@(ViewBag.CurrentDeadline?.ToString("yyyy-MM-dd") ?? "")" />
+
+        <!-- Department Filter -->
+        <label for="departmentId">Department:</label>
+        <select id="departmentId" name="departmentId">
+            <option value="" >All</option>
+            @foreach (var department in ViewBag.Departments)
+            {
+                <option value="@department.DeptId" >@department.DeptName</option>
+            }
+        </select>
+
+        <!-- Submit Button -->
+        <button type="submit">Apply Filters</button>
+    </form>
+</div>
+
+
+
+    <section class="kanban-container">
+        @try
+        {
+            if (ViewBag.AllProjects != null && ViewBag.AllProjects.Count > 0)
+            {
+                foreach (var project in ViewBag.AllProjects)
                 {
-                    @if (ViewBag.OngoingProjects != null && ViewBag.OngoingProjects.Count > 0)
-                    {
-                        @foreach (var project in ViewBag.OngoingProjects)
-                        {
-                            <div class="task-card">
-                                <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
-                                <p>Mô tả: @project.Description</p>
-                                <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
-                                <div class="progress-bar">
-                                    <div class="progress progress-ongoing" style="width: 60%;"></div>
-                                </div>
-                                <span>Trạng thái: @project.Status</span>
+                    // Set progress width based on project status
+                    var progressWidth = project.Status == "Completed" ? "100%" : (project.Status == "Cancelled" ? "20%" : "60%");
+                    <article class="task-card">
+                        <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
+                        <p>Mô tả: @project.Description</p>
+                        <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: @progressWidth;"></div>
+                        </div>
+                        <span>Trạng thái: @project.Status</span>
+                        <h4>Phòng ban liên quan:</h4>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            @foreach (var department in project.Departments)
+                            {
+                                <li>@department.DeptName</li>
+                            }
+                        </ul>
 
-                                <!-- Edit and Delete Buttons -->
-                                @{
-                                    var departmentIds = "";
-                                    foreach (var department in project.Departments)
-                                    {
-                                        departmentIds += department.DeptId + ",";
-                                    }
-                                    departmentIds = departmentIds.TrimEnd(','); // Xóa dấu phẩy cuối cùng
-                                }
-                                <button class="btn btn-edit"
-                                        onclick="openEditModal('@project.ProjectId', '@project.ProjectName', '@project.Description', '@project.Deadline?.ToString("yyyy-MM-dd")', '@departmentIds')">
-                                    Sửa
-                                </button>
-
-                                <button class="btn btn-delete" onclick="openDeleteModal('@project.ProjectId', '@project.ProjectName')">Xóa</button>
-                            </div>
+                        <!-- Action buttons for edit and delete -->
+                        @{
+                            var departmentIds = string.Join(",", ((IEnumerable<Department>)project.Departments).Select(d => d.DeptId));
                         }
-                    }
-                    else
-                    {
-                        <p>Không có dự án nào đang tiến hành.</p>
-                    }
-                }
-                catch (Exception ex)
-                {
-                    <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
-                }
-            </div>
-        </div>
+                        <button class="btn btn-edit" onclick="openEditModal('@project.ProjectId', '@project.ProjectName', '@project.Description', '@project.Deadline?.ToString("yyyy-MM-dd")', '@departmentIds')">
+                            Sửa
+                        </button>
 
-        <!-- Section 2: Đã Hoàn Thành -->
-        <div class="kanban-section">
-            <h2>Đã hoàn thành</h2>
-            <div class="kanban-row">
-                @try
-                {
-                    @if (ViewBag.CompletedProjects != null && ViewBag.CompletedProjects.Count > 0)
-                    {
-                        @foreach (var project in ViewBag.CompletedProjects)
-                        {
-                            <div class="task-card">
-                                <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
-                                <p>Mô tả: @project.Description</p>
-                                <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
-                                <div class="progress-bar">
-                                    <div class="progress progress-completed" style="width: 100%;"></div>
-                                </div>
-                                <span>Trạng thái: @project.Status</span>
-                                <button class="btn btn-edit" onclick="openEditModal('@project.ProjectId')">Sửa</button>
-                                <button class="btn btn-delete" onclick="deleteProject('@project.ProjectId')">Xóa</button>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p>Không có dự án nào đã hoàn thành.</p>
-                    }
+                        <button class="btn btn-delete" onclick="openDeleteModal('@project.ProjectId', '@project.ProjectName')">Xóa</button>
+                    </article>
                 }
-                catch (Exception ex)
-                {
-                    <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
-                }
-            </div>
-        </div>
-
-        <!-- Section 3: Đã Hủy -->
-        <div class="kanban-section">
-            <h2>Đã hủy</h2>
-            <div class="kanban-row">
-                @try
-                {
-                    @if (ViewBag.CancelledProjects != null && ViewBag.CancelledProjects.Count > 0)
-                    {
-                        @foreach (var project in ViewBag.CancelledProjects)
-                        {
-                            <div class="task-card">
-                                <h3><a href="@Url.Action("ProjectDetails", "Manager", new { id = project.ProjectId })">@project.ProjectName</a></h3>
-                                <p>Mô tả: @project.Description</p>
-                                <p>Hạn chót: @project.Deadline?.ToString("yyyy-MM-dd")</p>
-                                <div class="progress-bar">
-                                    <div class="progress progress-cancelled" style="width: 20%;"></div>
-                                </div>
-                                <span>Trạng thái: @project.Status</span>
-                                <button class="btn btn-edit" onclick="openEditModal('@project.ProjectId')">Sửa</button>
-                                <button class="btn btn-delete" onclick="deleteProject('@project.ProjectId')">Xóa</button>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p>Không có dự án nào đã hủy.</p>
-                    }
-                }
-                catch (Exception ex)
-                {
-                    <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
-                }
-            </div>
-        </div>
-
-        <!-- Nút Tạo Mới Dự Án -->
-        <button class="create-project-btn" onclick="openModal()">+ Tạo dự án mới</button>
+            }
+            else
+            {
+                <p>Không có dự án nào được tìm thấy.</p>
+            }
+        }
+        catch (Exception ex)
+        {
+            <p>Có lỗi xảy ra khi tải dữ liệu: @ex.Message</p>
+        }
+    </section>
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        @Html.PagedListPager((IPagedList)ViewBag.AllProjects, page => Url.Action("ProjectManage", new { page }), new PagedListRenderOptions
+   {
+       DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+       DisplayLinkToLastPage = PagedListDisplayMode.Always,
+       DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+       DisplayLinkToNextPage = PagedListDisplayMode.Always,
+       DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+       MaximumPageNumbersToDisplay = 5
+   })
     </div>
+    <!-- Nút Tạo Mới Dự Án -->
+    <button class="create-project-btn" onclick="openModal()">+ Tạo dự án mới</button>
 
     <!-- Modal tạo dự án mới -->
     <div id="modal" class="modal" style="display: none;">
@@ -449,25 +201,20 @@
 
     <!-- JavaScript -->
     <script>
-        // Mở modal tạo dự án mới
         function openModal() {
             document.getElementById('modal').style.display = 'flex';
         }
 
-        // Đóng modal tạo dự án mới
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
         }
 
-        // Mở modal chỉnh sửa dự án
         function openEditModal(projectId, projectName, description, deadline, departments) {
-            // Đặt giá trị cho các trường trong modal chỉnh sửa
             document.getElementById('edit-project-id').value = projectId;
             document.getElementById('edit-project-name').value = projectName;
             document.getElementById('edit-description').value = description;
             document.getElementById('edit-deadline').value = deadline;
 
-            // Đặt phòng ban đã chọn
             let departmentCheckboxes = document.querySelectorAll('.edit-department-checkbox');
             departmentCheckboxes.forEach(checkbox => {
                 checkbox.checked = departments.includes(checkbox.value);
@@ -476,19 +223,16 @@
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        // Đóng modal chỉnh sửa dự án
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
 
-        // Mở modal xác nhận xóa dự án
         function openDeleteModal(projectId, projectName) {
             document.getElementById('delete-project-id').value = projectId;
             document.getElementById('delete-project-name').innerText = projectName;
             document.getElementById('deleteModal').style.display = 'flex';
         }
 
-        // Đóng modal xác nhận xóa dự án
         function closeDeleteModal() {
             document.getElementById('deleteModal').style.display = 'none';
         }
@@ -496,3 +240,308 @@
 
 </body>
 </html>
+
+<style>
+    /* General Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Body Styling */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        padding: 20px;
+    }
+
+    /* Kanban Header */
+    .kanban-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .kanban-header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+    .search-input {
+        width: 300px;
+        padding: 12px;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background-color: #f1f1f1;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+        .filter-section label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .filter-section select,
+        .filter-section input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .filter-section button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .filter-section button:hover {
+                background-color: #218838;
+            }
+
+    /* Kanban Container */
+    .kanban-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: left;
+    }
+
+    /* Task Card Styling */
+    .task-card {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        width: 30%;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .task-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-card h3 {
+            font-size: 18px;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .task-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+    /* Progress Bar */
+    .progress-bar {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        height: 8px;
+        margin-bottom: 10px;
+    }
+
+    .progress {
+        height: 100%;
+        background-color: #007bff;
+        border-radius: 5px;
+    }
+
+    /* Button Styling */
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 14px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .btn-edit {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background-color: #138496;
+        }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+    /* Create Project Button */
+    .create-project-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        transition: background-color 0.3s;
+    }
+
+        .create-project-btn:hover {
+            background-color: #388e3c;
+        }
+
+    /* Modal Styling */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 40%;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        color: #999;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+        .close:hover {
+            color: #555;
+        }
+
+    .modal-content h2 {
+        margin-bottom: 20px;
+    }
+
+    .modal-content label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .modal-content input,
+    .modal-content textarea,
+    .modal-content select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .modal-content button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+    /* Pagination Styling */
+    .pagination {
+        display: flex;
+        list-style-type: none;
+        gap: 5px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+        .pagination li {
+            margin: 0;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+            .pagination a:hover {
+                background-color: #f0f0f0;
+            }
+
+        .pagination .active span {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination .disabled span {
+            color: #999;
+        }
+
+    /* Success Message Styling */
+    .alert-success {
+        padding: 15px;
+        background-color: #d4edda; /* Xanh lá nhạt */
+        color: #155724; /* Xanh lá đậm */
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .alert-error {
+        padding: 15px;
+        background-color: #f8d7da; /* Đỏ nhạt */
+        color: #721c24; /* Đỏ đậm */
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+</style>

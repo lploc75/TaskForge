@@ -35,6 +35,7 @@ public partial class Subtask
 
     public virtual ICollection<SubtaskEvaluation> SubtaskEvaluations { get; set; } = new List<SubtaskEvaluation>();
 
+
     public virtual Task? Task { get; set; }
 
     public virtual Team? Team { get; set; }
