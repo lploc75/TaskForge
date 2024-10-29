@@ -9,7 +9,7 @@ public partial class Feedback
 
     public string? Context { get; set; }
 
-    public DateTime? DateSubmitted { get; set; }
+    public DateTime DateSubmitted { get; set; }
 
     public string? AccountId { get; set; }
 

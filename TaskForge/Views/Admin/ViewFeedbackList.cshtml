@@ -1,0 +1,85 @@
+﻿@model List<TaskForge.Models.Feedback>
+@{
+    ViewData["Title"] = "Feedback Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="feedback-management-container">
+    <h2>Feedback Management</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Feedback ID</th>
+                <th>Context</th>
+                <th>Date Submitted</th>
+                <th>Account ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var feedback in Model)
+            {
+                <tr>
+                    <td>@feedback.FeedbackId</td>
+                    <td>@feedback.Context</td>
+                    <td>@feedback.DateSubmitted.ToString("yyyy-MM-dd")</td>
+                    <td>@feedback.AccountId</td>
+                    <td>
+                        <form asp-action="DeleteFeedback" method="post" onsubmit="return confirmDelete();">
+                            <input type="hidden" name="feedbackId" value="@feedback.FeedbackId" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .feedback-management-container {
+        max-width: 90%; /* Giới hạn chiều rộng của container */
+        margin: 0 auto; /* Căn giữa container để có khoảng trống đều ở hai bên */
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+    .btn-danger {
+        color: #fff;
+        background-color: #dc3545;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+</style>
+
+<script>
+    function confirmDelete() {
+        return confirm("Are you sure you want to delete this feedback?");
+    }
+</script>

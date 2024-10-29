@@ -17,15 +17,17 @@ namespace TaskForge.Controllers
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
         private readonly NotificationService _notificationService;
+        private readonly FeedbackService _feedbackService;
         // Constructor duy nhất cho cả hai service
         public StaffandLeaderController(EmployeeService employeeService, DropboxService dropboxService, 
-            ProjectService projectService, TaskService taskService, NotificationService notificationService)
+            ProjectService projectService, TaskService taskService, NotificationService notificationService, FeedbackService feedbackService)
         {
             _employeeService = employeeService;
             _dropboxService = dropboxService;
             _projectService = projectService;
             _taskService = taskService;
             _notificationService = notificationService;
+            _feedbackService = feedbackService;
         }
 
         public IActionResult Index()
@@ -606,7 +608,7 @@ namespace TaskForge.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitExchange(int pointsToRedeem, int availableCredits)
+        public IActionResult SubmitExchange(int? pointsToRedeem, int availableCredits)
         {
             string accountId = User.FindFirst("AccountId")?.Value;
 
@@ -615,18 +617,24 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Error", "Home");
             }
 
-            if (pointsToRedeem < 100 || pointsToRedeem > availableCredits)
+            // Kiểm tra nếu người dùng chưa nhập số điểm
+            if (!pointsToRedeem.HasValue)
             {
-                TempData["Message"] = "Số điểm bạn nhập không hợp lệ.";
-
-                // Truyền trực tiếp số điểm và số tiền qua ViewData
+                TempData["Message"] = "Please enter the points you want to redeem.";
                 ViewData["AvailableCredits"] = availableCredits;
-                ViewData["CashEquivalent"] = availableCredits * 0.5m;  // Ví dụ mỗi điểm = 0.5 USD
-
+                ViewData["CashEquivalent"] = availableCredits * 0.5m;
                 return View("Exchange");
             }
 
-            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem);
+            if (pointsToRedeem < 100 || pointsToRedeem > availableCredits)
+            {
+                TempData["Message"] = "The number of points entered is invalid.";
+                ViewData["AvailableCredits"] = availableCredits;
+                ViewData["CashEquivalent"] = availableCredits * 0.5m;
+                return View("Exchange");
+            }
+
+            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem.Value);
 
             if (exchangeId != 0)
             {
@@ -638,6 +646,7 @@ namespace TaskForge.Controllers
                 return View("Exchange");
             }
         }
+
         public IActionResult ExchangeConfirmation(int exchangeId)
         {
             var exchange = _employeeService.GetCreditExchangeById(exchangeId);
@@ -653,6 +662,39 @@ namespace TaskForge.Controllers
             ViewData["ExchangeId"] = exchange.ExchangeId;
 
             return View();
+        }
+        public IActionResult Feedback()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SubmitFeedback(string context)
+        {
+            if (string.IsNullOrWhiteSpace(context))
+            {
+                TempData["Message"] = "Please enter your feedback before submitting.";
+                return RedirectToAction("Feedback");
+            }
+
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            // Lấy feedback_id cao nhất hiện tại và tăng lên 1
+            int newFeedbackId = _feedbackService.GetNextFeedbackId();
+
+            // Tạo đối tượng feedback với feedback_id mới
+            var feedback = new Feedback
+            {
+                FeedbackId = newFeedbackId,
+                Context = context,
+                DateSubmitted = DateTime.Now,
+                AccountId = accountId
+            };
+
+            _feedbackService.CreateFeedback(feedback);
+            TempData["Message"] = "Thank you for your feedback!";
+
+            return RedirectToAction("Feedback");
         }
 
     }
