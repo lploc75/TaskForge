@@ -141,5 +141,40 @@ namespace TaskForge.Service
             // Gọi phương thức trong Repository để lấy danh sách nhân viên cùng teamId
             return _employeeRepository.GetStaffByTeamId(teamId);
         }
+
+        public List<Comment> GetCommentsBySubtaskId(string subtaskId)
+        {
+            return _employeeRepository.GetCommentsBySubtaskId(subtaskId);
+        }
+
+        public void AddComment(string accountId, string subtaskId, string content)
+        {
+            // Generate a new comment ID based on the existing comments in the database
+            string lastCommentId = _employeeRepository.GetLastCommentId();
+            int nextId = 1;
+
+            if (!string.IsNullOrEmpty(lastCommentId) && lastCommentId.Length > 3)
+            {
+                int currentId = int.Parse(lastCommentId.Substring(3));
+                nextId = currentId + 1;
+            }
+
+            string newCommentId = $"CMT{nextId:D3}";
+
+            var comment = new Comment
+            {
+                CommentId = newCommentId,
+                SubtaskId = subtaskId,
+                Content = content,
+                DateSubmitted = DateTime.Now
+            };
+
+            _employeeRepository.AddComment(comment);
+        }
+
+        public void DeleteComment(string commentId)
+        {
+            _employeeRepository.DeleteComment(commentId);
+        }
     }
 }

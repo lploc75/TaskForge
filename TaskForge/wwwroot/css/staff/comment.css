@@ -1,0 +1,148 @@
+﻿/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa; /* Màu nền sáng */
+    color: #333; /* Màu chữ */
+}
+
+/* Container for Comment Section */
+.container {
+    max-width: 800px;
+    margin: 0 auto; /* Căn giữa */
+    padding: 20px; /* Padding cho container */
+}
+
+/* Header Titles */
+h2, h3 {
+    color: #343a40; /* Màu chữ tiêu đề */
+    font-weight: 700; /* Đậm chữ */
+    text-align: left; /* Căn lề trái */
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+}
+
+/* Form Card Styling */
+.card {
+    border-radius: 10px; /* Bo góc */
+    background-color: #ffffff; /* Màu nền trắng */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    padding: 20px; /* Padding bên trong */
+    margin-bottom: 20px; /* Khoảng cách dưới card */
+}
+
+/* Form Elements */
+.form-group label {
+    font-size: 1em; /* Kích thước chữ cho label */
+    color: #333; /* Màu chữ */
+    font-weight: bold; /* Đậm chữ */
+}
+
+.form-control {
+    border-radius: 4px; /* Bo góc */
+    border: 1px solid #ccc; /* Đường viền */
+    padding: 10px; /* Padding bên trong */
+    width: 100%; /* Chiếm 100% chiều rộng */
+    font-size: 16px; /* Kích thước chữ */
+    resize: none; /* Không cho phép thay đổi kích thước */
+}
+
+/* Button */
+.btn-primary {
+    background-color: #36b9cc; /* Màu nền */
+    border: none; /* Không có viền */
+    color: white; /* Màu chữ */
+    font-weight: bold; /* Đậm chữ */
+    border-radius: 5px; /* Bo góc */
+    padding: 10px 20px; /* Padding */
+    cursor: pointer; /* Con trỏ chuột */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+    .btn-primary:hover {
+        background-color: #2a9aa8; /* Màu nền khi hover */
+    }
+
+
+/* Table Styling */
+.table-responsive {
+    margin-top: 20px; /* Khoảng cách trên bảng */
+}
+
+.table {
+    width: 100%; /* Chiếm 100% chiều rộng */
+    border-collapse: collapse; /* Gộp các đường viền */
+}
+
+    .table thead {
+        background-color: #e9ecef; /* Màu nền cho tiêu đề bảng */
+    }
+
+        .table thead th {
+            color: #333; /* Màu chữ tiêu đề */
+            font-weight: bold; /* Đậm chữ */
+            padding: 12px; /* Padding cho tiêu đề */
+            text-align: left; /* Căn lề trái */
+            border-bottom: 2px solid #ddd; /* Đường viền dưới tiêu đề */
+        }
+
+    .table tbody tr {
+        border-bottom: 1px solid #ddd; /* Đường viền dưới hàng */
+    }
+
+    .table tbody td {
+        padding: 12px; /* Padding cho ô trong bảng */
+        vertical-align: middle; /* Căn giữa theo chiều dọc */
+        color: #555; /* Màu chữ */
+    }
+
+/* Hover effect for table rows */
+.table-hover tbody tr:hover {
+    background-color: #f4f4f4; /* Màu nền khi hover */
+}
+
+/* Button for actions in table */
+.btn-danger {
+    background-color: #dc3545; /* Màu nền đỏ */
+    border: none; /* Không có viền */
+    color: white; /* Màu chữ trắng */
+    font-size: 14px; /* Kích thước chữ */
+    padding: 5px 10px; /* Padding cho nút */
+    border-radius: 4px; /* Bo góc */
+    cursor: pointer; /* Con trỏ chuột */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+    .btn-danger:hover {
+        background-color: #c82333; /* Màu nền khi hover */
+    }
+
+/* No Comments Message */
+.text-muted {
+    font-size: 0.9em; /* Kích thước chữ */
+    color: #6c757d; /* Màu chữ */
+    padding: 20px; /* Padding cho thông báo */
+    text-align: center; /* Căn giữa */
+}
+
+/* Spacing */
+.mt-5 {
+    margin-top: 30px; /* Khoảng cách trên */
+}
+
+.mb-4 {
+    margin-bottom: 20px; /* Khoảng cách dưới */
+}
+
+.mt-4 {
+    margin-top: 20px; /* Khoảng cách trên */
+}
+
+/* Table alignment */
+.table {
+    margin: 0; /* Đặt lại margin */
+}

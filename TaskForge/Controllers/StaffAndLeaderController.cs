@@ -16,15 +16,17 @@ namespace TaskForge.Controllers
         private readonly DropboxService _dropboxService;
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
+        private readonly SubtaskService _subtaskService;
         private readonly NotificationService _notificationService;
         // Constructor duy nhất cho cả hai service
         public StaffandLeaderController(EmployeeService employeeService, DropboxService dropboxService, 
-            ProjectService projectService, TaskService taskService, NotificationService notificationService)
+            ProjectService projectService, TaskService taskService, NotificationService notificationService, SubtaskService subtaskService)
         {
             _employeeService = employeeService;
             _dropboxService = dropboxService;
             _projectService = projectService;
             _taskService = taskService;
+            _subtaskService = subtaskService;
             _notificationService = notificationService;
         }
 
@@ -654,6 +656,100 @@ namespace TaskForge.Controllers
 
             return View();
         }
+
+        // Action hiển thị các bình luận cho một subtask
+        public IActionResult Comment(string subtaskId)
+        {
+            if (string.IsNullOrEmpty(subtaskId))
+            {
+                return RedirectToAction("Error", "Home"); // Chuyển hướng nếu subtaskId không hợp lệ
+            }
+
+            var comments = _employeeService.GetCommentsBySubtaskId(subtaskId);
+            ViewBag.SubtaskId = subtaskId;
+            ViewBag.Comments = comments;
+            return View("Comment");
+        }
+
+        // Action thêm bình luận cho một subtask
+        [HttpPost]
+        public IActionResult AddComment(string subtaskId, string commentText)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+            if (!string.IsNullOrEmpty(accountId) && !string.IsNullOrEmpty(subtaskId) && !string.IsNullOrEmpty(commentText))
+            {
+                _employeeService.AddComment(accountId, subtaskId, commentText);
+            }
+            return RedirectToAction("Comment", new { subtaskId });
+        }
+
+        // Action xóa bình luận của một subtask
+        [HttpPost]
+        public IActionResult DeleteComment(string commentId, string subtaskId)
+        {
+            if (!string.IsNullOrEmpty(commentId))
+            {
+                _employeeService.DeleteComment(commentId);
+            }
+            return RedirectToAction("Comment", new { subtaskId });
+        }
+
+        public IActionResult Evaluate(string subtaskId)
+        {
+            var subtask = _subtaskService.GetSubtaskById(subtaskId);
+
+            if (subtask == null || subtask.Status != "Pending")
+            {
+                return RedirectToAction("LeaderAssignTask");
+            }
+
+            return View(subtask);
+        }
+
+        [HttpPost]
+        public IActionResult SubmitEvaluation(string subtaskId, string approvalStatus, string evaluationComment, int? teamworkRating, int? timelinessRating, int? kpiRating)
+        {
+            if (!teamworkRating.HasValue || !timelinessRating.HasValue || !kpiRating.HasValue)
+            {
+                ModelState.AddModelError("", "Please provide all ratings.");
+                return RedirectToAction("Evaluate", new { subtaskId });
+            }
+
+            var subtask = _subtaskService.GetSubtaskById(subtaskId);
+
+            if (subtask == null)
+            {
+                return RedirectToAction("LeaderAssignTask");
+            }
+
+            if (approvalStatus == "Assign")
+            {
+                subtask.Status = "Completed";
+            }
+            else if (approvalStatus == "Not Assign")
+            {
+                subtask.Status = "In Progress";
+            }
+
+            var evaluation = new SubtaskEvaluation
+            {
+                SubtaskId = subtaskId,
+                EvaluationDate = DateTime.Now,
+                Comment = approvalStatus == "Assign" ? evaluationComment : null,
+                TeamworkRating = teamworkRating.Value,
+                TimelinessRating = timelinessRating.Value,
+                KpiRating = kpiRating.Value
+            };
+
+            _subtaskService.SaveEvaluation(evaluation);
+            _subtaskService.UpdateSubtask(subtask);
+
+            return RedirectToAction("LeaderAssignTask");
+        }
+
+
+
+
 
     }
 }

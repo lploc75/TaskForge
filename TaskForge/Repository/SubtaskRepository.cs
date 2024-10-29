@@ -78,6 +78,26 @@ namespace TaskForge.Repository
                            .ToList();
         }
 
+        public void SaveEvaluation(SubtaskEvaluation evaluation)
+        {
+            // Tìm EvaluationId cuối cùng trong cơ sở dữ liệu và tăng lên 1
+            var lastEvaluationId = _context.SubtaskEvaluations
+                                           .OrderByDescending(e => e.EvaluationId)
+                                           .Select(e => e.EvaluationId)
+                                           .FirstOrDefault();
+
+            // Nếu không có EvaluationId, bắt đầu từ "SEVAL001"
+            int nextId = lastEvaluationId != null ? int.Parse(lastEvaluationId.Substring(5)) + 1 : 1;
+
+            // Format EvaluationId thành "SEVAL001", "SEVAL002", ...
+            evaluation.EvaluationId = "SEVAL" + nextId.ToString("D3");
+
+            // Thêm đánh giá vào cơ sở dữ liệu
+            _context.SubtaskEvaluations.Add(evaluation);
+            _context.SaveChanges();
+        }
+
+
 
     }
 }

@@ -1,0 +1,119 @@
+﻿@model TaskForge.Models.Subtask
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <h2>Evaluate Subtask</h2>
+
+    <!-- Nút Back để quay lại trang AssignTask -->
+    <div class="mb-3">
+        <a href="@Url.Action("LeaderAssignTask", "StaffAndLeader")" class="btn btn-secondary">Back</a>
+    </div>
+
+    <form asp-action="SubmitEvaluation" method="post">
+        <input type="hidden" name="subtaskId" value="@Model.SubtaskId" />
+
+        <div class="form-group">
+            <label>Phê Duyệt '@Model.SubtaskName'</label><br />
+            <input type="radio" id="assign" name="approvalStatus" value="Assign" required onclick="toggleEvaluation(true)">
+            <label for="assign">Duyệt</label><br />
+            <input type="radio" id="notAssign" name="approvalStatus" value="Not Assign" onclick="toggleEvaluation(false)">
+            <label for="notAssign">Không Duyệt</label>
+        </div>
+
+        <!-- Teamwork Rating -->
+        <div class="form-group">
+            <label>Teamwork Rating:</label><br />
+            @for (int i = 1; i <= 4; i++)
+            {
+                <input type="radio" name="teamworkRating" value="@i" disabled required /> @i
+            }
+            <span id="teamworkError" style="color: red; display: none;">Please select a rating.</span>
+        </div>
+
+        <!-- Timeliness Rating -->
+        <div class="form-group">
+            <label>Timeliness Rating:</label><br />
+            @for (int i = 1; i <= 4; i++)
+            {
+                <input type="radio" name="timelinessRating" value="@i" disabled required /> @i
+            }
+            <span id="timelinessError" style="color: red; display: none;">Please select a rating.</span>
+        </div>
+
+        <!-- KPI Rating -->
+        <div class="form-group">
+            <label>KPI Rating:</label><br />
+            @for (int i = 1; i <= 4; i++)
+            {
+                <input type="radio" name="kpiRating" value="@i" disabled required /> @i
+            }
+            <span id="kpiError" style="color: red; display: none;">Please select a rating.</span>
+        </div>
+
+        <!-- Comment -->
+        <div class="form-group">
+            <label>Đánh Giá '@Model.SubtaskName'</label>
+            <textarea id="evaluationComment" name="evaluationComment" class="form-control" rows="4" disabled required></textarea>
+            <span id="errorText" style="color: red; display: none;">Vui lòng nhập đánh giá trước khi duyệt.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script>
+    function toggleEvaluation(enable) {
+        document.getElementById("evaluationComment").disabled = !enable;
+        document.getElementById("evaluationComment").required = enable;
+
+        var teamworkOptions = document.getElementsByName("teamworkRating");
+        var timelinessOptions = document.getElementsByName("timelinessRating");
+        var kpiOptions = document.getElementsByName("kpiRating");
+
+        teamworkOptions.forEach(option => option.disabled = !enable);
+        timelinessOptions.forEach(option => option.disabled = !enable);
+        kpiOptions.forEach(option => option.disabled = !enable);
+    }
+
+    document.querySelector("form").addEventListener("submit", function (event) {
+        let valid = true;
+
+        // Kiểm tra từng tiêu chí và hiển thị lỗi nếu chưa được chọn
+        if (document.getElementById("assign").checked) {
+            if (!document.querySelector("input[name='teamworkRating']:checked")) {
+                document.getElementById("teamworkError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("teamworkError").style.display = "none";
+            }
+
+            if (!document.querySelector("input[name='timelinessRating']:checked")) {
+                document.getElementById("timelinessError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("timelinessError").style.display = "none";
+            }
+
+            if (!document.querySelector("input[name='kpiRating']:checked")) {
+                document.getElementById("kpiError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("kpiError").style.display = "none";
+            }
+
+            if (!document.getElementById("evaluationComment").value.trim()) {
+                document.getElementById("errorText").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("errorText").style.display = "none";
+            }
+        }
+
+        if (!valid) {
+            event.preventDefault();
+        }
+    });
+</script>

@@ -19,10 +19,10 @@
             border-color: #36b9cc;
         }
 
-        .btn-primary:hover {
-            background-color: #2a9aa8; /* Darker blue on hover */
-            border-color: #2a9aa8;
-        }
+            .btn-primary:hover {
+                background-color: #2a9aa8; /* Darker blue on hover */
+                border-color: #2a9aa8;
+            }
     </style>
 </head>
 <body>
@@ -71,7 +71,6 @@
                     <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                     <a href="@Url.Action("LeaderAssignTask", "StaffAndLeader")" class="btn btn-secondary ml-2">Clear</a>
                 </div>
-
             </div>
         </form>
 
@@ -112,19 +111,27 @@
                             }
                         </td>
                         <td>
-                            @if (subtask.Status == "Not Assign")
+                            @if (subtask.Status == "Pending")
                             {
-                                <!-- Form để gán nhân viên -->
+                                <!-- Nút Evaluate cho subtasks ở trạng thái Pending -->
+                                <form asp-action="Evaluate" method="get" style="display:inline;">
+                                    <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                    <button type="submit" class="btn btn-success">Evaluate</button>
+                                </form>
+                            }
+                            else if (subtask.Status == "Not Assign")
+                            {
+                                <!-- Nút Assign hiện tại -->
                                 <form asp-action="AssignSubtask" method="post" style="display:inline;" onsubmit="return confirmAssignTask()">
                                     <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
-                                    <input type="text" name="assignedTo" id="assignedTo" class="form-control" 
-                                    style="width:auto; display:inline-block;" placeholder="Enter Staff ID" />
+                                    <input type="text" name="assignedTo" id="assignedTo" class="form-control"
+                                           style="width:auto; display:inline-block;" placeholder="Enter Staff ID" />
                                     <button type="submit" class="btn btn-primary">Assign</button>
                                 </form>
                             }
-                            else if(subtask.Status == "Not Start") 
+                            else if (subtask.Status == "Not Start")
                             {
-                                <!-- Form để bỏ gán nhân viên -->
+                                <!-- Nút Unassign cho subtasks đã được assigned -->
                                 <form asp-action="UnassignSubtask" method="post" style="display:inline;" onsubmit="return confirmUnassignTask()">
                                     <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                     <button type="submit" class="btn btn-danger">Unassign</button>

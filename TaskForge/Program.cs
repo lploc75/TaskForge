@@ -94,6 +94,12 @@ namespace TaskForge
                 name: "default",
                 pattern: "{controller=Account}/{action=Login}/{id?}");
 
+            // Thêm route tùy chỉnh cho StaffandLeader
+            app.MapControllerRoute(
+                name: "staffandleader",
+                pattern: "StaffandLeader/{action=Index}/{id?}",
+                defaults: new { controller = "StaffandLeader" });
+
             app.Run();
         }
     }
