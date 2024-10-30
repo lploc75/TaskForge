@@ -188,5 +188,67 @@ namespace TaskForge.Repository
                 .Where(e => e.Teams.Any(t => t.TeamId == teamId) && e.Role == "Staff")
                 .ToList();
         }
+
+        public List<Comment> GetCommentsBySubtaskId(string subtaskId)
+        {
+            var comments = _context.Comments
+                .Include(c => c.Subtask)
+                .ThenInclude(s => s.SubtaskAssignments)
+                .ThenInclude(sa => sa.AssignedToNavigation) // Ensures navigation to Employee details
+                .Where(c => c.SubtaskId == subtaskId)
+                .Select(c => new Comment
+                {
+                    CommentId = c.CommentId,
+                    Content = c.Content,
+                    DateSubmitted = c.DateSubmitted,
+                    SubtaskId = c.SubtaskId,
+                    Subtask = new Subtask
+                    {
+                        SubtaskAssignments = new List<SubtaskAssignment>
+                        {
+                    new SubtaskAssignment
+                    {
+                        AssignedToNavigation = new Employee
+                        {
+                            Fullname = c.Subtask.SubtaskAssignments.FirstOrDefault() != null
+                                       ? c.Subtask.SubtaskAssignments.FirstOrDefault().AssignedToNavigation.Fullname
+                                       : "N/A",
+                            AccountId = c.Subtask.SubtaskAssignments.FirstOrDefault() != null
+                                        ? c.Subtask.SubtaskAssignments.FirstOrDefault().AssignedToNavigation.AccountId
+                                        : "N/A"
+                        }
+                    }
+                        }
+                    }
+                })
+                .ToList();
+
+            return comments;
+        }
+
+
+        public void AddComment(Comment comment)
+        {
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+        }
+
+        public string GetLastCommentId()
+        {
+            return _context.Comments
+                           .OrderByDescending(c => c.CommentId)
+                           .Select(c => c.CommentId)
+                           .FirstOrDefault();
+        }
+
+        public void DeleteComment(string commentId)
+        {
+            var comment = _context.Comments.FirstOrDefault(c => c.CommentId == commentId);
+            if (comment != null)
+            {
+                _context.Comments.Remove(comment);
+                _context.SaveChanges();
+            }
+        }
     }
 }

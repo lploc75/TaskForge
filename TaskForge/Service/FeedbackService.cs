@@ -29,5 +29,11 @@ namespace TaskForge.Service
         {
             _feedbackRepository.DeleteFeedback(feedbackId);
         }
+        public int GetNextFeedbackId()
+        {
+            // Lấy feedback_id lớn nhất trong bảng Feedback
+            var maxId = _feedbackRepository.GetMaxFeedbackId();
+            return maxId + 1;
+        }
     }
 }

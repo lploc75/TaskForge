@@ -16,13 +16,17 @@ namespace TaskForge.Controllers
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
         private readonly NotificationService _notificationService;
+        private readonly FeedbackService _feedbackService;
+        private readonly SubtaskService _subtaskService;
         // Constructor duy nhất cho cả hai service
-        public StaffandLeaderController(EmployeeService employeeService, ProjectService projectService, TaskService taskService, NotificationService notificationService)
+        public StaffandLeaderController(EmployeeService employeeService, ProjectService projectService, TaskService taskService, NotificationService notificationService, FeedbackService feedbackService, SubtaskService subtaskService)
         {
             _employeeService = employeeService;
             _projectService = projectService;
             _taskService = taskService;
             _notificationService = notificationService;
+            _feedbackService = feedbackService;
+            _subtaskService = subtaskService;
         }
 
         public IActionResult Index()
@@ -228,12 +232,10 @@ namespace TaskForge.Controllers
             var ongoingProjects = _projectService.GetProjectsByStatusAndAccount("In Progress", accountId);
             var completedProjects = _projectService.GetProjectsByStatusAndAccount("Completed", accountId);
             var cancelledProjects = _projectService.GetProjectsByStatusAndAccount("Cancelled", accountId);
-            var departments = _projectService.GetAllDepartments();
 
             ViewBag.OngoingProjects = ongoingProjects;
             ViewBag.CompletedProjects = completedProjects;
             ViewBag.CancelledProjects = cancelledProjects;
-            ViewBag.Departments = departments;
 
             return View();
         }
@@ -534,7 +536,7 @@ namespace TaskForge.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitExchange(int pointsToRedeem, int availableCredits)
+        public IActionResult SubmitExchange(int? pointsToRedeem, int availableCredits)
         {
             string accountId = User.FindFirst("AccountId")?.Value;
 
@@ -543,18 +545,24 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Error", "Home");
             }
 
-            if (pointsToRedeem < 100 || pointsToRedeem > availableCredits)
+            // Kiểm tra nếu người dùng chưa nhập số điểm
+            if (!pointsToRedeem.HasValue)
             {
-                TempData["Message"] = "Số điểm bạn nhập không hợp lệ.";
-
-                // Truyền trực tiếp số điểm và số tiền qua ViewData
+                TempData["Message"] = "Please enter the points you want to redeem.";
                 ViewData["AvailableCredits"] = availableCredits;
-                ViewData["CashEquivalent"] = availableCredits * 0.5m;  // Ví dụ mỗi điểm = 0.5 USD
-
+                ViewData["CashEquivalent"] = availableCredits * 0.5m;
                 return View("Exchange");
             }
 
-            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem);
+            if (pointsToRedeem < 100 || pointsToRedeem > availableCredits)
+            {
+                TempData["Message"] = "The number of points entered is invalid.";
+                ViewData["AvailableCredits"] = availableCredits;
+                ViewData["CashEquivalent"] = availableCredits * 0.5m;
+                return View("Exchange");
+            }
+
+            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem.Value);
 
             if (exchangeId != 0)
             {
@@ -566,6 +574,7 @@ namespace TaskForge.Controllers
                 return View("Exchange");
             }
         }
+
         public IActionResult ExchangeConfirmation(int exchangeId)
         {
             var exchange = _employeeService.GetCreditExchangeById(exchangeId);
@@ -581,6 +590,127 @@ namespace TaskForge.Controllers
             ViewData["ExchangeId"] = exchange.ExchangeId;
 
             return View();
+        }
+        public IActionResult Feedback()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult SubmitFeedback(string context)
+        {
+            if (string.IsNullOrWhiteSpace(context))
+            {
+                TempData["Message"] = "Please enter your feedback before submitting.";
+                return RedirectToAction("Feedback");
+            }
+
+            string accountId = User.FindFirst("AccountId")?.Value;
+
+            // Lấy feedback_id cao nhất hiện tại và tăng lên 1
+            int newFeedbackId = _feedbackService.GetNextFeedbackId();
+
+            // Tạo đối tượng feedback với feedback_id mới
+            var feedback = new Feedback
+            {
+                FeedbackId = newFeedbackId,
+                Context = context,
+                DateSubmitted = DateTime.Now,
+                AccountId = accountId
+            };
+
+            _feedbackService.CreateFeedback(feedback);
+            TempData["Message"] = "Thank you for your feedback!";
+
+            return RedirectToAction("Feedback");
+        }
+        // Action hiển thị các bình luận cho một subtask
+        public IActionResult Comment(string subtaskId)
+        {
+            if (string.IsNullOrEmpty(subtaskId))
+            {
+                return RedirectToAction("Error", "Home"); // Chuyển hướng nếu subtaskId không hợp lệ
+            }
+
+            var comments = _employeeService.GetCommentsBySubtaskId(subtaskId);
+            ViewBag.SubtaskId = subtaskId;
+            ViewBag.Comments = comments;
+            return View("Comment");
+        }
+
+        // Action thêm bình luận cho một subtask
+        [HttpPost]
+        public IActionResult AddComment(string subtaskId, string commentText)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+            if (!string.IsNullOrEmpty(accountId) && !string.IsNullOrEmpty(subtaskId) && !string.IsNullOrEmpty(commentText))
+            {
+                _employeeService.AddComment(accountId, subtaskId, commentText);
+            }
+            return RedirectToAction("Comment", new { subtaskId });
+        }
+
+        // Action xóa bình luận của một subtask
+        [HttpPost]
+        public IActionResult DeleteComment(string commentId, string subtaskId)
+        {
+            if (!string.IsNullOrEmpty(commentId))
+            {
+                _employeeService.DeleteComment(commentId);
+            }
+            return RedirectToAction("Comment", new { subtaskId });
+        }
+
+        public IActionResult Evaluate(string subtaskId)
+        {
+            var subtask = _subtaskService.GetSubtaskById(subtaskId);
+
+            if (subtask == null || subtask.Status != "Pending")
+            {
+                return RedirectToAction("LeaderAssignTask");
+            }
+
+            return View(subtask);
+        }
+
+        [HttpPost]
+        public IActionResult SubmitEvaluation(string subtaskId, string approvalStatus, string evaluationComment, int? teamworkRating, int? timelinessRating, int? kpiRating)
+        {
+            if (!teamworkRating.HasValue || !timelinessRating.HasValue || !kpiRating.HasValue)
+            {
+                ModelState.AddModelError("", "Please provide all ratings.");
+                return RedirectToAction("Evaluate", new { subtaskId });
+            }
+
+            var subtask = _subtaskService.GetSubtaskById(subtaskId);
+
+            if (subtask == null)
+            {
+                return RedirectToAction("LeaderAssignTask");
+            }
+
+            if (approvalStatus == "Assign")
+            {
+                subtask.Status = "Completed";
+            }
+            else if (approvalStatus == "Not Assign")
+            {
+                subtask.Status = "In Progress";
+            }
+
+            var evaluation = new SubtaskEvaluation
+            {
+                SubtaskId = subtaskId,
+                EvaluationDate = DateTime.Now,
+                Comment = approvalStatus == "Assign" ? evaluationComment : null,
+                TeamworkRating = teamworkRating.Value,
+                TimelinessRating = timelinessRating.Value,
+                KpiRating = kpiRating.Value
+            };
+
+            _subtaskService.SaveEvaluation(evaluation);
+            _subtaskService.UpdateSubtask(subtask);
+
+            return RedirectToAction("LeaderAssignTask");
         }
 
     }

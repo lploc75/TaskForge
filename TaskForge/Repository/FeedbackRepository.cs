@@ -37,5 +37,10 @@ namespace TaskForge.Repository
                 _context.SaveChanges();
             }
         }
+        public int GetMaxFeedbackId()
+        {
+            // Trả về feedback_id cao nhất hoặc 0 nếu bảng trống
+            return _context.Feedbacks.Max(f => (int?)f.FeedbackId) ?? 0;
+        }
     }
 }

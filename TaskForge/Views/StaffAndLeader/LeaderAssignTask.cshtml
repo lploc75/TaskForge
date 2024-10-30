@@ -33,17 +33,17 @@
         <form method="get" action="@Url.Action("LeaderAssignTask", "StaffAndLeader")">
             <div class="form-row">
                 <div class="form-group col-md-3">
-                    <label for="subtaskId">Tìm theo Subtask ID</label>
-                    <input type="text" id="subtaskId" name="subtaskId" class="form-control" placeholder="Nhập Subtask ID" value="@Context.Request.Query["subtaskId"]" />
+                    <label for="subtaskId">Search by Subtask ID</label>
+                    <input type="text" id="subtaskId" name="subtaskId" class="form-control" placeholder="Enter Subtask ID" value="@Context.Request.Query["subtaskId"]" />
                 </div>
                 <div class="form-group col-md-3">
-                    <label for="subtaskName">Tên Subtask</label>
-                    <input type="text" id="subtaskName" name="subtaskName" class="form-control" placeholder="Nhập tên Subtask" value="@Context.Request.Query["subtaskName"]" />
+                    <label for="subtaskName">Subtask Name</label>
+                    <input type="text" id="subtaskName" name="subtaskName" class="form-control" placeholder="Enter Subtask Name" value="@Context.Request.Query["subtaskName"]" />
                 </div>
                 <div class="form-group col-md-3">
-                    <label for="status">Trạng thái</label>
+                    <label for="status">Status</label>
                     <select name="status" id="status" class="form-control">
-                        <option value="">Tất cả trạng thái</option>
+                        <option value="">All Statuses</option>
                         <option value="Not Assign">Not Assign</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Completed">Completed</option>
@@ -51,24 +51,24 @@
                     </select>
                 </div>
                 <div class="form-group col-md-3">
-                    <label for="priority">Độ ưu tiên</label>
-                    <input type="number" id="priority" name="priority" class="form-control" placeholder="Nhập độ ưu tiên" value="@Context.Request.Query["priority"]" min="1" max="4" />
+                    <label for="priority">Priority</label>
+                    <input type="number" id="priority" name="priority" class="form-control" placeholder="Enter Priority" value="@Context.Request.Query["priority"]" min="1" max="4" />
                 </div>
                 <div class="form-group col-md-3">
-                    <label for="difficulty">Độ khó</label>
-                    <input type="number" id="difficulty" name="difficulty" class="form-control" placeholder="Nhập độ khó" value="@Context.Request.Query["difficulty"]" min="1" max="4" />
+                    <label for="difficulty">Difficulty</label>
+                    <input type="number" id="difficulty" name="difficulty" class="form-control" placeholder="Enter Difficulty" value="@Context.Request.Query["difficulty"]" min="1" max="4" />
                 </div>
                 <div class="form-group col-md-3">
-                    <label for="startDate">Ngày bắt đầu</label>
+                    <label for="startDate">Start Date</label>
                     <input type="date" id="startDate" name="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
                 </div>
                 <div class="form-group col-md-3">
-                    <label for="endDate">Ngày kết thúc</label>
+                    <label for="endDate">End Date</label>
                     <input type="date" id="endDate" name="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
                 </div>
                 <!-- Nút tìm kiếm -->
                 <div class="form-group col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                    <button type="submit" class="btn btn-primary">Search</button>
                     <a href="@Url.Action("LeaderAssignTask", "StaffAndLeader")" class="btn btn-secondary ml-2">Clear</a>
                 </div>
 
@@ -122,13 +122,21 @@
                                 <form asp-action="AssignSubtask" method="post" style="display:inline;" onsubmit="return confirmAssignTask()">
                                     <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
                                     <select name="assignedTo" id="assignedTo" class="form-control" style="width:auto; display:inline-block;">
-                                        <option value="">Chọn nhân viên</option>
+                                        <option value="">Select Employee</option>
                                         @foreach (var staff in ViewBag.Employees)
                                         {
                                             <option value="@staff.AccountId">@staff.Fullname</option>
                                         }
                                     </select>
                                     <button type="submit" class="btn btn-primary">Assign</button>
+                                </form>
+                            }
+                            else if (subtask.Status == "Pending")
+                            {
+                                <!-- Nút Evaluate cho subtasks ở trạng thái Pending -->
+                                <form asp-action="Evaluate" method="get" style="display:inline;">
+                                    <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
+                                    <button type="submit" class="btn btn-success">Evaluate</button>
                                 </form>
                             }
                             else if(subtask.Status == "Not Start") 

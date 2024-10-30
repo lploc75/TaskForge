@@ -1,0 +1,95 @@
+﻿﻿@{
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+}
+
+<div class="feedback-container">
+    <h2>Send us your feedback</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Message"]
+        </div>
+    }
+
+    <form method="post" asp-action="SubmitFeedback" class="feedback-form">
+        <div class="form-group">
+            <label for="context">Your Feedback</label>
+            <textarea id="context" name="context" class="form-control" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn-submit-feedback">Submit Feedback</button>
+    </form>
+</div>
+
+<style>
+    /* Tổng thể */
+    .feedback-container {
+        max-width: 800px; /* Tăng kích thước tối đa */
+        margin: 50px auto;
+        padding: 30px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Tiêu đề */
+    h2 {
+        text-align: center;
+        color: #333;
+        font-size: 32px; /* Tăng kích thước font */
+        margin-bottom: 25px;
+    }
+
+    /* Thông báo thành công */
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 18px; /* Tăng kích thước font */
+    }
+
+    /* Form */
+    .feedback-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .feedback-form label {
+        font-weight: bold;
+        font-size: 18px; /* Tăng kích thước font */
+        color: #333;
+    }
+
+    .feedback-form .form-control {
+        width: 100%;
+        padding: 15px; /* Tăng kích thước padding */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 18px; /* Tăng kích thước font */
+    }
+
+    /* Nút gửi phản hồi */
+    .btn-submit-feedback {
+        display: block;
+        width: 100%;
+        padding: 15px; /* Tăng kích thước padding */
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 20px; /* Tăng kích thước font */
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-align: center;
+    }
+
+        .btn-submit-feedback:hover {
+            background-color: #0056b3;
+        }
+</style>

@@ -178,16 +178,6 @@ CREATE TABLE Comment (
     subtask_id VARCHAR(10),
     FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id)
 );
-CREATE TABLE [File] (
-    file_id NVARCHAR(50) PRIMARY KEY,  -- Kiểu chuỗi với độ dài 50 ký tự
-    file_name NVARCHAR(255) NOT NULL,
-    upload_date DATE NOT NULL,
-    file_path NVARCHAR(255) NOT NULL,
-	account_id VARCHAR(10),
-	subtask_id VARCHAR(10),
-	FOREIGN KEY (account_id) REFERENCES StaffAndLeader(account_id),
-    FOREIGN KEY (subtask_id) REFERENCES Subtask(subtask_id)
-);
 CREATE TABLE Notifications (
     notification_id  INT PRIMARY KEY IDENTITY(1,1),
     account_id VARCHAR(10),            -- Liên kết với người dùng

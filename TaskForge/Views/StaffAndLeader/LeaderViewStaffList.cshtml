@@ -10,7 +10,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách Nhân viên</title>
+    <title>Employee List</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="~/css/staff/taskFilter.css" rel="stylesheet" />
     <style>
@@ -27,26 +27,26 @@
 </head>
 <body>
     <div class="container">
-        <h2>Danh sách Nhân viên</h2>
+        <h2>Employee List</h2>
 
         <!-- Form tìm kiếm -->
         <form method="get" action="@Url.Action("LeaderViewStaffList", "StaffAndLeader")">
             <div class="form-row">
                 <!-- Lọc theo Account ID -->
                 <div class="form-group col-md-3">
-                    <label for="accountId">Tìm theo Account ID</label>
+                    <label for="accountId">Search by Account ID</label>
                     <input type="text" id="accountId" name="accountId" class="form-control" placeholder="Nhập Account ID" value="@ViewBag.AccountId" />
                 </div>
 
                 <!-- Lọc theo Full Name -->
                 <div class="form-group col-md-3">
-                    <label for="fullname">Tên Nhân viên</label>
+                    <label for="fullname">Employee Name</label>
                     <input type="text" id="fullname" name="fullname" class="form-control" placeholder="Nhập Tên Nhân viên" value="@ViewBag.Fullname" />
                 </div>
 
                 <!-- Nút tìm kiếm -->
                 <div class="form-group col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                    <button type="submit" class="btn btn-primary">Search</button>
                     <a href="@Url.Action("LeaderViewStaffList", "StaffAndLeader")" class="btn btn-secondary ml-2">Clear</a>
                 </div>
 

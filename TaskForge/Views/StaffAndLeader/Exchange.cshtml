@@ -1,6 +1,6 @@
-﻿@{
-    Layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
-
+﻿﻿@{
+    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
     var availableCredits = ViewData["AvailableCredits"] != null ? (int)ViewData["AvailableCredits"] : 0;
     var cashEquivalent = ViewData["CashEquivalent"] != null ? (decimal)ViewData["CashEquivalent"] : 0m;
 }
@@ -21,7 +21,7 @@
         <p>Convert your points to cash in just a couple of steps.</p>
         @if (TempData["Message"] != null)
         {
-            <div class="alert alert-success" id="successMessage">
+            <div class="error-message">
                 @TempData["Message"]
             </div>
         }
@@ -109,11 +109,12 @@
         height: 100%;
         margin-top: 50px;
     }
-    .header-content h1 {
-        font-size: 36px;
-        text-transform: uppercase;
-        text-align: center;
-    }
+
+        .header-content h1 {
+            font-size: 36px;
+            text-transform: uppercase;
+            text-align: center;
+        }
 
     /* Main container for exchange section */
     .exchange-container {
@@ -268,6 +269,17 @@
             max-width: 100%;
             height: auto;
         }
+
+    .error-message {
+        background-color: #f8d7da; /* Light red background */
+        color: #721c24; /* Dark red text */
+        padding: 10px;
+        border: 1px solid #f5c6cb; /* Red border */
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        text-align: center;
+    }
 </style>
 <!-- JavaScript Section -->
 <script>
@@ -279,4 +291,3 @@
         document.getElementById('pointsWorth').value = cashEquivalent;  // Cập nhật giá trị hiển thị
     });
 </script>
-

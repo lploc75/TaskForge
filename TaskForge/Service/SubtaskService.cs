@@ -41,5 +41,9 @@ namespace TaskForge.Service
         {
             return _subtaskRepository.GetEmployeesBySubtaskId(subtaskId);
         }
+        public void SaveEvaluation(SubtaskEvaluation evaluation)
+        {
+            _subtaskRepository.SaveEvaluation(evaluation);
+        }
     }
 }
