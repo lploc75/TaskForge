@@ -13,16 +13,13 @@ namespace TaskForge.Controllers
     public class StaffandLeaderController : Controller
     {
         private readonly EmployeeService _employeeService;
-        private readonly DropboxService _dropboxService;
         private readonly ProjectService _projectService;
         private readonly TaskService _taskService;
         private readonly NotificationService _notificationService;
         // Constructor duy nhất cho cả hai service
-        public StaffandLeaderController(EmployeeService employeeService, DropboxService dropboxService, 
-            ProjectService projectService, TaskService taskService, NotificationService notificationService)
+        public StaffandLeaderController(EmployeeService employeeService, ProjectService projectService, TaskService taskService, NotificationService notificationService)
         {
             _employeeService = employeeService;
-            _dropboxService = dropboxService;
             _projectService = projectService;
             _taskService = taskService;
             _notificationService = notificationService;
@@ -129,6 +126,10 @@ namespace TaskForge.Controllers
 
             // Lấy danh sách subtask thuộc team của leader
             var subtasks = _taskService.GetSubtasksByTeam(teamId);
+
+            // Lấy danh sách nhân viên
+            var staff = _employeeService.GetStaffByTeamId(teamId);
+            ViewBag.Employees = staff; // Truyền danh sách nhân viên vào View
 
             // Lọc theo Subtask ID nếu có
             if (!string.IsNullOrEmpty(subtaskId))
@@ -409,11 +410,12 @@ namespace TaskForge.Controllers
         {
             // Lấy AccountId của người dùng hiện tại
             var accountId = User.FindFirstValue("AccountId");
-            if (accountId == null)
+            // Kiểm tra nếu assignedDate sau deadline
+            if (assignedDate >= deadline)
             {
-                return RedirectToAction("Login", "Account"); // Nếu không có accountId, chuyển hướng tới trang Login
+                TempData["ErrorMessage"] = "Invalid input, assigned date cannot be equal or after the deadline";
+                return RedirectToAction("Task", "StaffAndLeader");
             }
-
             if (ModelState.IsValid)
             {
                 // Sinh ID ngẫu nhiên cho PersonalTask
@@ -439,7 +441,6 @@ namespace TaskForge.Controllers
                 // Sau khi tạo task, chuyển hướng người dùng về trang Task
                 return RedirectToAction("Task");
             }
-
             // Nếu model không hợp lệ, quay lại trang và hiển thị lại form
             return View();
         }
@@ -502,80 +503,7 @@ namespace TaskForge.Controllers
             // Trả về ID mới với định dạng "PT" + số ngẫu nhiên với 3 chữ số
             return "PT" + randomNumber.ToString("D3"); // D3 định dạng số thành 3 chữ số (ví dụ: "PT045")
         }
-        // Action để hiển thị trang upload file
-        [HttpGet]
-        public async Task<IActionResult> UploadFile(string code, string subtaskId)
-        {
-            if (!string.IsNullOrEmpty(code))
-            {
-                // Gọi Dropbox API để trao đổi mã lấy access token
-                await _dropboxService.ExchangeCodeForTokenAsync(code);
 
-            }
-
-            ViewBag.SubtaskId = subtaskId;
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UploadFile(IFormFile file, string subtaskId)
-        {
-            if (file == null || file.Length == 0)
-            {
-                ViewBag.Message = "No file selected.";
-                return View();
-            }
-
-            // Lấy AccountId từ claim của người dùng đã đăng nhập
-            var accountId = User.FindFirst("AccountId")?.Value;
-
-            if (string.IsNullOrEmpty(accountId))
-            {
-                ViewBag.Message = "Could not determine account ID.";
-                return View();
-            }
-
-            // Kiểm tra nếu access token hết hạn hoặc chưa tồn tại
-            var accessToken = HttpContext.Session.GetString("DropboxAccessToken");
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                accessToken = await _dropboxService.RefreshAccessTokenAsync();
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    return RedirectToAction("AuthorizeDropbox", "Dropbox");
-                }
-            }
-
-            // Lưu tệp tạm thời lên server
-            var tempFilePath = Path.Combine(Path.GetTempPath(), file.FileName);
-            using (var stream = new FileStream(tempFilePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            // Tạo đối tượng File để lưu thông tin tệp
-            var newFile = new Models.File
-            {
-                FileId = Guid.NewGuid().ToString(),
-                FileName = file.FileName,
-                UploadDate = DateOnly.FromDateTime(DateTime.Now),
-                AccountId = accountId,
-                SubtaskId = subtaskId
-            };
-
-            // Tải tệp lên Dropbox
-            var dropboxFilePath = await _dropboxService.UploadFileAsync(tempFilePath, file.FileName, accountId, subtaskId, newFile);
-
-            // Xóa tệp tạm thời sau khi tải lên
-            if (System.IO.File.Exists(tempFilePath))
-            {
-                System.IO.File.Delete(tempFilePath);
-            }
-
-            ViewBag.Message = "File uploaded successfully to Dropbox and saved to database.";
-            ViewBag.SubtaskId = subtaskId;
-            return View();
-        }
         // Exchange Page Action
         public IActionResult Exchange()
         {

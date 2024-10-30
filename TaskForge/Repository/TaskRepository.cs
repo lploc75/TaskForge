@@ -302,8 +302,10 @@ namespace TaskForge.Repository
             return _context.Set<Subtask>()
                            .Where(s => s.TeamId == teamId)
                            .Include(s => s.SubtaskAssignments)
+                           .ThenInclude(a => a.AssignedToNavigation) // Tải đầy đủ thông tin AssignedToNavigation
                            .ToList();
         }
+
         public void AssignSubtask(string subtaskId, string assignedTo, string createdBy)
         {
             var subtask = _context.Set<Subtask>().Find(subtaskId);

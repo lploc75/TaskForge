@@ -2,8 +2,8 @@
 @using X.PagedList;
 @using X.PagedList.Mvc.Core;
 @{
-    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
-    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+    Layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
+
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -102,14 +102,18 @@
                         <td>@subtask.AssignmentDate?.ToString("yyyy-MM-dd")</td>
                         <td>@subtask.Deadline?.ToString("yyyy-MM-dd")</td>
                         <td>
-                            @if (subtask.SubtaskAssignments?.FirstOrDefault()?.AssignedToNavigation != null)
-                            {
-                                @subtask.SubtaskAssignments.FirstOrDefault().AssignedToNavigation.Fullname
+                            @{
+                                var assignedTo = "Unassigned";
+                                foreach (var assignment in subtask.SubtaskAssignments)
+                                {
+                                    if (assignment.AssignedToNavigation != null)
+                                    {
+                                        assignedTo = assignment.AssignedToNavigation.Fullname;
+                                        break; // Ngừng lặp khi đã tìm thấy nhân viên đầu tiên
+                                    }
+                                }
                             }
-                            else
-                            {
-                                <span>Unassigned</span>
-                            }
+                            @assignedTo
                         </td>
                         <td>
                             @if (subtask.Status == "Not Assign")
@@ -117,8 +121,13 @@
                                 <!-- Form để gán nhân viên -->
                                 <form asp-action="AssignSubtask" method="post" style="display:inline;" onsubmit="return confirmAssignTask()">
                                     <input type="hidden" name="subtaskId" value="@subtask.SubtaskId" />
-                                    <input type="text" name="assignedTo" id="assignedTo" class="form-control" 
-                                    style="width:auto; display:inline-block;" placeholder="Enter Staff ID" />
+                                    <select name="assignedTo" id="assignedTo" class="form-control" style="width:auto; display:inline-block;">
+                                        <option value="">Chọn nhân viên</option>
+                                        @foreach (var staff in ViewBag.Employees)
+                                        {
+                                            <option value="@staff.AccountId">@staff.Fullname</option>
+                                        }
+                                    </select>
                                     <button type="submit" class="btn btn-primary">Assign</button>
                                 </form>
                             }

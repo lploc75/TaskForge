@@ -26,10 +26,10 @@
             <img src="~/imgs/owlhiding.png" alt="Hiding Owl Image" class="owl-image" id="hidingOwl" style="display: none;">
             <h2>Login your account</h2>
               <!-- Thêm phần hiển thị thông báo lỗi ở đây -->
-            @if (!ViewData.ModelState.IsValid)
+            @if (TempData["Message"] != null)
             {
-                <div class="error-message">
-                    <p>@ViewData.ModelState[string.Empty]?.Errors.FirstOrDefault()?.ErrorMessage</p>
+                <div class="error-message" id="Message">
+                    @TempData["Message"]
                 </div>
             }
             <form action="#" method="post">

@@ -2,8 +2,7 @@
 
 @{
     ViewData["Title"] = "Upload File";
-    var layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
-    Layout = string.IsNullOrEmpty(layout) ? "_DefaultLayout" : layout;
+    Layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
     var subtaskId = ViewBag.SubtaskId;
 }
 

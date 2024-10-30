@@ -127,16 +127,25 @@ function confirmRejectTask() {
 }
 // Chờ cho trang load xong
 window.onload = function () {
-    // Tìm thông báo thành công
+    // Tìm các thông báo
     var successMessage = document.getElementById("successMessage");
+    var message = document.getElementById("errorMessage");
 
-    // Nếu thông báo tồn tại, ẩn nó sau 5 giây
+    // Nếu thông báo thành công tồn tại, ẩn nó sau 5 giây
     if (successMessage) {
         setTimeout(function () {
-            successMessage.style.display = 'none'; // Ẩn thông báo
+            successMessage.style.display = 'none';
         }, 5000); // 5000ms = 5 giây
     }
+
+    // Nếu thông báo lỗi tồn tại, ẩn nó sau 10 giây
+    if (message) {
+        setTimeout(function () {
+            message.style.display = 'none';
+        }, 10000); // 10000ms = 10 giây
+    }
 };
+
 function confirmCreateTask() {
     return confirm("Are you sure you want to create this task?");
 }

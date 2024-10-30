@@ -85,7 +85,8 @@ namespace TaskForge.Controllers
                 var validatedAccount = await _accountService.LoginAsync(account.Username, account.Password);
                 if (validatedAccount == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Sai tên đăng nhập hoặc mật khẩu.");
+                    TempData["Message"] = "Sai tên đăng nhập hoặc mật khẩu.";
+                    // Chuyển hướng về trang danh sách tài khoản sau khi tạo xong
                     return View(account);
                 }
 
