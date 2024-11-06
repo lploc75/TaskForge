@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using TaskForge.DBContext;
@@ -24,12 +25,12 @@ namespace TaskForge.Repository
                            .ToList();
         }
 
-        public Subtask GetSubtaskById(string subtaskId)
+        public Subtask GetSubtaskById(string id)
         {
-            return _context.Subtasks
-                           .FirstOrDefault(st => st.SubtaskId == subtaskId);
+            string sql = "SELECT * FROM Subtask WHERE subtask_id = @id";
+            var parameter = new SqlParameter("@id", id);
+            return _context.Subtasks.FromSqlRaw(sql, parameter).FirstOrDefault();
         }
-
         public void CreateSubtask(Subtask subtask)
         {
             if (string.IsNullOrEmpty(subtask.SubtaskId))
@@ -43,22 +44,30 @@ namespace TaskForge.Repository
             _context.SaveChanges(); // Lưu vào DB
         }
 
-
         public void UpdateSubtask(Subtask subtask)
         {
-            var existingSubtask = _context.Subtasks.FirstOrDefault(st => st.SubtaskId == subtask.SubtaskId);
-            if (existingSubtask != null)
-            {
-                existingSubtask.SubtaskName = subtask.SubtaskName;
-                existingSubtask.Description = subtask.Description;
-                existingSubtask.Priority = subtask.Priority;
-                existingSubtask.Deadline = subtask.Deadline;
-                existingSubtask.Status = subtask.Status;
+            var sql = @"
+        UPDATE Subtask
+        SET 
+            subtask_name = {0}, 
+            description = {1}, 
+            priority = {2}, 
+            deadline = {3}, 
+            status = {4}
+        WHERE 
+            subtask_id = {5}";
 
-                _context.Subtasks.Update(existingSubtask);
-                _context.SaveChanges();
-            }
+            _context.Database.ExecuteSqlRaw(
+                sql,
+                subtask.SubtaskName,
+                subtask.Description,
+                subtask.Priority,
+                subtask.Deadline,
+                subtask.Status,
+                subtask.SubtaskId
+            );
         }
+
 
         public void DeleteSubtask(string subtaskId)
         {
@@ -96,7 +105,79 @@ namespace TaskForge.Repository
             _context.SaveChanges();
         }
 
+        public List<Subtask> FilterSubtasks(string status, int? priority, int? difficulty, DateTime? assignmentDateMin, DateTime? assignmentDateMax, DateTime? deadlineMin, DateTime? deadlineMax, string submission, string taskId, string teamId)
+        {
+            string sql = "SELECT * FROM Subtask WHERE 1=1";
+            List<SqlParameter> parameters = new List<SqlParameter>();
 
+            if (!string.IsNullOrEmpty(status))
+            {
+                sql += " AND status = @status";
+                parameters.Add(new SqlParameter("@status", status));
+            }
+            if (priority.HasValue)
+            {
+                sql += " AND priority = @priority";
+                parameters.Add(new SqlParameter("@priority", priority));
+            }
+            if (difficulty.HasValue)
+            {
+                sql += " AND difficulty = @difficulty";
+                parameters.Add(new SqlParameter("@difficulty", difficulty));
+            }
+            if (assignmentDateMin.HasValue)
+            {
+                sql += " AND assignment_date >= @assignmentDateMin";
+                parameters.Add(new SqlParameter("@assignmentDateMin", assignmentDateMin));
+            }
+            if (assignmentDateMax.HasValue)
+            {
+                sql += " AND assignment_date <= @assignmentDateMax";
+                parameters.Add(new SqlParameter("@assignmentDateMax", assignmentDateMax));
+            }
+            if (deadlineMin.HasValue)
+            {
+                sql += " AND deadline >= @deadlineMin";
+                parameters.Add(new SqlParameter("@deadlineMin", deadlineMin));
+            }
+            if (deadlineMax.HasValue)
+            {
+                sql += " AND deadline <= @deadlineMax";
+                parameters.Add(new SqlParameter("@deadlineMax", deadlineMax));
+            }
+            if (!string.IsNullOrEmpty(submission))
+            {
+                if (submission == "Yes")
+                {
+                    sql += " AND submission_date IS NOT NULL";
+                }
+                else if (submission == "No")
+                {
+                    sql += " AND submission_date IS NULL";
+                }
+            }
+            if (!string.IsNullOrEmpty(taskId))
+            {
+                sql += " AND task_id LIKE @taskId";
+                parameters.Add(new SqlParameter("@taskId", $"%{taskId}%"));
+            }
+            if (!string.IsNullOrEmpty(teamId))
+            {
+                sql += " AND team_id LIKE @teamId";
+                parameters.Add(new SqlParameter("@teamId", $"%{teamId}%"));
+            }
+
+            return _context.Subtasks.FromSqlRaw(sql, parameters.ToArray()).ToList();
+        }
+
+        public void RemoveSubtaskAssignment(string subtaskId)
+        {
+            // Tìm và xóa bản ghi SubtaskAssignment dựa trên subtaskId
+            _context.Database.ExecuteSqlRaw("DELETE FROM SubtaskAssignment WHERE subtask_id = {0}", subtaskId);
+
+            // Tìm và cập nhật trạng thái của Subtask thành "Not Assign"
+            _context.Database.ExecuteSqlRaw("UPDATE Subtask SET status = 'Not Assign' WHERE subtask_id = {0}", subtaskId);
+        }
 
     }
 }

@@ -2,6 +2,8 @@
 using TaskForge.DBContext;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace TaskForge.Repository
 {
@@ -22,9 +24,14 @@ namespace TaskForge.Repository
         // Phương thức trong TeamRepository
         public Team GetTeamById(string teamId)
         {
-            // Tìm và trả về team theo teamId
-            return _context.Teams.FirstOrDefault(t => t.TeamId == teamId);
+            string sql = "SELECT * FROM Team WHERE team_id = @team_id";
+
+            return _context.Teams
+                .FromSqlRaw(sql, new SqlParameter("@team_id", teamId))
+                .AsEnumerable()
+                .FirstOrDefault();
         }
+
         // Phương thức để đếm số lượng team hiện có
         public int GetTeamCount()
         {
@@ -33,55 +40,101 @@ namespace TaskForge.Repository
         // Thêm team mới vào DB
         public void AddTeam(Team team)
         {
-            _context.Teams.Add(team);
-            _context.SaveChanges();
+            string sql = @"
+        INSERT INTO Team (team_id, team_name, created_date, number_of_member, dept_id) 
+        VALUES (@team_id, @team_name, @created_date, @number_of_member, @dept_id)";
+
+            _context.Database.ExecuteSqlRaw(sql,
+                new SqlParameter("@team_id", team.TeamId),
+                new SqlParameter("@team_name", team.TeamName),
+                new SqlParameter("@created_date", team.CreatedDate),
+                new SqlParameter("@number_of_member", team.NumberOfMember),
+                new SqlParameter("@dept_id", team.DeptId)
+            );
         }
 
-        // Cập nhật team trong DB
         public void UpdateTeam(Team team)
         {
-            _context.Teams.Update(team);
-            _context.SaveChanges();
+            string sql = @"
+        UPDATE Team 
+        SET 
+            team_name = @team_name, 
+            created_date = @created_date, 
+            number_of_member = @number_of_member, 
+            dept_id = @dept_id 
+        WHERE team_id = @team_id";
+
+            _context.Database.ExecuteSqlRaw(sql,
+                new SqlParameter("@team_id", team.TeamId),
+                new SqlParameter("@team_name", team.TeamName),
+                new SqlParameter("@created_date", team.CreatedDate),
+                new SqlParameter("@number_of_member", team.NumberOfMember),
+                new SqlParameter("@dept_id", team.DeptId)
+            );
         }
+
 
         // Xóa đội nhóm
         public void DeleteTeam(string teamId)
         {
-            var team = _context.Teams.FirstOrDefault(t => t.TeamId == teamId);
-            if (team != null)
-            {
-                _context.Teams.Remove(team);
-                _context.SaveChanges();
-            }
-        }
-        public List<Team> GetTeamsWithFilters(string deptId, int? numberOfTeam, DateOnly? createdDate)
-        {
-            // Lấy tất cả team từ cơ sở dữ liệu
-            var query = _context.Teams.AsQueryable();
+            string sql = "DELETE FROM Team WHERE team_id = @team_id";
 
-            // Lọc theo department nếu có
+            _context.Database.ExecuteSqlRaw(sql, new SqlParameter("@team_id", teamId));
+        }
+
+        public List<Team> GetTeamsWithFilters(string deptId, int? numberOfTeamFrom, int? numberOfTeamTo, DateOnly? createdDateFrom, DateOnly? createdDateTo)
+        {
+            string sql = "SELECT * FROM Team WHERE 1=1";
+            List<SqlParameter> parameters = new List<SqlParameter>();
+
             if (!string.IsNullOrEmpty(deptId))
             {
-                query = query.Where(t => t.DeptId == deptId);
+                sql += " AND dept_id = @deptId";
+                parameters.Add(new SqlParameter("@deptId", deptId));
             }
 
-            // Lọc theo số nhóm nếu có
-            if (numberOfTeam.HasValue)
+            if (numberOfTeamFrom.HasValue)
             {
-                query = query.Where(t => t.NumberOfMember >= numberOfTeam);
+                sql += " AND number_of_member >= @numberOfTeamFrom";
+                parameters.Add(new SqlParameter("@numberOfTeamFrom", numberOfTeamFrom));
             }
 
-            // Lấy danh sách team từ database
-            var teams = query.ToList();
-
-            // Sau khi lấy dữ liệu từ database, lọc theo ngày tạo bằng cách chuyển đổi DateOnly sang DateTime
-            if (createdDate.HasValue)
+            if (numberOfTeamTo.HasValue)
             {
-                teams = teams.Where(t => t.CreatedDate.HasValue && t.CreatedDate.Value >= createdDate.Value).ToList();
+                sql += " AND number_of_member <= @numberOfTeamTo";
+                parameters.Add(new SqlParameter("@numberOfTeamTo", numberOfTeamTo));
             }
 
-            return teams;
+            if (createdDateFrom.HasValue)
+            {
+                sql += " AND created_date >= @createdDateFrom";
+                parameters.Add(new SqlParameter("@createdDateFrom", createdDateFrom.Value.ToDateTime(TimeOnly.MinValue)));
+            }
+
+            if (createdDateTo.HasValue)
+            {
+                sql += " AND created_date <= @createdDateTo";
+                parameters.Add(new SqlParameter("@createdDateTo", createdDateTo.Value.ToDateTime(TimeOnly.MinValue)));
+            }
+
+            return _context.Teams.FromSqlRaw(sql, parameters.ToArray()).ToList();
         }
+        public void AddMemberToTeam(string teamId, string accountId)
+        {
+            string sql = "INSERT INTO EmployeeTeam (team_id, account_id) VALUES (@teamId, @accountId)";
+            _context.Database.ExecuteSqlRaw(sql,
+                new SqlParameter("@teamId", teamId),
+                new SqlParameter("@accountId", accountId));
+        }
+
+        public void RemoveMemberFromTeam(string teamId, string accountId)
+        {
+            string sql = "DELETE FROM EmployeeTeam WHERE team_id = @teamId AND account_id = @accountId";
+            _context.Database.ExecuteSqlRaw(sql,
+                new SqlParameter("@teamId", teamId),
+                new SqlParameter("@accountId", accountId));
+        }
+
         public List<Team> GetTeamsByDepartment(string deptId)
         {
             return _context.Teams.Where(t => t.DeptId == deptId).ToList();

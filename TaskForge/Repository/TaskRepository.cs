@@ -4,6 +4,8 @@ using System.Linq;
 using TaskForge.Models;
 using TaskForge.DBContext;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using Newtonsoft.Json.Linq;
 
 namespace TaskForge.Repository
 {
@@ -70,29 +72,7 @@ namespace TaskForge.Repository
                 throw new KeyNotFoundException("Task not found");
             }
         }
-        public void RemoveSubtaskAssignment(string subtaskId)
-        {
-            // Tìm và xóa bản ghi SubtaskAssignment dựa trên subtaskId
-            var assignment = _context.SubtaskAssignments
-                .FirstOrDefault(sa => sa.SubtaskId == subtaskId);
-
-            if (assignment != null)
-            {
-                _context.SubtaskAssignments.Remove(assignment);
-            }
-
-            // Tìm và cập nhật trạng thái của Subtask thành "Not Assign"
-            var subtask = _context.Subtasks
-                .FirstOrDefault(s => s.SubtaskId == subtaskId);
-
-            if (subtask != null)
-            {
-                subtask.Status = "Not Assign";
-            }
-
-            // Lưu thay đổi vào cơ sở dữ liệu
-            _context.SaveChanges();
-        }
+       
 
         // Xóa Task
         public void DeleteTask(string taskId)
@@ -195,28 +175,41 @@ namespace TaskForge.Repository
             }
         }
 
-        // Lấy Personal Task theo Id
-        public PersonalTask GetPersonalTaskById(string PtaskId)
+        // Truy xuất PersonalTask bằng SQL raw dựa trên PtaskId
+        public PersonalTask GetPersonalTaskById(string id)
         {
-            return _context.PersonalTasks.Find(PtaskId);
+            string sql = "SELECT * FROM PersonalTask WHERE ptask_id = @id";
+            var parameter = new SqlParameter("@id", id);
+            return _context.PersonalTasks.FromSqlRaw(sql, parameter).FirstOrDefault();
         }
 
-        // Cập nhật Personal Task
+        // Cập nhật thông tin của Personal Task với SQL raw
         public void UpdatePersonalTask(PersonalTask personalTask)
         {
-            _context.PersonalTasks.Update(personalTask);
-            _context.SaveChanges(); // Lưu thay đổi vào cơ sở dữ liệu
-        }
-        public PersonalTask GetPersonalTasksById(string ptaskId)
-        {
-            return _context.PersonalTasks.FirstOrDefault(t => t.PtaskId == ptaskId);
+            string sql = @"
+        UPDATE PersonalTask 
+        SET 
+            ptask_name = @ptask_name, 
+            description = @description, 
+            assignment_date = @assignment_date, 
+            deadline = @deadline, 
+            priority = @priority 
+        WHERE ptask_id = @ptask_id";
+
+            _context.Database.ExecuteSqlRaw(sql,
+                new SqlParameter("@ptask_name", personalTask.PtaskName),
+                new SqlParameter("@description", personalTask.Description),
+                new SqlParameter("@assignment_date", personalTask.AssignmentDate),
+                new SqlParameter("@deadline", personalTask.Deadline),
+                new SqlParameter("@priority", personalTask.Priority),
+                new SqlParameter("@ptask_id", personalTask.PtaskId)
+            );
         }
 
-        public void DeletePersonalTasks(PersonalTask task)
+        public void DeletePersonalTask(string ptaskId)
         {
-            _context.PersonalTasks.Remove(task);
-            _context.SaveChanges();
-
+            string sql = "DELETE FROM PersonalTask WHERE ptask_id = @ptask_id";
+            _context.Database.ExecuteSqlRaw(sql, new SqlParameter("@ptask_id", ptaskId));
         }
 
         // Gán task cho các phòng ban
@@ -264,8 +257,21 @@ namespace TaskForge.Repository
         // Thêm dự án mới vào database
         public void AddPersonalTask(PersonalTask ptask)
         {
-            _context.PersonalTasks.Add(ptask);
-            _context.SaveChanges();
+          // Thêm PersonalTask mới vào database bằng SQL raw
+         string sql = @"
+        INSERT INTO PersonalTask (ptask_id, account_id, ptask_name, status, priority, assignment_date, deadline, description) 
+        VALUES (@ptask_id, @account_id, @ptask_name, @status, @priority, @assignment_date, @deadline, @description)";
+
+            _context.Database.ExecuteSqlRaw(sql,
+                new SqlParameter("@ptask_id", ptask.PtaskId),
+                new SqlParameter("@account_id", ptask.AccountId),
+                new SqlParameter("@ptask_name", ptask.PtaskName),
+                new SqlParameter("@status", ptask.Status),
+                new SqlParameter("@priority", ptask.Priority),
+                new SqlParameter("@assignment_date", ptask.AssignmentDate),
+                new SqlParameter("@deadline", ptask.Deadline),
+                new SqlParameter("@description", ptask.Description)
+            );
         }
         public List<Subtask> GetAllSubtasks()
         {
@@ -299,13 +305,22 @@ namespace TaskForge.Repository
         }
         public List<Subtask> GetSubtasksByTeam(string teamId)
         {
-            return _context.Set<Subtask>()
-                           .Where(s => s.TeamId == teamId)
-                           .Include(s => s.SubtaskAssignments)
-                           .ThenInclude(a => a.AssignedToNavigation) // Tải đầy đủ thông tin AssignedToNavigation
-                           .ToList();
-        }
+            var sql = @"
+        SELECT * 
+        FROM Subtask 
+        WHERE team_id = @teamId";
 
+            var subtasks = _context.Subtasks
+                                   .FromSqlRaw(sql, new SqlParameter("@teamId", teamId))
+                                   .ToList();
+
+            return subtasks;
+        }
+        public List<SubtaskAssignment> GetAllSubtaskAssignments()
+        {
+            var sql = "SELECT * FROM SubtaskAssignment";
+            return _context.SubtaskAssignments.FromSqlRaw(sql).ToList();
+        }
         public void AssignSubtask(string subtaskId, string assignedTo, string createdBy)
         {
             var subtask = _context.Set<Subtask>().Find(subtaskId);
@@ -343,5 +358,53 @@ namespace TaskForge.Repository
                 _context.SaveChanges();
             }
         }
+        public List<PersonalTask> FilterPersonalTasks(string status, int? priority, DateTime? assignmentDateMin, DateTime? assignmentDateMax, DateTime? deadlineMin, DateTime? deadlineMax)
+        {
+            string sql = "SELECT * FROM PersonalTask WHERE 1=1";
+            List<SqlParameter> parameters = new List<SqlParameter>();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                sql += " AND status = @status";
+                parameters.Add(new SqlParameter("@status", status));
+            }
+            if (priority.HasValue)
+            {
+                sql += " AND priority = @priority";
+                parameters.Add(new SqlParameter("@priority", priority));
+            }
+            if (assignmentDateMin.HasValue)
+            {
+                sql += " AND assignment_date >= @assignmentDateMin";
+                parameters.Add(new SqlParameter("@assignmentDateMin", assignmentDateMin));
+            }
+            if (assignmentDateMax.HasValue)
+            {
+                sql += " AND assignment_date <= @assignmentDateMax";
+                parameters.Add(new SqlParameter("@assignmentDateMax", assignmentDateMax));
+            }
+            if (deadlineMin.HasValue)
+            {
+                sql += " AND deadline >= @deadlineMin";
+                parameters.Add(new SqlParameter("@deadlineMin", deadlineMin));
+            }
+            if (deadlineMax.HasValue)
+            {
+                sql += " AND deadline <= @deadlineMax";
+                parameters.Add(new SqlParameter("@deadlineMax", deadlineMax));
+            }
+
+            return _context.PersonalTasks.FromSqlRaw(sql, parameters.ToArray()).ToList();
+        }
+
+        public void UpdatePtask(PersonalTask Ptask)
+        {
+            _context.Database.ExecuteSqlRaw(
+                "UPDATE PersonalTask SET ptask_name = {0}, description = {1}, status = {2}, deadline = {3} WHERE ptask_id = {4}",
+                Ptask.PtaskName, Ptask.Description, Ptask.Status, Ptask.Deadline, Ptask.PtaskId
+            );
+        }
+
+
     }
 }

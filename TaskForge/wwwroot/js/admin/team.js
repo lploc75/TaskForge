@@ -47,19 +47,6 @@ function confirmDeleteTeam() {
     return confirm("Are you sure you want to delete this team?");
 }
 
-// Close modal if clicked outside of the modal
-window.onclick = function (event) {
-    var createModal = document.getElementById("createTeamModal");
-    var updateModal = document.getElementById("updateTeamModal");
-
-    if (event.target === createModal) {
-        createModal.style.display = "none";
-    }
-    if (event.target === updateModal) {
-        updateModal.style.display = "none";
-    }
-}
-
 // Chờ cho trang load xong
 window.onload = function () {
     // Tìm thông báo thành công

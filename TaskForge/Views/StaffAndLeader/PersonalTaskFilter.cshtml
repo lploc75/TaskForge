@@ -28,29 +28,29 @@
                     <label for="status">Status</label>
                     <select name="status" id="status" class="form-control">
                         <option value="">All</option>
-                        <option value="Completed">Completed</option>
-                        <option value="In Progress">In Progress</option>
+                        <option value="Completed" selected="@(ViewData["Status"]?.ToString() == "Completed")">Completed</option>
+                        <option value="In Progress" selected="@(ViewData["Status"]?.ToString() == "In Progress")">In Progress</option>
                     </select>
                 </div>
 
                 <!-- Priority -->
                 <div class="form-group col-md-3">
                     <label for="priority">Priority</label>
-                    <input type="number" name="priority" min="1" max="4" class="form-control" placeholder="Priority from 1 to 4" value="@Context.Request.Query["priority"]" />
+                    <input type="number" name="priority" min="1" max="4" class="form-control" placeholder="Priority from 1 to 4" value="@(ViewData["Priority"] ?? "")" />
                 </div>
 
                 <!-- Assignment Date -->
                 <div class="form-group col-md-3">
                     <label for="assignmentDateMin">Assignment Date From</label>
-                    <input type="date" name="assignmentDateMin" class="form-control" value="@Context.Request.Query["assignmentDateMin"]" />
-                    <input type="date" name="assignmentDateMax" class="form-control" value="@Context.Request.Query["assignmentDateMax"]" placeholder="To" />
+                    <input type="date" name="assignmentDateMin" class="form-control" value="@(ViewData["AssignmentDateMin"] != null ? ((DateTime)ViewData["AssignmentDateMin"]).ToString("yyyy-MM-dd") : "")" />
+                    <input type="date" name="assignmentDateMax" class="form-control" value="@(ViewData["AssignmentDateMax"] != null ? ((DateTime)ViewData["AssignmentDateMax"]).ToString("yyyy-MM-dd") : "")" placeholder="To" />
                 </div>
 
                 <!-- Deadline -->
                 <div class="form-group col-md-3">
                     <label for="deadlineMin">Deadline From</label>
-                    <input type="date" name="deadlineMin" class="form-control" value="@Context.Request.Query["deadlineMin"]" />
-                    <input type="date" name="deadlineMax" class="form-control" value="@Context.Request.Query["deadlineMax"]" placeholder="To" />
+                    <input type="date" name="deadlineMin" class="form-control" value="@(ViewData["DeadlineMin"] != null ? ((DateTime)ViewData["DeadlineMin"]).ToString("yyyy-MM-dd") : "")" />
+                    <input type="date" name="deadlineMax" class="form-control" value="@(ViewData["DeadlineMax"] != null ? ((DateTime)ViewData["DeadlineMax"]).ToString("yyyy-MM-dd") : "")" placeholder="To" />
                 </div>
 
                 <!-- Search and Clear Buttons with custom CSS -->
@@ -58,7 +58,6 @@
                     <button type="submit" class="btn" id="search-button">Search</button>
                     <a href="@Url.Action("PersonalTaskFilter", "StaffAndLeader")" class="btn" id="clear-button">Clear</a>
                 </div>
-
             </div>
         </form>
 

@@ -4,6 +4,8 @@ using TaskForge.DBContext;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using static TaskForge.Repository.EmployeeRepository;
 
 namespace TaskForge.Repository
 {
@@ -24,10 +26,14 @@ namespace TaskForge.Repository
                 .FirstOrDefault(e => e.AccountId == accountId);
         }
 
+        // Lấy StaffAndLeader dựa trên AccountId
         public StaffAndLeader GetStaffByAccountId(string accountId)
         {
-            return _context.StaffAndLeaders.FirstOrDefault(s => s.AccountId == accountId);
+            return _context.StaffAndLeaders
+                           .FromSqlRaw("SELECT * FROM StaffAndLeader WHERE account_id = {0}", accountId)
+                           .FirstOrDefault();
         }
+
         public void RecordCreditExchange(CreditExchange creditExchange)
         {
             _context.CreditExchanges.Add(creditExchange);
@@ -41,8 +47,9 @@ namespace TaskForge.Repository
         public CreditExchange GetCreditExchangeById(int exchangeId)
         {
             return _context.CreditExchanges
-                .Include(e => e.Account) // Ensure the Account entity is included
-                .FirstOrDefault(e => e.ExchangeId == exchangeId);
+                           .FromSqlRaw("SELECT * FROM CreditExchange WHERE exchange_id = {0}", exchangeId)
+                           .Include(e => e.Account) // Bao gồm đối tượng Account
+                           .FirstOrDefault();
         }
         public List<Subtask> GetAssignedSubtasks(string accountId)
         {
@@ -134,25 +141,6 @@ namespace TaskForge.Repository
             return false;
         }
 
-        public void UpdateSubtask(Subtask subtask)
-        {
-            _context.Subtasks.Update(subtask);
-            _context.SaveChanges();
-        }
-        public void UpdatePtask(PersonalTask ptask)
-        {
-            _context.PersonalTasks.Update(ptask);
-            _context.SaveChanges();
-        }
-        public Subtask GetSubtaskById(string id)
-        {
-            return _context.Subtasks.Find(id);
-        }
-        public PersonalTask GetPtaskById(string id)
-        {
-            return _context.PersonalTasks.Find(id);
-        }
-
         public List<Employee> GetStaffByTeam(string teamId)
         {
             return _context.Set<Employee>()
@@ -162,12 +150,18 @@ namespace TaskForge.Repository
         // Phương thức lấy team_id dựa trên account_id của nhân viên
         public string GetTeamIdByAccountId(string accountId)
         {
-            var team = _context.Set<Employee>()
-                               .Where(e => e.AccountId == accountId)
-                               .SelectMany(e => e.Teams)
-                               .FirstOrDefault();
+            var sql = @"SELECT TOP 1 t.team_id 
+                    FROM Employee e 
+                    JOIN EmployeeTeam et ON e.account_id = et.account_id
+                    JOIN Team t ON et.team_id = t.team_id
+                    WHERE e.account_id = @accountId";
 
-            return team?.TeamId; // Trả về team_id nếu tìm thấy, ngược lại là null
+            var teamId = _context.Set<Team>()
+                                 .FromSqlRaw(sql, new SqlParameter("@accountId", accountId))
+                                 .Select(t => t.TeamId)
+                                 .FirstOrDefault();
+
+            return teamId;
         }
         public string GetDepartmentHeadBySubtaskId(string subtaskId)
         {
@@ -181,14 +175,18 @@ namespace TaskForge.Repository
             return createdBy;
         }
 
+        // Phương thức lấy danh sách nhân viên có cùng teamId bằng SQL
         public List<Employee> GetStaffByTeamId(string teamId)
         {
-            // Lấy danh sách nhân viên có cùng teamId và role là "Staff"
-            return _context.Employees
-                .Where(e => e.Teams.Any(t => t.TeamId == teamId) && e.Role == "Staff")
-                .ToList();
-        }
+            var sql = @"SELECT e.* 
+                    FROM Employee e
+                    JOIN EmployeeTeam et ON e.account_id = et.account_id
+                    WHERE et.team_id = @teamId AND e.role = 'Staff'";
 
+            return _context.Employees
+                           .FromSqlRaw(sql, new SqlParameter("@teamId", teamId))
+                           .ToList();
+        }
         public List<Comment> GetCommentsBySubtaskId(string subtaskId)
         {
             var comments = _context.Comments
@@ -250,5 +248,153 @@ namespace TaskForge.Repository
                 _context.SaveChanges();
             }
         }
+
+        public List<Employee> GetFilteredMembers(string teamId, string status, string role, string gender, DateTime? dobMin, DateTime? dobMax,
+                                         DateTime? startDateMin, DateTime? startDateMax, DateTime? endDateMin,
+                                         DateTime? endDateMax)
+        {
+            string sql = @"
+    SELECT e.* 
+    FROM Employee e
+    LEFT JOIN EmployeeTeam et ON e.account_id = et.account_id
+    WHERE et.team_id = @teamId
+    AND e.role IN ('Staff', 'Leader')";
+
+            var parameters = new List<SqlParameter>
+    {
+        new SqlParameter("@teamId", teamId)
+    };
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                sql += " AND e.status = @status";
+                parameters.Add(new SqlParameter("@status", status));
+            }
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                sql += " AND e.role = @role";
+                parameters.Add(new SqlParameter("@role", role));
+            }
+
+            if (!string.IsNullOrEmpty(gender))
+            {
+                sql += " AND e.gender = @gender";
+                parameters.Add(new SqlParameter("@gender", gender));
+            }
+
+            if (dobMin.HasValue)
+            {
+                sql += " AND e.dob >= @dobMin";
+                parameters.Add(new SqlParameter("@dobMin", dobMin.Value));
+            }
+
+            if (dobMax.HasValue)
+            {
+                sql += " AND e.dob <= @dobMax";
+                parameters.Add(new SqlParameter("@dobMax", dobMax.Value));
+            }
+
+            if (startDateMin.HasValue)
+            {
+                sql += " AND e.start_date >= @startDateMin";
+                parameters.Add(new SqlParameter("@startDateMin", startDateMin.Value));
+            }
+
+            if (startDateMax.HasValue)
+            {
+                sql += " AND e.start_date <= @startDateMax";
+                parameters.Add(new SqlParameter("@startDateMax", startDateMax.Value));
+            }
+
+            if (endDateMin.HasValue)
+            {
+                sql += " AND e.end_date >= @endDateMin";
+                parameters.Add(new SqlParameter("@endDateMin", endDateMin.Value));
+            }
+
+            if (endDateMax.HasValue)
+            {
+                sql += " AND e.end_date <= @endDateMax";
+                parameters.Add(new SqlParameter("@endDateMax", endDateMax.Value));
+            }
+
+            return _context.Employees.FromSqlRaw(sql, parameters.ToArray()).ToList();
+        }
+
+
+        public List<Employee> GetNonTeamMembers(string teamId, string status, string role, string gender, DateTime? dobMin, DateTime? dobMax,
+                                                DateTime? startDateMin, DateTime? startDateMax, DateTime? endDateMin, DateTime? endDateMax)
+        {
+            string sql = @"
+SELECT e.* 
+FROM Employee e
+LEFT JOIN EmployeeTeam et ON e.account_id = et.account_id
+WHERE (et.team_id != @teamId OR et.team_id IS NULL)
+AND e.role IN ('Staff', 'Leader')";
+
+            var parameters = new List<SqlParameter>
+        {
+            new SqlParameter("@teamId", teamId)
+        };
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                sql += " AND e.status = @status";
+                parameters.Add(new SqlParameter("@status", status));
+            }
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                sql += " AND e.role = @role";
+                parameters.Add(new SqlParameter("@role", role));
+            }
+
+            if (!string.IsNullOrEmpty(gender))
+            {
+                sql += " AND e.gender = @gender";
+                parameters.Add(new SqlParameter("@gender", gender));
+            }
+
+            if (dobMin.HasValue)
+            {
+                sql += " AND e.dob >= @dobMin";
+                parameters.Add(new SqlParameter("@dobMin", dobMin.Value));
+            }
+
+            if (dobMax.HasValue)
+            {
+                sql += " AND e.dob <= @dobMax";
+                parameters.Add(new SqlParameter("@dobMax", dobMax.Value));
+            }
+
+            if (startDateMin.HasValue)
+            {
+                sql += " AND e.start_date >= @startDateMin";
+                parameters.Add(new SqlParameter("@startDateMin", startDateMin.Value));
+            }
+
+            if (startDateMax.HasValue)
+            {
+                sql += " AND e.start_date <= @startDateMax";
+                parameters.Add(new SqlParameter("@startDateMax", startDateMax.Value));
+            }
+
+            if (endDateMin.HasValue)
+            {
+                sql += " AND e.end_date >= @endDateMin";
+                parameters.Add(new SqlParameter("@endDateMin", endDateMin.Value));
+            }
+
+            if (endDateMax.HasValue)
+            {
+                sql += " AND e.end_date <= @endDateMax";
+                parameters.Add(new SqlParameter("@endDateMax", endDateMax.Value));
+            }
+
+            return _context.Employees.FromSqlRaw(sql, parameters.ToArray()).ToList();
+        }
     }
+
 }
+

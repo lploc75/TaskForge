@@ -102,7 +102,15 @@ body {
     text-align: left;
     position: relative;
 }
-
+    .modal-content form input,
+    .modal-content form select {
+        width: 100%; /* Đảm bảo chiều rộng của các trường là 100% */
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box; /* Đảm bảo padding không ảnh hưởng đến width */
+    }
 /* Close button */
 .close {
     position: absolute;
@@ -193,10 +201,10 @@ select {
 /* Kiểu cho label */
 label {
     display: block; /* Hiển thị label dưới dạng block */
-    margin-bottom: 5px; /* Khoảng cách dưới của label */
     font-weight: bold; /* Tô đậm chữ */
     font-size: 14px; /* Cỡ chữ */
     color: #333; /* Màu chữ xám đậm */
+    width: 100px;
 }
 
 
@@ -262,7 +270,6 @@ form {
 
     /* Style for each form group (label + input/select) */
     form label {
-        margin-right: 10px; /* Khoảng cách giữa label và input */
         font-size: 14px;
         font-weight: bold;
         color: #333;
@@ -271,7 +278,7 @@ form {
     form input,
     form select {
         padding: 10px;
-        margin-right: 20px; /* Khoảng cách giữa các input */
+        margin-bottom:4px;
         font-size: 14px;
         border: 1px solid #ccc;
         border-radius: 5px;
@@ -284,17 +291,41 @@ form {
     .filterDeptId{
     margin-top:20px;
     }
-    .filter-button {
-        background-color: #4CAF50; /* Màu nền xanh cho nút */
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.3s ease;
+
+.d-flex {
+    width: 155px; 
+    height: 80px;
+}
+
+/* Styling for Search Button */
+#search-button {
+    background-color: #36b9cc; /* Light blue for search */
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    #search-button:hover {
+        background-color: #2a9aa8; /* Darker blue on hover */
     }
 
-    .filter-button:hover {
-        background-color: #45a049;
+/* Styling for Clear Button */
+#clear-button {
+    background-color: #6c757d; /* Gray color for clear button */
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none; /* Loại bỏ gạch chân */
+}
+
+    #clear-button:hover {
+        background-color: #5a6268; /* Darker gray on hover */
     }

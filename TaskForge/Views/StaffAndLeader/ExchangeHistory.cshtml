@@ -1,0 +1,110 @@
+﻿@model IPagedList<TaskForge.Models.CreditExchange>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@{
+    Layout = "_StaffLayout";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đổi thưởng của tôi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>My Reward Exchange History</h2>
+        <!-- Form tìm kiếm -->
+        <form method="get" action="@Url.Action("ExchangeHistory", "StaffAndLeader")">
+            <div class="form-row">
+                <!-- Lọc theo khoảng Credit Points -->
+                <div class="form-group col-md-3">
+                    <label for="minCredits">Minimum Credit Points</label>
+                    <input type="number" id="minCredits" name="minCredits" class="form-control" placeholder="Enter minimum credit points" value="@Context.Request.Query["minCredits"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="maxCredits">Maximum Credit Points</label>
+                    <input type="number" id="maxCredits" name="maxCredits" class="form-control" placeholder="Enter maximum credit points" value="@Context.Request.Query["maxCredits"]" />
+                </div>
+
+                <!-- Lọc theo khoảng Cash Amount -->
+                <div class="form-group col-md-3">
+                    <label for="minCash">Minimum Cash Amount</label>
+                    <input type="number" id="minCash" name="minCash" class="form-control" placeholder="Enter minimum cash amount" value="@Context.Request.Query["minCash"]" step="0.01" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="maxCash">Maximum Cash Amount</label>
+                    <input type="number" id="maxCash" name="maxCash" class="form-control" placeholder="Enter maximum cash amount" value="@Context.Request.Query["maxCash"]" step="0.01" />
+                </div>
+
+                <!-- Lọc theo khoảng ngày ExchangeDate -->
+                <div class="form-group col-md-3">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
+                </div>
+
+                <!-- Lọc theo Status -->
+                <div class="form-group col-md-3">
+                    <label for="status">Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Search</button>
+                    <a href="@Url.Action("ExchangeHistory", "StaffAndLeader")" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+        <!-- Hiển thị bảng danh sách các giao dịch -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Exchange ID</th>
+                    <th>Exchange Date</th>
+                    <th>Credit Points Used</th>
+                    <th>Cash Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var exchange in Model)
+                {
+                    <tr>
+                        <td>@exchange.ExchangeId</td>
+                        <td>@exchange.ExchangeDate.ToString("yyyy-MM-dd")</td>
+                        <td>@exchange.CreditPointsUsed</td>
+                        <td>@exchange.CashAmount</td>
+                        <td>@exchange.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("ExchangeHistory", new { page, minCredits = Context.Request.Query["minCredits"], maxCredits = Context.Request.Query["maxCredits"], minCash = Context.Request.Query["minCash"], maxCash = Context.Request.Query["maxCash"], startDate = Context.Request.Query["startDate"], endDate = Context.Request.Query["endDate"], status = Context.Request.Query["status"] }), new PagedListRenderOptions
+       {
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+</body>
+</html>

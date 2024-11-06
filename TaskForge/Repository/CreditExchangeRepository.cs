@@ -1,7 +1,7 @@
 ﻿using TaskForge.Models;
 using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace TaskForge.Repository
 {
@@ -18,29 +18,34 @@ namespace TaskForge.Repository
         public List<CreditExchange> GetAllCreditExchanges()
         {
             return _context.CreditExchanges
-                           .OrderByDescending(c => c.ExchangeDate) // Sắp xếp theo ngày giảm dần
+                           .FromSqlRaw("SELECT * FROM CreditExchange ORDER BY exchange_date DESC")
                            .ToList();
         }
-
 
         // Lấy thông tin chi tiết trao đổi tín dụng dựa trên ExchangeId
         public CreditExchange GetCreditExchangeById(int exchangeId)
         {
-            return _context.CreditExchanges.FirstOrDefault(e => e.ExchangeId == exchangeId);
+            return _context.CreditExchanges
+                           .FromSqlRaw("SELECT * FROM CreditExchange WHERE exchange_id = {0}", exchangeId)
+                           .FirstOrDefault();
         }
 
         // Cập nhật thông tin trao đổi tín dụng
         public void UpdateCreditExchange(CreditExchange creditExchange)
         {
-            _context.CreditExchanges.Update(creditExchange);
-            _context.SaveChanges();
+            _context.Database.ExecuteSqlRaw(
+                "UPDATE CreditExchange SET account_id = {0}, exchange_date = {1}, credit_points_used = {2}, cash_amount = {3}, status = {4} WHERE exchange_id = {5}",
+                creditExchange.AccountId, creditExchange.ExchangeDate, creditExchange.CreditPointsUsed, creditExchange.CashAmount, creditExchange.Status, creditExchange.ExchangeId
+            );
         }
 
         // Tạo một trao đổi tín dụng mới
         public void CreateCreditExchange(CreditExchange creditExchange)
         {
-            _context.CreditExchanges.Add(creditExchange);
-            _context.SaveChanges();
+            _context.Database.ExecuteSqlRaw(
+                "INSERT INTO CreditExchange (account_id, exchange_date, credit_points_used, cash_amount, status) VALUES ({0}, {1}, {2}, {3}, {4})",
+                creditExchange.AccountId, creditExchange.ExchangeDate, creditExchange.CreditPointsUsed, creditExchange.CashAmount, creditExchange.Status
+            );
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model TaskForge.Models.Subtask
 
 @{
-    Layout = "_Layout";
+    Layout = Context.Session.GetString("Layout"); // Đảm bảo Context là một biến có chứa HttpContext
 }
 
 <div class="container">

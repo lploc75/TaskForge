@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using System.Security.Claims;
 using TaskForge.Models;
 using TaskForge.Service;
@@ -79,7 +80,6 @@ namespace TaskForge.Controllers
             return RedirectToAction("ViewAccountList");
         }
 
-
         public IActionResult DeleteAccount(string accountId)
         {
             // Gọi service để xóa tài khoản
@@ -154,21 +154,70 @@ namespace TaskForge.Controllers
         }
 
         // View team list with department ids using ViewBag
-        public IActionResult Team()
+        [HttpGet]
+        public IActionResult Team(string deptId, int? numberOfTeamFrom, int? numberOfTeamTo, DateOnly? createdDateFrom, DateOnly? createdDateTo, int? page)
         {
-            // Lấy tất cả các team
-            var teams = _adminService.GetAllTeams();
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
 
-            // Lấy tất cả các department Id
+            // Gọi Service để lấy danh sách team đã lọc và phân trang
+            var pagedTeams = _teamService.GetTeamsWithFilters(deptId, numberOfTeamFrom, numberOfTeamTo, createdDateFrom, createdDateTo, pageNumber, pageSize);
+
+            // Lấy tất cả departments để hiển thị
             var departments = _departmentService.GetAllDepartments();
 
-            // Truyền danh sách team vào ViewBag
-            ViewBag.Teams = teams;
+            // Truyền dữ liệu vào ViewData
+            ViewData["Departments"] = departments;
+            ViewData["DeptId"] = deptId;
+            ViewData["NumberOfTeamFrom"] = numberOfTeamFrom;
+            ViewData["NumberOfTeamTo"] = numberOfTeamTo;
+            ViewData["CreatedDateFrom"] = createdDateFrom;
+            ViewData["CreatedDateTo"] = createdDateTo;
 
-            // Truyền danh sách department Id vào ViewBag
-            ViewBag.Departments = departments;
+            return View(pagedTeams);
+        }
 
-            return View();
+        public IActionResult ManageTeamMember(string teamId, string status, string role, string gender, DateTime? dobMin, DateTime? dobMax,
+                                       DateTime? startDateMin, DateTime? startDateMax, DateTime? endDateMin, DateTime? endDateMax,
+                                       string deptId, int? page, string memberType)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
+
+            var members = _employeeService.GetTeamMembers(teamId, status, role, gender, dobMin, dobMax, startDateMin,
+                                                          startDateMax, endDateMin, endDateMax, pageNumber, pageSize, memberType);
+
+            ViewData["MemberType"] = memberType ?? "inTeam";
+
+            // Truyền các giá trị filter vào ViewData để giữ lại trong form
+            ViewData["TeamId"] = teamId;
+            ViewData["Status"] = status;
+            ViewData["Role"] = role;
+            ViewData["Gender"] = gender;
+            ViewData["DobMin"] = dobMin;
+            ViewData["DobMax"] = dobMax;
+            ViewData["StartDateMin"] = startDateMin;
+            ViewData["StartDateMax"] = startDateMax;
+            ViewData["EndDateMin"] = endDateMin;
+            ViewData["EndDateMax"] = endDateMax;
+
+            return View(members);
+        }
+
+        [HttpPost]
+        public IActionResult AddMember(string teamId, string accountId)
+        {
+            _teamService.AddMemberToTeam(teamId, accountId);
+            TempData["SuccessMessage"] = "Member added to the team successfully.";
+            return RedirectToAction("ManageTeamMember", new { teamId });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveMember(string teamId, string accountId)
+        {
+            _teamService.RemoveMemberFromTeam(teamId, accountId);
+            TempData["SuccessMessage"] = "Member removed from the team successfully.";
+            return RedirectToAction("ManageTeamMember", new { teamId });
         }
 
         // UC-29: CRUD Team
@@ -203,78 +252,17 @@ namespace TaskForge.Controllers
             TempData["SuccessMessage"] = "Team was deleted successfully!";
             return RedirectToAction("Team");
         }
-        // Hiển thị trang quản lý Team với bộ lọc
-        [HttpGet]
-        public IActionResult TeamFiltered(string deptId, int? numberOfTeam, DateOnly? createdDate)
-        {
-            // Lấy danh sách các team đã được lọc
-            var teams = _teamService.GetTeamsWithFilters(deptId, numberOfTeam, createdDate);
-            var departments = _departmentService.GetAllDepartments();
 
-            // Truyền dữ liệu vào ViewBag
-            ViewBag.Teams = teams;
-            ViewBag.Departments = departments;
-
-            return View("Team");
-        }
         public IActionResult Credit(string accountId, string status, int? minCredits, int? maxCredits, decimal? minCash, decimal? maxCash, DateTime? startDate, DateTime? endDate, int? page)
         {
-            // Lấy tất cả các CreditExchange từ Service
-            var exchanges = _creditExchangeService.GetAllCreditExchanges();
+            var exchanges = _creditExchangeService.FilterCreditExchanges(accountId, status, minCredits, maxCredits, minCash, maxCash, startDate, endDate);
 
-            // Lọc theo AccountId nếu có
-            if (!string.IsNullOrEmpty(accountId))
-            {
-                exchanges = exchanges.Where(e => e.AccountId.Contains(accountId)).ToList();
-            }
-
-            // Lọc theo trạng thái nếu có
-            if (!string.IsNullOrEmpty(status))
-            {
-                exchanges = exchanges.Where(e => e.Status == status).ToList();
-            }
-
-            // Lọc theo khoảng CreditPointsUsed
-            if (minCredits.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CreditPointsUsed >= minCredits).ToList();
-            }
-            if (maxCredits.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CreditPointsUsed <= maxCredits).ToList();
-            }
-
-            // Lọc theo khoảng CashAmount
-            if (minCash.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CashAmount >= minCash).ToList();
-            }
-            if (maxCash.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CashAmount <= maxCash).ToList();
-            }
-
-            // Lọc theo khoảng ngày ExchangeDate
-            if (startDate.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.ExchangeDate >= startDate).ToList();
-            }
-            if (endDate.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.ExchangeDate <= endDate).ToList();
-            }
-
-            // Thiết lập phân trang, mỗi trang có 10 phần tử
             int pageSize = 10;
-            int pageNumber = (page ?? 1); // Nếu không có số trang, mặc định là 1
-
-            // Áp dụng phân trang sau khi đã lọc
+            int pageNumber = page ?? 1;
             var pagedExchanges = exchanges.ToPagedList(pageNumber, pageSize);
 
-            // Trả về View với danh sách đã phân trang
             return View(pagedExchanges);
         }
-
 
         [HttpPost]
         public IActionResult UpdateExchangeStatus(int exchangeId, string status)

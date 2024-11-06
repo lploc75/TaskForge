@@ -1,0 +1,205 @@
+﻿@model IPagedList<TaskForge.Models.Employee>
+
+@{
+    ViewData["Title"] = "Manage Team Members";
+    Layout = "_AdminLayout";
+    var memberType = ViewData["MemberType"]?.ToString();
+
+}
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/admin/manageTeamMember.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="container">
+        <h1>Manage Team Members for Team @ViewData["TeamId"]</h1>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success" id="successMessage">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-success" id="errorMessage">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+        <!-- Search Form -->
+        <form method="get" action="@Url.Action("ManageTeamMember", "Admin")" class="d-flex flex-wrap align-items-end">
+            <!-- Trường hidden để giữ lại teamId -->
+            <input type="hidden" name="teamId" value="@ViewData["TeamId"]" />
+
+            <!-- Filter to show team members or non-team members -->
+            <div class="form-group col-md-2">
+                <label>Show Members</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="memberType" value="inTeam" id="inTeam"
+                    @(ViewData["MemberType"]?.ToString() == "inTeam" ? "checked" : "")>
+                    <label class="form-check-label" for="inTeam">In Team</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="memberType" value="notInTeam" id="notInTeam"
+                    @(ViewData["MemberType"]?.ToString() == "notInTeam" ? "checked" : "")>
+                    <label class="form-check-label" for="notInTeam">Not In Team</label>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="form-group col-md-3">
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="Active" selected="@(ViewData["Status"]?.ToString() == "Active")">Active</option>
+                    <option value="Inactive" selected="@(ViewData["Status"]?.ToString() == "Inactive")">Inactive</option>
+                </select>
+            </div>
+
+            <!-- Role with Staff and Leader Options -->
+            <div class="form-group col-md-3">
+                <label for="role">Role</label>
+                <select name="role" id="role" class="form-control">
+                    <option value="">All</option>
+                    <option value="Staff" selected="@(ViewData["Role"]?.ToString() == "Staff")">Staff</option>
+                    <option value="Leader" selected="@(ViewData["Role"]?.ToString() == "Leader")">Leader</option>
+                </select>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group col-md-3">
+                <label for="gender">Gender</label>
+                <select name="gender" id="gender" class="form-control">
+                    <option value="">All</option>
+                    <option value="M" selected="@(ViewData["Gender"]?.ToString() == "M")">Male</option>
+                    <option value="F" selected="@(ViewData["Gender"]?.ToString() == "F")">Female</option>
+                </select>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="form-group col-md-3">
+                <label for="dob">Date of Birth From</label>
+                <input type="date" name="dobMin" class="form-control"
+                       value="@(ViewData["DobMin"] != null ? ((DateTime)ViewData["DobMin"]).ToString("yyyy-MM-dd") : "")" />
+                <input type="date" name="dobMax" class="form-control mt-1" placeholder="To"
+                       value="@(ViewData["DobMax"] != null ? ((DateTime)ViewData["DobMax"]).ToString("yyyy-MM-dd") : "")" />
+            </div>
+
+            <!-- Start Date -->
+            <div class="form-group col-md-3">
+                <label for="startDate">Start Date From</label>
+                <input type="date" name="startDateMin" class="form-control"
+                       value="@(ViewData["StartDateMin"] != null ? ((DateTime)ViewData["StartDateMin"]).ToString("yyyy-MM-dd") : "")" />
+                <input type="date" name="startDateMax" class="form-control mt-1" placeholder="To"
+                       value="@(ViewData["StartDateMax"] != null ? ((DateTime)ViewData["StartDateMax"]).ToString("yyyy-MM-dd") : "")" />
+            </div>
+
+            <!-- End Date -->
+            <div class="form-group col-md-3">
+                <label for="endDate">End Date From</label>
+                <input type="date" name="endDateMin" class="form-control"
+                       value="@(ViewData["EndDateMin"] != null ? ((DateTime)ViewData["EndDateMin"]).ToString("yyyy-MM-dd") : "")" />
+                <input type="date" name="endDateMax" class="form-control mt-1" placeholder="To"
+                       value="@(ViewData["EndDateMax"] != null ? ((DateTime)ViewData["EndDateMax"]).ToString("yyyy-MM-dd") : "")" />
+            </div>
+
+            <!-- Search and Clear Buttons -->
+            <div class="form-group col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary" id="search-button">Search</button>
+                <a href="@Url.Action("ManageTeamMember", "Admin", new { teamId = ViewData["TeamId"] })"
+                   class="btn btn-secondary ml-2" id="clear-button">Clear</a>
+            </div>
+        </form>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Account ID</th>
+                    <th>Full Name</th>
+                    <th>Gender</th>
+                    <th>Date of Birth</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in Model)
+                {
+                    <tr>
+                        <td>@member.AccountId</td>
+                        <td>@member.Fullname</td>
+                        <td>@member.Gender</td>
+                        <td>@member.Dob?.ToString("yyyy-MM-dd")</td>
+                        <td>@member.StartDate?.ToString("yyyy-MM-dd")</td>
+                        <td>@member.EndDate?.ToString("yyyy-MM-dd")</td>
+                        <td>@member.Role</td>
+                        <td>@member.Status</td>
+                        <td>
+                            @if (memberType == "inTeam")
+                            {
+                                <!-- Nút Remove nếu thuộc team -->
+                                <form method="post" action="/Admin/RemoveMember">
+                                    <input type="hidden" name="teamId" value="@ViewData["TeamId"]" />
+                                    <input type="hidden" name="accountId" value="@member.AccountId" />
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this member?')">Remove</button>
+                                </form>
+                            }
+                            else if (memberType == "notInTeam")
+                            {
+                                <!-- Nút Add nếu không thuộc team -->
+                                <form method="post" action="/Admin/AddMember">
+                                    <input type="hidden" name="teamId" value="@ViewData["TeamId"]" />
+                                    <input type="hidden" name="accountId" value="@member.AccountId" />
+                                    <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to add this member to the team?')">Add</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Pagination controls -->
+        <div class="pagination justify-content-center">
+            @Html.PagedListPager(Model, page => Url.Action("ManageTeamMember", new
+                {
+                    page,
+                    teamId = ViewData["TeamId"],
+                    status = Context.Request.Query["status"],
+                    role = Context.Request.Query["role"],
+                    gender = Context.Request.Query["gender"],
+                    dobMin = Context.Request.Query["dobMin"],
+                    dobMax = Context.Request.Query["dobMax"],
+                    startDateMin = Context.Request.Query["startDateMin"],
+                    startDateMax = Context.Request.Query["startDateMax"],
+                    endDateMin = Context.Request.Query["endDateMin"],
+                    endDateMax = Context.Request.Query["endDateMax"],
+                    deptId = Context.Request.Query["deptId"]
+                }),
+                     new PagedListRenderOptions
+            {
+                DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                MaximumPageNumbersToDisplay = 5
+            })
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

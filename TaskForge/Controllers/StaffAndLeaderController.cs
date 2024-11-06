@@ -18,8 +18,10 @@ namespace TaskForge.Controllers
         private readonly NotificationService _notificationService;
         private readonly FeedbackService _feedbackService;
         private readonly SubtaskService _subtaskService;
+        private readonly CreditExchangeService _creditExchangeService;
+
         // Constructor duy nhất cho cả hai service
-        public StaffandLeaderController(EmployeeService employeeService, ProjectService projectService, TaskService taskService, NotificationService notificationService, FeedbackService feedbackService, SubtaskService subtaskService)
+        public StaffandLeaderController(EmployeeService employeeService, ProjectService projectService, TaskService taskService, NotificationService notificationService, FeedbackService feedbackService, SubtaskService subtaskService, CreditExchangeService creditExchangeService)
         {
             _employeeService = employeeService;
             _projectService = projectService;
@@ -27,6 +29,7 @@ namespace TaskForge.Controllers
             _notificationService = notificationService;
             _feedbackService = feedbackService;
             _subtaskService = subtaskService;
+            _creditExchangeService = creditExchangeService;
         }
 
         public IActionResult Index()
@@ -81,35 +84,21 @@ namespace TaskForge.Controllers
 
             return View(employee);
         }
+
         public IActionResult LeaderViewStaffList(string accountId, string fullname, int? page)
         {
             // Lấy accountId của leader đang đăng nhập
             string leaderAccountId = User.FindFirst("AccountId")?.Value;
 
-            // Lấy teamId của leader từ accountId
+            // Gọi phương thức trong Service để lấy teamId của leader
             string teamId = _employeeService.GetTeamIdByAccountId(leaderAccountId);
-
-            // Lấy danh sách nhân viên có cùng teamId
-            var staffs = _employeeService.GetStaffByTeamId(teamId).AsQueryable();
-
-            // Lọc theo accountId nếu có
-            if (!string.IsNullOrEmpty(accountId))
-            {
-                staffs = staffs.Where(s => s.AccountId.Contains(accountId));
-            }
-
-            // Lọc theo fullname nếu có
-            if (!string.IsNullOrEmpty(fullname))
-            {
-                staffs = staffs.Where(s => s.Fullname.Contains(fullname));
-            }
 
             // Thiết lập phân trang, mỗi trang có 10 phần tử
             int pageSize = 10;
             int pageNumber = (page ?? 1);
 
-            // Áp dụng phân trang
-            var pagedStaffs = staffs.ToPagedList(pageNumber, pageSize);
+            // Gọi phương thức trong Service để lấy danh sách nhân viên đã lọc và phân trang
+            var pagedStaffs = _employeeService.GetStaffByTeamIdWithFilters(teamId, accountId, fullname, pageNumber, pageSize);
 
             // Lưu giá trị lọc vào ViewBag để hiển thị lại trong form tìm kiếm
             ViewBag.AccountId = accountId;
@@ -118,73 +107,34 @@ namespace TaskForge.Controllers
             // Truyền danh sách nhân viên đã phân trang vào Model
             return View(pagedStaffs);
         }
-
-
-        public IActionResult LeaderAssignTask(string subtaskId, string subtaskName, string status, int? priority, int? difficulty, DateTime? startDate, DateTime? endDate, int? page)
+        public IActionResult LeaderAssignTask(string subtaskId, string subtaskName, string status, int? priority, int? difficulty,
+                                        DateTime? startDate, DateTime? endDate, int? page)
         {
             // Lấy accountId của leader đang đăng nhập
-            string accountId = User.FindFirst("AccountId")?.Value;
+            string leaderAccountId = User.FindFirst("AccountId")?.Value;
 
-            // Lấy teamId của leader từ accountId
-            string teamId = _employeeService.GetTeamIdByAccountId(accountId);
+            // Lấy teamId của leader
+            string teamId = _employeeService.GetTeamIdByAccountId(leaderAccountId);
 
-            // Lấy danh sách subtask thuộc team của leader
-            var subtasks = _taskService.GetSubtasksByTeam(teamId);
-
-            // Lấy danh sách nhân viên
+            // Lấy danh sách nhân viên và truyền vào ViewBag
             var staff = _employeeService.GetStaffByTeamId(teamId);
-            ViewBag.Employees = staff; // Truyền danh sách nhân viên vào View
+            ViewBag.Employees = staff;
 
-            // Lọc theo Subtask ID nếu có
-            if (!string.IsNullOrEmpty(subtaskId))
-            {
-                subtasks = subtasks.Where(s => s.SubtaskId.Contains(subtaskId)).ToList();
-            }
-
-            // Lọc theo Subtask Name nếu có
-            if (!string.IsNullOrEmpty(subtaskName))
-            {
-                subtasks = subtasks.Where(s => s.SubtaskName.Contains(subtaskName)).ToList();
-            }
-
-            // Lọc theo trạng thái nếu có
-            if (!string.IsNullOrEmpty(status))
-            {
-                subtasks = subtasks.Where(s => s.Status == status).ToList();
-            }
-
-            // Lọc theo Priority nếu có
-            if (priority.HasValue)
-            {
-                subtasks = subtasks.Where(s => s.Priority == priority).ToList();
-            }
-
-            // Lọc theo Difficulty nếu có
-            if (difficulty.HasValue)
-            {
-                subtasks = subtasks.Where(s => s.Difficulty == difficulty).ToList();
-            }
-
-            // Lọc theo khoảng ngày AssignmentDate
-            if (startDate.HasValue)
-            {
-                subtasks = subtasks.Where(s => s.AssignmentDate >= startDate).ToList();
-            }
-            if (endDate.HasValue)
-            {
-                subtasks = subtasks.Where(s => s.Deadline <= endDate).ToList();
-            }
+            // Lấy tất cả SubtaskAssignments
+            var subtaskAssignments = _taskService.GetAllSubtaskAssignments();
+            ViewBag.SubtaskAssignments = subtaskAssignments;
 
             // Thiết lập phân trang, mỗi trang có 10 phần tử
             int pageSize = 10;
-            int pageNumber = (page ?? 1); // Nếu không có số trang, mặc định là 1
+            int pageNumber = page ?? 1;
 
-            // Áp dụng phân trang sau khi đã lọc
-            var pagedSubtasks = subtasks.ToPagedList(pageNumber, pageSize);
+            // Lấy danh sách subtasks đã lọc và phân trang
+            var pagedSubtasks = _taskService.GetFilteredSubtasks(teamId, subtaskId, subtaskName, status, priority, difficulty, startDate, endDate, pageNumber, pageSize);
 
             // Trả về View với danh sách đã phân trang
             return View(pagedSubtasks);
         }
+
         [HttpPost]
         public IActionResult AssignSubtask(string subtaskId, string assignedTo)
         {
@@ -215,7 +165,6 @@ namespace TaskForge.Controllers
             // Sử dụng ViewBag để truyền dữ liệu
             ViewBag.Subtasks = subtasks;
             ViewBag.PersonalTasks = personalTasks;
-            ViewBag.AccountId = accountId;
             // Trả về View và truyền danh sách subtasks đã gán vào Model
             return View();
         }
@@ -239,83 +188,54 @@ namespace TaskForge.Controllers
 
             return View();
         }
+
         public IActionResult TaskFilter(string status, int? priority, int? difficulty, DateTime? assignmentDateMin, DateTime? assignmentDateMax, DateTime? deadlineMin, DateTime? deadlineMax, string submission, string taskId, string teamId, int? page)
         {
             string accountId = User.FindFirst("AccountId")?.Value;
             var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
             ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
 
-            var subtasks = _taskService.GetAllSubtasks();
-
-            // Lọc theo các tiêu chí
-            if (!string.IsNullOrEmpty(status))
-                subtasks = subtasks.Where(s => s.Status == status).ToList();
-
-            if (priority.HasValue)
-                subtasks = subtasks.Where(s => s.Priority == priority).ToList();
-
-            if (difficulty.HasValue)
-                subtasks = subtasks.Where(s => s.Difficulty == difficulty).ToList();
-
-            if (assignmentDateMin.HasValue)
-                subtasks = subtasks.Where(s => s.AssignmentDate >= assignmentDateMin).ToList();
-
-            if (assignmentDateMax.HasValue)
-                subtasks = subtasks.Where(s => s.AssignmentDate <= assignmentDateMax).ToList();
-
-            if (deadlineMin.HasValue)
-                subtasks = subtasks.Where(s => s.Deadline >= deadlineMin).ToList();
-
-            if (deadlineMax.HasValue)
-                subtasks = subtasks.Where(s => s.Deadline <= deadlineMax).ToList();
-
-            if (!string.IsNullOrEmpty(submission))
-                subtasks = subtasks.Where(s => s.SubmissionDate.HasValue == (submission == "Yes")).ToList();
-
-            if (!string.IsNullOrEmpty(taskId))
-                subtasks = subtasks.Where(s => s.TaskId.Contains(taskId)).ToList();
-
-            if (!string.IsNullOrEmpty(teamId))
-                subtasks = subtasks.Where(s => s.TeamId.Contains(teamId)).ToList();
-            
-            // Thiết lập phân trang
+            // Gọi Service để lấy danh sách subtasks đã lọc và phân trang
+            int pageNumber = page ?? 1;
             int pageSize = 10;
-            int pageNumber = (page ?? 1);
+            var pagedSubtasks = _subtaskService.GetFilteredSubtasks(status, priority, difficulty, assignmentDateMin, assignmentDateMax, deadlineMin, deadlineMax, submission, taskId, teamId, pageNumber, pageSize);
 
-            var pagedSubtasks = subtasks.ToPagedList(pageNumber, pageSize);
+            // Truyền lại các giá trị vào ViewData để giữ lại sau khi load lại trang
+            ViewData["Status"] = status;
+            ViewData["Priority"] = priority;
+            ViewData["Difficulty"] = difficulty;
+            ViewData["AssignmentDateMin"] = assignmentDateMin;
+            ViewData["AssignmentDateMax"] = assignmentDateMax;
+            ViewData["DeadlineMin"] = deadlineMin;
+            ViewData["DeadlineMax"] = deadlineMax;
+            ViewData["Submission"] = submission;
+            ViewData["TaskId"] = taskId;
+            ViewData["TeamId"] = teamId;
+
             return View(pagedSubtasks);
         }
+
         public IActionResult PersonalTaskFilter(string status, int? priority, DateTime? assignmentDateMin, DateTime? assignmentDateMax, DateTime? deadlineMin, DateTime? deadlineMax, int? page)
         {
-            var personalTasks = _taskService.GetAllPersonalTasks();
+            string accountId = User.FindFirst("AccountId")?.Value;
+            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
+            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
 
-            // Lọc theo các tiêu chí
-            if (!string.IsNullOrEmpty(status))
-                personalTasks = personalTasks.Where(p => p.Status == status).ToList();
-
-            if (priority.HasValue)
-                personalTasks = personalTasks.Where(p => p.Priority == priority).ToList();
-
-            if (assignmentDateMin.HasValue)
-                personalTasks = personalTasks.Where(p => p.AssignmentDate >= assignmentDateMin).ToList();
-
-            if (assignmentDateMax.HasValue)
-                personalTasks = personalTasks.Where(p => p.AssignmentDate <= assignmentDateMax).ToList();
-
-            if (deadlineMin.HasValue)
-                personalTasks = personalTasks.Where(p => p.Deadline >= deadlineMin).ToList();
-
-            if (deadlineMax.HasValue)
-                personalTasks = personalTasks.Where(p => p.Deadline <= deadlineMax).ToList();
-
-            // Thiết lập phân trang
+            // Gọi Service để lấy danh sách personal tasks đã lọc và phân trang
+            int pageNumber = page ?? 1;
             int pageSize = 10;
-            int pageNumber = (page ?? 1);
+            var pagedPersonalTasks = _taskService.GetFilteredPersonalTasks(status, priority, assignmentDateMin, assignmentDateMax, deadlineMin, deadlineMax, pageNumber, pageSize);
 
-            var pagedPersonalTasks = personalTasks.ToPagedList(pageNumber, pageSize);
+            // Truyền lại các giá trị vào ViewData để giữ lại sau khi load lại trang
+            ViewData["Status"] = status;
+            ViewData["Priority"] = priority;
+            ViewData["AssignmentDateMin"] = assignmentDateMin;
+            ViewData["AssignmentDateMax"] = assignmentDateMax;
+            ViewData["DeadlineMin"] = deadlineMin;
+            ViewData["DeadlineMax"] = deadlineMax;
+
             return View(pagedPersonalTasks);
         }
-
         [HttpPost]
         public IActionResult UpdateProfile(string accountId, Employee updatedEmployee)
         {
@@ -372,39 +292,50 @@ namespace TaskForge.Controllers
         public IActionResult UpdateSubtaskStatus(string subtaskId, string status)
         {
             // Gọi service để cập nhật trạng thái task
-            var result = _employeeService.UpdateSubtaskStatus(subtaskId, status);
+            var result = _subtaskService.UpdateSubtaskStatus(subtaskId, status);
             if (result)
             {
+                TempData["SuccessMessage"] = "task's status was updated successfully!";
                 return RedirectToAction("Task");
-            }
-            return RedirectToAction("Error", "Home");
-        }
-        [HttpPost]
-        public IActionResult RejectSubtask(string subtaskId)
-        {
-            _taskService.RejectSubtaskAssignment(subtaskId);
-            return RedirectToAction("Task"); // Redirect to the appropriate view
-        }
-        [HttpPost]
-        public IActionResult UpdatePersonalTaskStatus(string PtaskId, string status)
-        {
-            if(status.Equals("In Progress"))
-            {
-                status = "Completed";
             }
             else
             {
-                status = "In Progress";
-            }
-            // Gọi service để cập nhật trạng thái task
-            var result = _employeeService.UpdatePersonalTaskkStatus(PtaskId, status);
-            // Thêm thông báo thành công
-            TempData["SuccessMessage"] = "Personal task's status was updated successfully!";
-            if (result)
-            {
+                TempData["ErrorMessage"] = "Failed to update task status!";
                 return RedirectToAction("Task");
             }
-            return RedirectToAction("Error", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult RejectSubtask(string subtaskId)
+        {
+            if (_subtaskService.RejectSubtaskAssignment(subtaskId))
+            {
+                TempData["SuccessMessage"] = "Task's status was updated successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to update task status!";
+            }
+            return RedirectToAction("Task");
+        }
+
+        [HttpPost]
+        public IActionResult UpdatePersonalTaskStatus(string PtaskId, string status)
+        {
+            // Gọi service để cập nhật trạng thái
+            var result = _taskService.UpdatePersonalTaskStatus(PtaskId, status);
+
+            if (result)
+            {
+                // Thêm thông báo thành công
+                TempData["SuccessMessage"] = "Personal task's status was updated successfully!";
+                return RedirectToAction("Task");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to update personal's task status!";
+                return RedirectToAction("Task");
+            }
         }
 
         [HttpPost]
@@ -412,98 +343,72 @@ namespace TaskForge.Controllers
         {
             // Lấy AccountId của người dùng hiện tại
             var accountId = User.FindFirstValue("AccountId");
-            // Kiểm tra nếu assignedDate sau deadline
+            // Kiểm tra nếu accountId là null
+            if (string.IsNullOrEmpty(accountId))
+            {
+                TempData["ErrorMessage"] = "Failed to create personal task. User not authenticated.";
+                return RedirectToAction("Task");
+            }
+
+            //Kiểm tra nếu assignedDate sau deadline
             if (assignedDate >= deadline)
             {
                 TempData["ErrorMessage"] = "Invalid input, assigned date cannot be equal or after the deadline";
-                return RedirectToAction("Task", "StaffAndLeader");
-            }
-            if (ModelState.IsValid)
-            {
-                // Sinh ID ngẫu nhiên cho PersonalTask
-                string ptask_id = GenerateRandomPtaskId();
-
-                // Tạo đối tượng PersonalTask mới
-                var ptask = new PersonalTask
-                {
-                    PtaskId = ptask_id,              // Gán PtaskId ngẫu nhiên
-                    AccountId = accountId,           // Gán AccountId của người dùng
-                    PtaskName = PtaskName,           // Lấy tên task từ form
-                    Status = "In Progress",           // Trạng thái mặc định khi tạo task là "In Progress"
-                    Priority = priority,             // Gán độ ưu tiên từ form
-                    AssignmentDate = assignedDate,   // Gán ngày tạo task từ form
-                    Deadline = deadline,             // Gán hạn deadline từ form
-                    Description = description       // Gán mô tả từ form
-                };
-
-                // Gọi service hoặc repository để lưu PersonalTask vào database
-                _taskService.AddPersonalTask(ptask);
-                // Thêm thông báo thành công
-                TempData["SuccessMessage"] = "Personal task created successfully!";
-                // Sau khi tạo task, chuyển hướng người dùng về trang Task
                 return RedirectToAction("Task");
             }
-            // Nếu model không hợp lệ, quay lại trang và hiển thị lại form
-            return View();
+
+            var result = _taskService.CreatePersonalTask(PtaskName, assignedDate, deadline, priority, description, accountId);
+
+            if (!result)
+            {
+                TempData["ErrorMessage"] = "Failed to create personal task. Please try again.";
+                return RedirectToAction("Task");
+            }
+
+            TempData["SuccessMessage"] = "Personal task created successfully!";
+            return RedirectToAction("Task");
         }
 
         [HttpPost]
         public IActionResult UpdatePersonalTask(string PtaskId, string PtaskName, string Description, DateTime assignedDate, DateTime deadline, int priority)
         {
-            // Lấy Personal Task từ Service
-            var personalTask = _taskService.GetPersonalTaskById(PtaskId);
-            if (personalTask == null)
+            // Kiểm tra nếu assignedDate sau deadline
+            if (assignedDate >= deadline)
             {
-                return NotFound("Personal Task not found.");
+                TempData["ErrorMessage"] = "Invalid input, assigned date cannot be equal or after the deadline";
+                return RedirectToAction("Task");
             }
 
-            // Cập nhật thông tin của Personal Task
-            personalTask.PtaskName = PtaskName;
-            personalTask.Description = Description;
-            personalTask.AssignmentDate = assignedDate;
-            personalTask.Deadline = deadline;
-            personalTask.Priority = priority;
+            // Gọi service để cập nhật thông tin Personal Task
+            var result = _taskService.UpdatePersonalTask(PtaskId, PtaskName, Description, assignedDate, deadline, priority);
 
-            // Gọi Service để cập nhật task
-            _taskService.UpdatePersonalTask(personalTask);
-            // Thêm thông báo thành công
+            if (!result)
+            {
+                TempData["ErrorMessage"] = "Failed to update personal task. Please try again.";
+                return RedirectToAction("Task");
+            }
+
             TempData["SuccessMessage"] = "Personal task updated successfully!";
-            // Chuyển hướng lại trang quản lý sau khi cập nhật
             return RedirectToAction("Task");
         }
 
         [HttpPost]
         public IActionResult DeletePersonalTask(string PtaskId)
         {
-            var task = _taskService.GetPersonalTaskById(PtaskId);
-            if (task == null)
+            // Gọi service để xóa task
+            var result = _taskService.DeletePersonalTask(PtaskId);
+
+            // Hiển thị thông báo phù hợp
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Task deleted successfully!";
+            }
+            else
             {
                 TempData["ErrorMessage"] = "Task not found.";
-                return RedirectToAction("Task");
             }
 
-            // Gọi service để xóa task
-            _taskService.DeletePersonalTask(PtaskId);
-
-            // Thông báo xóa thành công
-            TempData["SuccessMessage"] = "Task deleted successfully!";
             return RedirectToAction("Task");
-        }
-
-        // Phương thức tạo ID mới ngẫu nhiên cho PersonalTask
-        public string GenerateRandomPtaskId()
-        {
-            string accountId = User.FindFirst("AccountId")?.Value;
-            var recentNotifications = _notificationService.GetRecentNotifications(accountId, 5); // Lấy 5 thông báo gần nhất
-            ViewData["RecentNotifications"] = recentNotifications; // Gửi thông báo vào ViewData
-            // Tạo đối tượng Random
-            Random random = new Random();
-
-            // Tạo số ngẫu nhiên trong khoảng từ 1 đến 999
-            int randomNumber = random.Next(1, 1000); // Số ngẫu nhiên từ 1 đến 999
-
-            // Trả về ID mới với định dạng "PT" + số ngẫu nhiên với 3 chữ số
-            return "PT" + randomNumber.ToString("D3"); // D3 định dạng số thành 3 chữ số (ví dụ: "PT045")
         }
 
         // Exchange Page Action
@@ -540,12 +445,6 @@ namespace TaskForge.Controllers
         {
             string accountId = User.FindFirst("AccountId")?.Value;
 
-            if (string.IsNullOrEmpty(accountId))
-            {
-                return RedirectToAction("Error", "Home");
-            }
-
-            // Kiểm tra nếu người dùng chưa nhập số điểm
             if (!pointsToRedeem.HasValue)
             {
                 TempData["Message"] = "Please enter the points you want to redeem.";
@@ -554,75 +453,71 @@ namespace TaskForge.Controllers
                 return View("Exchange");
             }
 
-            if (pointsToRedeem < 100 || pointsToRedeem > availableCredits)
+            var result = _employeeService.SubmitExchange(accountId, pointsToRedeem.Value, availableCredits);
+
+            if (!result.Success)
             {
-                TempData["Message"] = "The number of points entered is invalid.";
+                TempData["Message"] = result.Message;
                 ViewData["AvailableCredits"] = availableCredits;
-                ViewData["CashEquivalent"] = availableCredits * 0.5m;
+                ViewData["CashEquivalent"] = result.CashEquivalent;
                 return View("Exchange");
             }
 
-            var exchangeId = _employeeService.RedeemCredits(accountId, pointsToRedeem.Value);
-
-            if (exchangeId != 0)
-            {
-                return RedirectToAction("ExchangeConfirmation", new { exchangeId });
-            }
-            else
-            {
-                ModelState.AddModelError("", "Failed to redeem credits.");
-                return View("Exchange");
-            }
+            return RedirectToAction("ExchangeConfirmation", new { exchangeId = result.ExchangeId });
         }
 
         public IActionResult ExchangeConfirmation(int exchangeId)
         {
-            var exchange = _employeeService.GetCreditExchangeById(exchangeId);
+            var result = _employeeService.GetExchangeConfirmation(exchangeId);
 
-            if (exchange == null || exchange.Account == null)
+            if (!result.Success)
             {
                 return RedirectToAction("Error", "Home");
             }
 
-            // Truyền dữ liệu trực tiếp qua ViewData
-            ViewData["AvailableCredits"] = exchange.Account.CreditPoints ?? 0;
-            ViewData["CashEquivalent"] = exchange.CashAmount;
-            ViewData["ExchangeId"] = exchange.ExchangeId;
+            ViewData["AvailableCredits"] = result.AvailableCredits;
+            ViewData["CashEquivalent"] = result.CashEquivalent;
+            ViewData["ExchangeId"] = result.Exchange.ExchangeId;
 
             return View();
         }
+        public IActionResult ExchangeHistory(string status, int? minCredits, int? maxCredits, decimal? minCash, decimal? maxCash, DateTime? startDate, DateTime? endDate, int? page)
+        {
+            string accountId = User.FindFirst("AccountId")?.Value;
+            Console.WriteLine("Current user's AccountId: " + accountId);
+            // Giới hạn chỉ có thể xem lịch sử của chính mình
+            if (string.IsNullOrEmpty(accountId))
+            {
+                Console.WriteLine("AccountId is null or empty"); // Ghi log cho việc kiểm tra accountId
+                return RedirectToAction("Error", "Home");
+            }
+
+            var exchanges = _creditExchangeService.FilterCreditExchanges2(accountId, status, minCredits, maxCredits, minCash, maxCash, startDate, endDate);
+
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+            var pagedExchanges = exchanges.ToPagedList(pageNumber, pageSize);
+
+            return View(pagedExchanges);
+        }
+
         public IActionResult Feedback()
         {
             return View();
         }
+
         [HttpPost]
         public IActionResult SubmitFeedback(string context)
         {
-            if (string.IsNullOrWhiteSpace(context))
-            {
-                TempData["Message"] = "Please enter your feedback before submitting.";
-                return RedirectToAction("Feedback");
-            }
-
             string accountId = User.FindFirst("AccountId")?.Value;
 
-            // Lấy feedback_id cao nhất hiện tại và tăng lên 1
-            int newFeedbackId = _feedbackService.GetNextFeedbackId();
-
-            // Tạo đối tượng feedback với feedback_id mới
-            var feedback = new Feedback
-            {
-                FeedbackId = newFeedbackId,
-                Context = context,
-                DateSubmitted = DateTime.Now,
-                AccountId = accountId
-            };
-
-            _feedbackService.CreateFeedback(feedback);
-            TempData["Message"] = "Thank you for your feedback!";
+            var message = _feedbackService.SubmitFeedback(accountId, context);
+            TempData["Message"] = message;
 
             return RedirectToAction("Feedback");
         }
+
+
         // Action hiển thị các bình luận cho một subtask
         public IActionResult Comment(string subtaskId)
         {

@@ -1,5 +1,7 @@
 ﻿using TaskForge.Models;
 using TaskForge.Repository;
+using X.PagedList.Extensions;
+using X.PagedList;
 
 namespace TaskForge.Service
 {
@@ -79,9 +81,24 @@ namespace TaskForge.Service
             return _teamRepository.GetTeamsByTaskSubtasks(taskId);
         }
         // Phương thức lấy danh sách team với các bộ lọc
-        public List<Team> GetTeamsWithFilters(string deptId, int? numberOfTeam, DateOnly? createdDate)
+        public PagedList<Team> GetTeamsWithFilters(string deptId, int? numberOfTeamFrom, int? numberOfTeamTo, DateOnly? createdDateFrom, DateOnly? createdDateTo, int page, int pageSize)
         {
-            return _teamRepository.GetTeamsWithFilters(deptId, numberOfTeam, createdDate);
+            // Gọi repository để lấy danh sách team đã lọc
+            var teams = _teamRepository.GetTeamsWithFilters(deptId, numberOfTeamFrom, numberOfTeamTo, createdDateFrom, createdDateTo);
+
+            // Thực hiện phân trang
+            return (PagedList<Team>)teams.ToPagedList(page, pageSize);
+        }
+        public void AddMemberToTeam(string teamId, string accountId)
+        {
+            // Logic kiểm tra trước khi thêm nếu cần
+            _teamRepository.AddMemberToTeam(teamId, accountId);
+        }
+
+        public void RemoveMemberFromTeam(string teamId, string accountId)
+        {
+            // Logic kiểm tra trước khi xóa nếu cần
+            _teamRepository.RemoveMemberFromTeam(teamId, accountId);
         }
     }
 }

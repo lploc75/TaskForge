@@ -35,5 +35,27 @@ namespace TaskForge.Service
             var maxId = _feedbackRepository.GetMaxFeedbackId();
             return maxId + 1;
         }
+        public string SubmitFeedback(string accountId, string context)
+        {
+            if (string.IsNullOrWhiteSpace(context))
+            {
+                return "Please enter your feedback before submitting.";
+            }
+
+            int newFeedbackId = GetNextFeedbackId();
+
+            var feedback = new Feedback
+            {
+                FeedbackId = newFeedbackId,
+                Context = context,
+                DateSubmitted = DateTime.Now,
+                AccountId = accountId
+            };
+
+            CreateFeedback(feedback);
+
+            return "Thank you for your feedback!";
+        }
+
     }
 }
