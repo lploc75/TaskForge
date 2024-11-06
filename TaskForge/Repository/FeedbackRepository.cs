@@ -1,7 +1,7 @@
 ﻿using TaskForge.Models;
 using TaskForge.DBContext;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace TaskForge.Repository
 {
@@ -14,33 +14,40 @@ namespace TaskForge.Repository
             _context = context;
         }
 
-        // Lấy tất cả phản hồi
+        // Lấy tất cả phản hồi bằng SQL trực tiếp
         public List<Feedback> GetAllFeedbacks()
         {
-            return _context.Feedbacks.ToList();
+            return _context.Feedbacks
+                           .FromSqlRaw("SELECT * FROM Feedback")
+                           .ToList();
         }
 
-        // Tạo phản hồi mới
+        // Tạo phản hồi mới bằng SQL trực tiếp
         public void CreateFeedback(Feedback feedback)
         {
-            _context.Feedbacks.Add(feedback);
-            _context.SaveChanges();
+            var maxFeedbackId = GetMaxFeedbackId() + 1;
+            _context.Database.ExecuteSqlRaw(
+                "INSERT INTO Feedback (feedback_id, context, date_submitted, account_id) VALUES ({0}, {1}, {2}, {3})",
+                maxFeedbackId, feedback.Context, feedback.DateSubmitted, feedback.AccountId
+            );
         }
 
-        // Xóa phản hồi
+        // Xóa phản hồi bằng SQL trực tiếp
         public void DeleteFeedback(int feedbackId)
         {
-            var feedback = _context.Feedbacks.FirstOrDefault(f => f.FeedbackId == feedbackId);
-            if (feedback != null)
-            {
-                _context.Feedbacks.Remove(feedback);
-                _context.SaveChanges();
-            }
+            _context.Database.ExecuteSqlRaw(
+                "DELETE FROM Feedback WHERE feedback_id = {0}", feedbackId);
         }
+
+        // Lấy FeedbackId cao nhất bằng SQL trực tiếp
         public int GetMaxFeedbackId()
         {
-            // Trả về feedback_id cao nhất hoặc 0 nếu bảng trống
-            return _context.Feedbacks.Max(f => (int?)f.FeedbackId) ?? 0;
+            var maxFeedbackId = _context.Feedbacks
+                                        .FromSqlRaw("SELECT MAX(feedback_id) AS feedback_id FROM Feedback")
+                                        .Select(f => f.FeedbackId)
+                                        .FirstOrDefault();
+
+            return maxFeedbackId;
         }
     }
 }

@@ -24,15 +24,38 @@ namespace TaskForge.Repository
                 .FirstOrDefault(e => e.AccountId == accountId);
         }
 
+        // Lấy StaffAndLeader dựa trên AccountId
         public StaffAndLeader GetStaffByAccountId(string accountId)
         {
-            return _context.StaffAndLeaders.FirstOrDefault(s => s.AccountId == accountId);
+            return _context.StaffAndLeaders
+                           .FromSqlRaw("SELECT * FROM StaffAndLeader WHERE account_id = {0}", accountId)
+                           .FirstOrDefault();
         }
-        public void RecordCreditExchange(CreditExchange creditExchange)
+
+        // Tạo một CreditExchange mới
+        public int RecordCreditExchange(CreditExchange creditExchange)
         {
-            _context.CreditExchanges.Add(creditExchange);
-            _context.SaveChanges();
+            // Thực hiện lệnh INSERT
+            _context.Database.ExecuteSqlRaw(
+                "INSERT INTO CreditExchange (account_id, exchange_date, credit_points_used, cash_amount, status) VALUES ({0}, {1}, {2}, {3}, {4})",
+                creditExchange.AccountId,
+                creditExchange.ExchangeDate,
+                creditExchange.CreditPointsUsed,
+                creditExchange.CashAmount,
+                creditExchange.Status
+            );
+
+            // Lấy giá trị ID vừa chèn bằng cách chỉ truy vấn cột exchange_id
+            var exchangeId = _context.CreditExchanges
+                                     .FromSqlRaw("SELECT TOP 1 exchange_id FROM CreditExchange ORDER BY exchange_id DESC")
+                                     .Select(e => e.ExchangeId)
+                                     .FirstOrDefault();
+            Console.WriteLine("exchangeId: " + exchangeId);
+
+            return exchangeId;
         }
+
+
         public void UpdateStaff(StaffAndLeader staff)
         {
             _context.StaffAndLeaders.Update(staff);
@@ -41,8 +64,9 @@ namespace TaskForge.Repository
         public CreditExchange GetCreditExchangeById(int exchangeId)
         {
             return _context.CreditExchanges
-                .Include(e => e.Account) // Ensure the Account entity is included
-                .FirstOrDefault(e => e.ExchangeId == exchangeId);
+                           .FromSqlRaw("SELECT * FROM CreditExchange WHERE exchange_id = {0}", exchangeId)
+                           .Include(e => e.Account) // Bao gồm đối tượng Account
+                           .FirstOrDefault();
         }
         public List<Subtask> GetAssignedSubtasks(string accountId)
         {

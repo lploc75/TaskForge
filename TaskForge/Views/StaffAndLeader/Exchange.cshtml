@@ -14,6 +14,8 @@
     </div>
 </div>
 
+
+
 <!-- Main Exchange Section -->
 <div class="exchange-container">
     <div class="exchange-info">
@@ -63,7 +65,9 @@
 
             <!-- Redeem Button -->
             <div class="redeem-button">
+                <a href="@Url.Action("ExchangeHistory", "StaffAndLeader")" class="btn-view-history">View Reward Exchange History</a>
                 <button type="submit" class="btn-redeem-points" id="redeemButton">REDEEM POINTS</button>
+                
             </div>
         </form>
 
@@ -114,6 +118,8 @@
         text-transform: uppercase;
         text-align: center;
     }
+
+    
 
     /* Main container for exchange section */
     .exchange-container {
@@ -242,6 +248,13 @@
         text-align: right;
     }
 
+    .redeem-button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
     .btn-redeem-points {
         background-color: #1874CD;
         color: white;
@@ -253,6 +266,21 @@
         .btn-redeem-points:hover {
             background-color: #45a049;
         }
+
+    .btn-view-history {
+        background-color: #f8f9fa;
+        color: #007bff;
+        padding: 10px 20px;
+        border: 1px solid #007bff;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .btn-view-history:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
 
     p {
         margin-bottom: 20px; /* Tạo khoảng cách giữa văn bản và khung */

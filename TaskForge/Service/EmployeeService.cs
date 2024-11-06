@@ -15,6 +15,54 @@ namespace TaskForge.Service
         {
             return _employeeRepository.GetCreditExchangeById(exchangeId);
         }
+        public (bool Success, int ExchangeId, string Message, decimal CashEquivalent) SubmitExchange(string accountId, int pointsToRedeem, int availableCredits)
+        {
+            if (string.IsNullOrEmpty(accountId))
+            {
+                return (false, 0, "Account ID is invalid.", 0);
+            }
+
+            // Kiểm tra nếu số điểm yêu cầu quy đổi không hợp lệ
+            if (pointsToRedeem < 100)
+            {
+                return (false, 0, "Minimum 100 reward points redeem at a time.", availableCredits * 0.5m);
+            }
+            if (pointsToRedeem > availableCredits)
+            {
+                return (false, 0, "Insufficient reward points.", availableCredits * 0.5m);
+            }
+
+            // Gọi RedeemCredits để thực hiện quy đổi
+            var exchangeId = RedeemCredits(accountId, pointsToRedeem);
+            Console.WriteLine($"RedeemCredits returned exchangeId: {exchangeId}");
+        
+
+
+            // Nếu exchangeId trả về là 0, điều đó có nghĩa là quy đổi thất bại
+            if (exchangeId == 0)
+            {
+                return (false, 0, "Failed to redeem credits. Please try again later.", availableCredits * 0.5m);
+            }
+
+            // Nếu thành công, trả về kết quả với Success = true
+            return (true, exchangeId, null, availableCredits * 0.5m);
+        }
+
+
+        public (bool Success, CreditExchange Exchange, int AvailableCredits, decimal CashEquivalent) GetExchangeConfirmation(int exchangeId)
+        {
+            var exchange = GetCreditExchangeById(exchangeId);
+
+            if (exchange == null || exchange.Account == null)
+            {
+                return (false, null, 0, 0);
+            }
+
+            int availableCredits = exchange.Account.CreditPoints ?? 0;
+            decimal cashEquivalent = exchange.CashAmount;
+
+            return (true, exchange, availableCredits, cashEquivalent);
+        }
         public Employee GetEmployeeByAccountId(string accountId)
         {
             return _employeeRepository.GetEmployeeByAccountId(accountId);
@@ -103,7 +151,6 @@ namespace TaskForge.Service
         public int RedeemCredits(string accountId, int pointsToRedeem)
         {
             var staff = _employeeRepository.GetStaffByAccountId(accountId);
-
             if (staff == null || staff.CreditPoints < pointsToRedeem)
             {
                 return 0; // Return 0 for failure
@@ -124,10 +171,13 @@ namespace TaskForge.Service
             };
 
             _employeeRepository.UpdateStaff(staff);
-            _employeeRepository.RecordCreditExchange(creditExchange);
+            var exchangeId = _employeeRepository.RecordCreditExchange(creditExchange);
 
-            return creditExchange.ExchangeId; // Return the exchange_id
+            Console.WriteLine($"RedeemCredits - exchangeId: {exchangeId}"); // Debug here
+
+            return exchangeId; // Return the exchange_id
         }
+
         public string GetTeamIdByAccountId(string accountId)
         {
             return _employeeRepository.GetTeamIdByAccountId(accountId);

@@ -219,62 +219,14 @@ namespace TaskForge.Controllers
         }
         public IActionResult Credit(string accountId, string status, int? minCredits, int? maxCredits, decimal? minCash, decimal? maxCash, DateTime? startDate, DateTime? endDate, int? page)
         {
-            // Lấy tất cả các CreditExchange từ Service
-            var exchanges = _creditExchangeService.GetAllCreditExchanges();
+            var exchanges = _creditExchangeService.FilterCreditExchanges(accountId, status, minCredits, maxCredits, minCash, maxCash, startDate, endDate);
 
-            // Lọc theo AccountId nếu có
-            if (!string.IsNullOrEmpty(accountId))
-            {
-                exchanges = exchanges.Where(e => e.AccountId.Contains(accountId)).ToList();
-            }
-
-            // Lọc theo trạng thái nếu có
-            if (!string.IsNullOrEmpty(status))
-            {
-                exchanges = exchanges.Where(e => e.Status == status).ToList();
-            }
-
-            // Lọc theo khoảng CreditPointsUsed
-            if (minCredits.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CreditPointsUsed >= minCredits).ToList();
-            }
-            if (maxCredits.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CreditPointsUsed <= maxCredits).ToList();
-            }
-
-            // Lọc theo khoảng CashAmount
-            if (minCash.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CashAmount >= minCash).ToList();
-            }
-            if (maxCash.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.CashAmount <= maxCash).ToList();
-            }
-
-            // Lọc theo khoảng ngày ExchangeDate
-            if (startDate.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.ExchangeDate >= startDate).ToList();
-            }
-            if (endDate.HasValue)
-            {
-                exchanges = exchanges.Where(e => e.ExchangeDate <= endDate).ToList();
-            }
-
-            // Thiết lập phân trang, mỗi trang có 10 phần tử
             int pageSize = 10;
-            int pageNumber = (page ?? 1); // Nếu không có số trang, mặc định là 1
-
-            // Áp dụng phân trang sau khi đã lọc
+            int pageNumber = page ?? 1;
             var pagedExchanges = exchanges.ToPagedList(pageNumber, pageSize);
 
-            // Trả về View với danh sách đã phân trang
             return View(pagedExchanges);
         }
-
 
         [HttpPost]
         public IActionResult UpdateExchangeStatus(int exchangeId, string status)
@@ -286,7 +238,6 @@ namespace TaskForge.Controllers
                 return RedirectToAction("Credit");
             }
 
-            // Cập nhật trạng thái giao dịch theo trạng thái được truyền vào
             _creditExchangeService.UpdateCreditExchangeStatus(exchangeId, status);
 
             TempData["Success"] = "Trạng thái giao dịch đã được cập nhật thành công.";
